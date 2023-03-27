@@ -250,3 +250,76 @@ def bomstrip(manifest):
         return manifest[3:]
     else:
         return manifest
+
+
+def find_python_reqfiles(path):
+    """
+    Method to find python requirements files
+    Args:
+      path Project dir
+    Returns:
+      List of python requirement files
+    """
+    result = []
+    req_files = ["requirements.txt", "Pipfile", "Pipfile.lock", "conda.yml"]
+    for root, dirs, files in os.walk(path):
+        filter_ignored_dirs(dirs)
+        if not is_ignored_dir(path, root):
+            for name in req_files:
+                if name in files:
+                    result.append(os.path.join(root, name))
+    return result
+
+
+def detect_project_type(src_dir):
+    """Detect project type by looking for certain files
+    :param src_dir: Source directory
+    :return List of detected types
+    """
+    project_types = []
+    if find_python_reqfiles(src_dir) or find_files(src_dir, ".py", False, True):
+        project_types.append("python")
+    if find_files(src_dir, "composer.json", False, True) or find_files(
+        src_dir, ".php", False, True
+    ):
+        project_types.append("php")
+    if find_files(src_dir, ".sbt", False, True) or find_files(
+        src_dir, ".scala", False, True
+    ):
+        project_types.append("scala")
+    if find_files(src_dir, ".kt", False, True) or find_files(
+        src_dir, ".kts", False, True
+    ):
+        project_types.append("kotlin")
+    if find_files(src_dir, "pom.xml", False, True) or find_files(
+        src_dir, ".gradle", False, True
+    ):
+        if "kotlin" not in project_types:
+            project_types.append("java")
+    if find_files(src_dir, ".jsp", False, True):
+        project_types.append("jsp")
+    if (
+        find_files(src_dir, "package.json", False, True)
+        or find_files(src_dir, "yarn.lock", False, True)
+        or find_files(src_dir, ".js", False, True)
+        or find_files(src_dir, ".ts", False, True)
+    ):
+        project_types.append("js")
+    if find_files(src_dir, ".csproj", False, True) or find_files(
+        src_dir, ".sln", False, True
+    ):
+        project_types.append("csharp")
+    if (
+        find_files(src_dir, "go.mod", False, True)
+        or find_files(src_dir, "Gopkg.lock", False, True)
+        or find_files(src_dir, ".go", False, True)
+    ):
+        project_types.append("go")
+    if find_files(src_dir, "conan.lock", False, True) or find_files(
+        src_dir, "conanfile.txt", False, True or find_files(src_dir, ".c", False, True)
+    ):
+        project_types.append("c")
+
+    if is_exe(src_dir):
+        project_types.append("binary")
+    return project_types

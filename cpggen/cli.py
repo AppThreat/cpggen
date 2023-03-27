@@ -1,12 +1,9 @@
 import argparse
 import os
 import signal
-import sys
-import tempfile
-import time
-import uuid
 from multiprocessing import Pool
-from pathlib import Path
+
+from cpggen import executor, utils
 
 
 def build_args():
@@ -15,7 +12,7 @@ def build_args():
     """
     parser = argparse.ArgumentParser(description="CPG Generator")
     parser.add_argument(
-        "-i", "--src", dest="src_dir", help="Source directory", default="/app"
+        "-i", "--src", dest="src", help="Source directory", default="/app"
     )
     parser.add_argument(
         "-o",
@@ -36,24 +33,56 @@ def build_args():
             "cpp",
             "go",
             "csharp",
+            "dotnet",
             "binary",
+            "javascript",
             "js",
+            "jsp",
+            "scala",
+            "typescript",
             "ts",
             "python",
             "php",
             "kotlin",
             "llvm",
+            "autodetect",
         ],
+        default="autodetect",
     )
     return parser.parse_args()
 
 
+def init_worker():
+    """
+    Handler for worker processes to let their parent handle interruptions
+    """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
+def cpg(src, cpg_out_dir, language):
+    if __name__ in ("__main__", "cpggen.cli"):
+        with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
+            try:
+                for lang in language:
+                    pool.apply_async(executor.exec_tool, (lang, src, cpg_out_dir, src))
+                pool.close()
+            except KeyboardInterrupt:
+                pool.terminate()
+            pool.join()
+
+
 def main():
     args = build_args()
-    src_dir = args.src_dir
+    src = args.src
     cpg_out_dir = args.cpg_out_dir
+    language = args.language
+    if not language or language == "autodetect":
+        language = utils.detect_project_type(src)
+    else:
+        language = language.split(",")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
+    cpg(src, cpg_out_dir, language)
 
 
 if __name__ == "__main__":
