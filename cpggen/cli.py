@@ -2,8 +2,19 @@ import argparse
 import os
 import signal
 from multiprocessing import Pool
+import tempfile
 
 from cpggen import executor, utils
+from cpggen.logger import console
+
+product_logo = """
+ ██████╗██████╗  ██████╗
+██╔════╝██╔══██╗██╔════╝
+██║     ██████╔╝██║  ███╗
+██║     ██╔═══╝ ██║   ██║
+╚██████╗██║     ╚██████╔╝
+ ╚═════╝╚═╝      ╚═════╝
+"""
 
 
 def build_args():
@@ -12,7 +23,7 @@ def build_args():
     """
     parser = argparse.ArgumentParser(description="CPG Generator")
     parser.add_argument(
-        "-i", "--src", dest="src", help="Source directory", default="/app"
+        "-i", "--src", dest="src", help="Source directory or url", default="/app"
     )
     parser.add_argument(
         "-o",
@@ -72,17 +83,25 @@ def cpg(src, cpg_out_dir, language):
 
 
 def main():
+    console.print(product_logo, style="info")
     args = build_args()
     src = args.src
     cpg_out_dir = args.cpg_out_dir
     language = args.language
+    is_temp_dir = False
     if not language or language == "autodetect":
         language = utils.detect_project_type(src)
     else:
         language = language.split(",")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
+    if src.startswith("http") or src.startswith("git"):
+        clone_dir = tempfile.TemporaryDirectory(prefix="cpggen")
+        src = utils.clone_repo(src, clone_dir)
+        is_temp_dir = True
     cpg(src, cpg_out_dir, language)
+    if is_temp_dir:
+        os.remove(src)
 
 
 if __name__ == "__main__":

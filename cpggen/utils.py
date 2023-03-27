@@ -1,3 +1,4 @@
+import git
 import os
 import re
 import shutil
@@ -323,3 +324,9 @@ def detect_project_type(src_dir):
     if is_exe(src_dir):
         project_types.append("binary")
     return project_types
+
+
+def clone_repo(repo_url, clone_dir, branch="master", depth=1):
+    if not os.path.exists(clone_dir):
+        repo = git.Repo.clone_from(repo_url, clone_dir, branch, depth)
+    return clone_dir

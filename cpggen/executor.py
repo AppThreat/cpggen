@@ -5,6 +5,7 @@ import subprocess
 from rich.progress import Progress
 
 from cpggen.logger import DEBUG, LOG, console
+from cpggen.utils import check_command
 
 cpg_tools_map = {
     "c": "c2cpg.sh -J-Xmx32G -o %(cpg_out)s %(src)s",
@@ -57,6 +58,12 @@ def exec_tool(
                 src=src, cpg_out=cpg_out, joern_home=os.getenv("JOERN_HOME")
             )
             cmd_with_args = cmd_with_args.split(" ")
+            lang_cmd = cmd_with_args[0]
+            if not check_command(lang_cmd):
+                LOG.warn(
+                    f"{lang_cmd} is not found. Try running cpggen using the container image ghcr.io/appthreat/cpggen"
+                )
+                return None
             LOG.debug('⚡︎ Executing {} "{}"'.format(tool_lang, " ".join(cmd_with_args)))
             cp = subprocess.run(
                 cmd_with_args,
