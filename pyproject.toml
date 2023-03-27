@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "cpggen"
+version = "0.1.0"
+description = "Generate CPG for multiple languages for use with joern"
+authors = ["Team AppThreat <cloud@appthreat.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{include = "cpggen"}]
+homepage = "https://github.com/AppThreat/cpggen"
+repository = "https://github.com/AppThreat/cpggen"
+keywords = ["joern", "code analysis", "static analysis", "cpg", "code property graph"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Topic :: Utilities",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent",
+]
+exclude = ["contrib", "tests"]
+
+[tool.poetry.scripts]
+cpggen = 'cpggen.cli:main'
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+rich = "^13.3.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+black = "^22.3.0"
+flake8 = "^4.0.1"
+pytest-cov = "^3.0.0"
+pyinstaller = "^5.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
