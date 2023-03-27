@@ -1,8 +1,8 @@
 import argparse
 import os
 import signal
-from multiprocessing import Pool
 import tempfile
+from multiprocessing import Pool
 
 from cpggen import executor, utils
 from cpggen.logger import console
@@ -60,6 +60,13 @@ def build_args():
         ],
         default="autodetect",
     )
+    parser.add_argument(
+        "--use-container",
+        dest="use_container",
+        help="Use cpggen docker image",
+        action="store_true",
+        default=False,
+    )
     return parser.parse_args()
 
 
@@ -70,12 +77,14 @@ def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def cpg(src, cpg_out_dir, language):
+def cpg(src, cpg_out_dir, language, use_container=False):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
                 for lang in language:
-                    pool.apply_async(executor.exec_tool, (lang, src, cpg_out_dir, src))
+                    pool.apply_async(
+                        executor.exec_tool, (lang, src, cpg_out_dir, src, use_container)
+                    )
                 pool.close()
             except KeyboardInterrupt:
                 pool.terminate()
@@ -99,7 +108,7 @@ def main():
         clone_dir = tempfile.TemporaryDirectory(prefix="cpggen")
         src = utils.clone_repo(src, clone_dir)
         is_temp_dir = True
-    cpg(src, cpg_out_dir, language)
+    cpg(src, cpg_out_dir, language, use_container=args.use_container)
     if is_temp_dir:
         os.remove(src)
 

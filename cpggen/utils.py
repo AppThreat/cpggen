@@ -1,8 +1,9 @@
-import git
 import os
 import re
 import shutil
 from pathlib import Path
+
+import git
 
 # Default ignore list
 ignore_directories = [

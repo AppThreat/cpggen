@@ -31,6 +31,7 @@ def exec_tool(
     src,
     cpg_out_dir,
     cwd=None,
+    use_container=False,
     env=os.environ.copy(),
     stdout=subprocess.DEVNULL,
 ):
@@ -54,6 +55,8 @@ def exec_tool(
             if not cmd_with_args:
                 return None
             cpg_out = os.path.join(cpg_out_dir, f"{tool_lang}-cpg.bin.zip")
+            if use_container:
+                cmd_with_args = f"""docker run --rm -it -v /tmp:/tmp -v {src}:{src}:rw --cpus={os.cpu_count} --memory=16g -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
             cmd_with_args = cmd_with_args % dict(
                 src=src, cpg_out=cpg_out, joern_home=os.getenv("JOERN_HOME")
             )
@@ -61,7 +64,7 @@ def exec_tool(
             lang_cmd = cmd_with_args[0]
             if not check_command(lang_cmd):
                 LOG.warn(
-                    f"{lang_cmd} is not found. Try running cpggen using the container image ghcr.io/appthreat/cpggen"
+                    f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
                 )
                 return None
             LOG.debug('⚡︎ Executing {} "{}"'.format(tool_lang, " ".join(cmd_with_args)))
