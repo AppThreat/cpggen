@@ -13,7 +13,7 @@ LABEL maintainer="appthreat" \
 
 ENV JOERN_HOME=/opt/joern/joern-cli \
     GOPATH=/opt/app-root/go \
-    GO_VERSION=1.20.2 \
+    GO_VERSION=1.19.7 \
     CGO_ENABLED=0 \
     PYTHONUNBUFFERED=1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \

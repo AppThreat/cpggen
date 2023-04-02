@@ -75,3 +75,14 @@ curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app
 ```
 curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
 ```
+
+## Environment variables
+
+| Name                    | Purpose                                                      |
+| ----------------------- | ------------------------------------------------------------ |
+| JOERN_HOME              | Joern installation directory                                 |
+| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                        |
+| CPGGEN_PORT             | cpggen server port. Default 7072                             |
+| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default 2      |
+| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default 32g |
+| CPGGEN_MEMORY           | Heap memory to use for frontends. Default 32G                |

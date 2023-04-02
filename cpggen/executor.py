@@ -30,18 +30,18 @@ def get(configName, default_value=None):
 
 
 cpg_tools_map = {
-    "c": "%(joern_home)s/c2cpg.sh -J-Xmx32G -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "cpp": "%(joern_home)s/c2cpg.sh -J-Xmx32G -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)s/javasrc2cpg -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "java-with-deps": "%(joern_home)s/javasrc2cpg -J-Xmx32G -o %(cpg_out)s %(src)s --fetch-dependencies",
-    "binary": "%(joern_home)s/ghidra2cpg -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "js": "%(joern_home)s/jssrc2cpg.sh -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "ts": "%(joern_home)s/jssrc2cpg.sh -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "kotlin": "%(joern_home)s/kotlin2cpg -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "kotlin-with-deps": "%(joern_home)s/kotlin2cpg -J-Xmx32G -o %(cpg_out)s %(src)s --download-dependencies",
-    "kotlin-with-classpath": "%(joern_home)s/kotlin2cpg -J-Xmx32G -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
-    "php": "%(joern_home)s/php2cpg -J-Xmx32G -o %(cpg_out)s %(src)s",
-    "python": "%(joern_home)s/pysrc2cpg -J-Xmx32G -o %(cpg_out)s %(src)s",
+    "c": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "cpp": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "java": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "java-with-deps": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --fetch-dependencies",
+    "binary": "%(joern_home)s/ghidra2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "js": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "ts": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "kotlin": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "kotlin-with-deps": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --download-dependencies",
+    "kotlin-with-classpath": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
+    "php": "%(joern_home)s/php2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "python": "%(joern_home)s/pysrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
     "csharp": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)s/go2cpg generate -o %(cpg_out)s ./...",
@@ -127,7 +127,9 @@ def exec_tool(
             )
             LOG.debug(f"CPG file for {tool_lang} can be found at {cpg_out}")
             if use_container:
-                cmd_with_args = f"""docker run --rm -it -v /tmp:/tmp -v {src}:{src}:rw --cpus={os.cpu_count} --memory=16g -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                cmd_with_args = f"""docker run --rm -it -w {src} -v /tmp:/tmp -v {src}:{src}:rw -v {cpg_out_dir}:{cpg_out_dir}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", "2")} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", "32g")} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                # We need to fix joern_home to the directory inside the container
+                joern_home = "/opt/joern/joern-cli"
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -139,6 +141,25 @@ def exec_tool(
             if "csharp_artifacts" in cmd_with_args:
                 stdout = subprocess.PIPE
                 csharp_artifacts = find_csharp_artifacts(src)
+                if len(csharp_artifacts) == 1:
+                    csharp_artifacts = csharp_artifacts[0]
+            if auto_build and tool_lang in ("csharp", "go"):
+                build_args = build_tools_map[tool_lang]
+                LOG.info(
+                    '⚡︎ Attempting to auto build {} "{}"'.format(
+                        tool_lang, " ".join(build_args)
+                    )
+                )
+                cp = subprocess.run(
+                    build_args,
+                    stdout=stdout,
+                    stderr=stderr,
+                    cwd=cwd,
+                    env=env,
+                    check=False,
+                    shell=False,
+                    encoding="utf-8",
+                )
             cmd_with_args = cmd_with_args % dict(
                 src=src,
                 cpg_out=cpg_out,
@@ -146,6 +167,7 @@ def exec_tool(
                 home_dir=str(Path.home()),
                 uber_jar=uber_jar,
                 csharp_artifacts=csharp_artifacts,
+                memory=os.getenv("CPGGEN_MEMORY", "32G")
             )
             cmd_with_args = cmd_with_args.split(" ")
             lang_cmd = cmd_with_args[0]
