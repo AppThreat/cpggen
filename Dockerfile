@@ -21,9 +21,6 @@ ENV JOERN_HOME=/opt/joern/joern-cli \
     PYTHONUNBUFFERED=1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
-    JAVA_OPTS="-Xmx16G" \
-    SL_CPG_OPTS="-J-Xms4g -J-Xmx16g" \
-    SHIFTLEFT_JAVA_OPTS="-Xms4g -Xmx16g" \
     PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin/:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:
 
 COPY . /usr/local/src/
