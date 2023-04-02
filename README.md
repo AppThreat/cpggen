@@ -55,7 +55,7 @@ cpggen -i <src directory> -o <CPG directory or file name> -l java
 Container based invocation
 
 ```
-docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name> --use-container
+docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
 ## Server mode
