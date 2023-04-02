@@ -13,7 +13,7 @@ CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg
 
 ## Installation
 
-cpggen is available as a PyPI package or as a container image.
+cpggen is available as a [PyPI package](https://pypi.org/project/cpggen/) or as a [container image](https://github.com/AppThreat/cpggen/pkgs/container/cpggen).
 
 ```
 pip install cpggen
@@ -86,3 +86,4 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default 2      |
 | CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default 32g |
 | CPGGEN_MEMORY           | Heap memory to use for frontends. Default 32G                |
+| AT_DEBUG_MODE           | Set to debug to enable debug logging                         |

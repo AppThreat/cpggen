@@ -1,0 +1,81 @@
+name: Repo tests
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
+      - fix/*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "! contains(github.event.head_commit.message, '[ci skip]')"
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-cache
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-java-example'
+          path: 'repotests/shiftleft-java-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-ts-example'
+          path: 'repotests/shiftleft-ts-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-go-example'
+          path: 'repotests/shiftleft-go-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'prabhu/shiftleft-scala-example'
+          path: 'repotests/shiftleft-scala-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/vulnerable_net_core'
+          path: 'repotests/vulnerable_net_core'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/Goatly.NET'
+          path: 'repotests/Goatly.NET'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/DjanGoat'
+          path: 'repotests/DjanGoat'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'prabhu/Vulnerable-Web-Application'
+          path: 'repotests/Vulnerable-Web-Application'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'GoogleCloudPlatform/microservices-demo'
+          path: 'repotests/microservices-demo'
+      - name: repotests
+        run: |
+          mkdir all_cpgs
+          poetry run cpggen -i repotests/shiftleft-java-example -o all_cpgs/shiftleft-java-example
+          poetry run cpggen -i repotests/shiftleft-ts-example -o all_cpgs/shiftleft-ts-example
+          poetry run cpggen -i repotests/shiftleft-go-example -o all_cpgs/shiftleft-go-example --build
+          poetry run cpggen -i repotests/shiftleft-scala-example -o all_cpgs/shiftleft-scala-example
+          poetry run cpggen -i repotests/vulnerable_net_core -o all_cpgs/vulnerable_net_core --build
+          poetry run cpggen -i repotests/Goatly.NET -o all_cpgs/Goatly.NET --build
+          poetry run cpggen -i repotests/DjanGoat -o all_cpgs/DjanGoat
+          poetry run cpggen -i repotests/Vulnerable-Web-Application -o all_cpgs/Vulnerable-Web-Application
+          poetry run cpggen -i repotests/microservices-demo -o all_cpgs/microservices-demo
+          ls -ltr all_cpgs
+        env:
+          AT_DEBUG_MODE: debug
