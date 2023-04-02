@@ -83,6 +83,26 @@ curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app
 curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
 ```
 
+## Languages supported
+
+| Language    | Requires build |
+| ----------- | -------------- |
+| C           | No             |
+| C++         | No             |
+| Java        | No (\*)        |
+| Scala       | Yes            |
+| Jsp         | Yes            |
+| Jar/War     | No             |
+| JavaScript  | No             |
+| TypeScript  | No             |
+| Kotlin      | No (\*)        |
+| Php         | No             |
+| Python      | No             |
+| C# / dotnet | Yes            |
+| Go          | Yes            |
+
+(\*) - Precision could be improved with dependencies
+
 ## Environment variables
 
 | Name                    | Purpose                                                      |
