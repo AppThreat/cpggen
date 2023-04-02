@@ -68,15 +68,15 @@ jobs:
         run: |
           mkdir /tmp/all_cpgs
           docker build -t ghcr.io/appthreat/cpggen .
-          poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          poetry run cpggen -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
-          poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example
-          poetry run cpggen -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
-          poetry run cpggen -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
-          poetry run cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
-          poetry run cpggen -i repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
-          poetry run cpggen -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
+          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
           ls -ltr /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
