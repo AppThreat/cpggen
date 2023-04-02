@@ -66,17 +66,17 @@ jobs:
           path: 'repotests/microservices-demo'
       - name: repotests
         run: |
-          mkdir all_cpgs
+          mkdir /tmp/all_cpgs
           docker build -t ghcr.io/appthreat/cpggen .
-          poetry run cpggen -i repotests/shiftleft-java-example -o all_cpgs/shiftleft-java-example
-          poetry run cpggen -i repotests/shiftleft-ts-example -o all_cpgs/shiftleft-ts-example
-          poetry run cpggen -i repotests/shiftleft-go-example -o all_cpgs/shiftleft-go-example --build
-          poetry run cpggen -i repotests/shiftleft-scala-example -o all_cpgs/shiftleft-scala-example
-          poetry run cpggen -i repotests/vulnerable_net_core -o all_cpgs/vulnerable_net_core --build
-          poetry run cpggen -i repotests/Goatly.NET -o all_cpgs/Goatly.NET --build
-          poetry run cpggen -i repotests/DjanGoat -o all_cpgs/DjanGoat
-          poetry run cpggen -i repotests/Vulnerable-Web-Application -o all_cpgs/Vulnerable-Web-Application
-          poetry run cpggen -i repotests/microservices-demo -o all_cpgs/microservices-demo
-          ls -ltr all_cpgs
+          poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          poetry run cpggen -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example
+          poetry run cpggen -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+          poetry run cpggen -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
+          poetry run cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          poetry run cpggen -i repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
+          poetry run cpggen -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          ls -ltr /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
