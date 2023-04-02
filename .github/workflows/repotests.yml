@@ -68,15 +68,37 @@ jobs:
         run: |
           mkdir /tmp/all_cpgs
           docker build -t ghcr.io/appthreat/cpggen .
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
-          docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip" ]; then
+            echo "Java direct test was successful"
+          else
+            echo "Java direct test was not successful"
+          fi
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
+            echo "Java cpg test was successful"
+          else
+            echo "Java cpg test was not successful"
+          fi
+          poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/js-cpg.bin.zip" ]; then
+            echo "JS direct test was successful"
+          else
+            echo "JS direct test was not successful"
+          fi
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          poetry run cpggen -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
           ls -ltr /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
+          CPGGEN_CONTAINER_MEMORY: 7g
+          CPGGEN_MEMORY: 7G

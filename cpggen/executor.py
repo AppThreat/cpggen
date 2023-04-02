@@ -1,11 +1,12 @@
 import os
 import subprocess
+import tempfile
 from pathlib import Path
 
 from rich.progress import Progress
 
 from cpggen.logger import DEBUG, LOG, console
-from cpggen.utils import check_command, find_java_artifacts, find_csharp_artifacts
+from cpggen.utils import check_command, find_csharp_artifacts, find_java_artifacts
 
 runtimeValues = {}
 
@@ -46,6 +47,7 @@ cpg_tools_map = {
     "jar": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
     "scala": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
     "jsp": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "sbom": "cdxgen -t %(tool_lang)s -o %(sbom_out)s %(src)s",
 }
 
 build_tools_map = {
@@ -64,11 +66,7 @@ build_tools_map = {
         "maven": [get("MVN_CMD"), "compile"],
         "gradle": [get("GRADLE_CMD"), "compileGroovy"],
     },
-    "scala": {
-        "maven": [get("MVN_CMD"), "compile"],
-        "gradle": [get("GRADLE_CMD"), "compileScala"],
-        "sbt": ["sbt", "compile"],
-    },
+    "scala": ["sbt", "stage"],
     "nodejs": {
         "npm": ["npm", "install", "--prefer-offline", "--no-audit", "--progress=false"],
         "yarn": ["yarn", "install"],
@@ -115,7 +113,7 @@ def exec_tool(
             )
             cmd_with_args = cpg_tools_map.get(tool_lang)
             if not cmd_with_args:
-                return None
+                return None, None, None
             cpg_out = (
                 cpg_out_dir
                 if cpg_out_dir.endswith(".bin.zip")
@@ -123,11 +121,22 @@ def exec_tool(
                 or cpg_out_dir.endswith(".cpg")
                 else os.path.join(cpg_out_dir, f"{tool_lang}-cpg.bin.zip")
             )
-            LOG.debug(f"CPG file for {tool_lang} can be found at {cpg_out}")
+            sbom_out = (
+                cpg_out.replace(".bin.zip", ".bom.json")
+                if cpg_out.endswith(".bin.zip")
+                else f"{cpg_out}.bom.json"
+            )
+            LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
             if use_container:
-                cmd_with_args = f"""docker run --rm -it -w {src} -v /tmp:/tmp -v {src}:{src}:rw -v {cpg_out_dir}:{cpg_out_dir}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", "2")} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", "32g")} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                src = os.path.abspath(src)
+                container_cli = "docker"
+                if check_command("podman"):
+                    container_cli = "podman"
+                # cmd_with_args = f"""{container_cli} run --rm -w {os.path.abspath(src)} -v /tmp:/tmp -v {os.path.abspath(src)}:{os.path.abspath(src)}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", "2")} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", "32g")} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                cmd_with_args = f"""{container_cli} run --rm -w {src} -v {tempfile.gettempdir()}:/tmp -v {src}:{src}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 # We need to fix joern_home to the directory inside the container
                 joern_home = "/opt/joern/joern-cli"
+                # We need to make src an absolute path since relative paths wouldn't work in container mode
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -141,7 +150,7 @@ def exec_tool(
                 csharp_artifacts = find_csharp_artifacts(src)
                 if len(csharp_artifacts) == 1:
                     csharp_artifacts = csharp_artifacts[0]
-            if auto_build and tool_lang in ("csharp", "go"):
+            if auto_build and tool_lang in ("csharp", "go", "scala"):
                 build_args = build_tools_map[tool_lang]
                 LOG.info(
                     '⚡︎ Attempting to auto build {} "{}"'.format(
@@ -158,6 +167,11 @@ def exec_tool(
                     shell=False,
                     encoding="utf-8",
                 )
+                if cp:
+                    if cp.stdout:
+                        LOG.info(cp.stdout)
+                    if cp.stderr:
+                        LOG.info(cp.stderr)
             cmd_with_args = cmd_with_args % dict(
                 src=src,
                 cpg_out=cpg_out,
@@ -166,6 +180,8 @@ def exec_tool(
                 uber_jar=uber_jar,
                 csharp_artifacts=csharp_artifacts,
                 memory=os.getenv("CPGGEN_MEMORY", "32G"),
+                tool_lang=tool_lang,
+                sbom_out=sbom_out,
             )
             cmd_with_args = cmd_with_args.split(" ")
             lang_cmd = cmd_with_args[0]
@@ -173,7 +189,7 @@ def exec_tool(
                 LOG.warn(
                     f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
                 )
-                return None
+                return None, None, None
             LOG.info(
                 '⚡︎ Generating CPG for {} "{}"'.format(
                     tool_lang, " ".join(cmd_with_args)
@@ -206,14 +222,16 @@ def exec_tool(
                 LOG.info(
                     f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
                 )
-                return cp, cpg_out
+                return cp, cpg_out, sbom_out
             else:
                 LOG.info(f"CPG was not generated successfully for {tool_lang}")
-                LOG.info(cp.stdout)
-                LOG.info(cp.stderr)
-            return cp, None
+                if cp.stdout:
+                    LOG.info(cp.stdout)
+                if cp.stderr:
+                    LOG.info(cp.stderr)
+            return cp, None, None
         except Exception as e:
             if task:
                 progress.update(task, completed=20, total=10, visible=False)
             LOG.error(e)
-            return None
+            return None, None, None

@@ -26,6 +26,13 @@ docker pull ghcr.io/appthreat/cpggen
 # podman pull ghcr.io/appthreat/cpggen
 ```
 
+Or use the nightly to always get the latest joern and tools.
+
+```
+docker pull ghcr.io/appthreat/cpggen:nightly
+# podman pull ghcr.io/appthreat/cpggen:nightly
+```
+
 ## Usage
 
 To auto detect the language from the current directory and generate CPG.
@@ -87,3 +94,7 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default 32g |
 | CPGGEN_MEMORY           | Heap memory to use for frontends. Default 32G                |
 | AT_DEBUG_MODE           | Set to debug to enable debug logging                         |
+
+## License
+
+Apache-2.0

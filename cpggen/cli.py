@@ -5,9 +5,10 @@ import tempfile
 from multiprocessing import Pool
 from pathlib import Path
 
+from quart import Quart, request
+
 from cpggen import executor, utils
 from cpggen.logger import LOG, console
-from quart import Quart, request
 
 try:
     os.environ["PYTHONIOENCODING"] = "utf-8"
@@ -138,7 +139,7 @@ async def generate_cpg():
     params = await request.get_json()
     url = None
     src = None
-    language = None
+    languages = None
     cpg_out_dir = None
     is_temp_dir = False
     if not params:
@@ -151,13 +152,13 @@ async def generate_cpg():
         cpg_out_dir = q.get("out_dir")
 
     if q.get("lang"):
-        language = q.get("lang")
+        languages = q.get("lang")
     if not url and params.get("url"):
         url = params.get("url")
     if not src and params.get("src"):
         src = params.get("src")
-    if not language and params.get("lang"):
-        language = params.get("lang")
+    if not languages and params.get("lang"):
+        languages = params.get("lang")
     if not cpg_out_dir and params.get("out_dir"):
         cpg_out_dir = params.get("out_dir")
     if not src and not url:
@@ -168,22 +169,31 @@ async def generate_cpg():
         is_temp_dir = True
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
-    executor.exec_tool(
-        language,
-        src,
-        cpg_out_dir,
-        src,
-        joern_home=os.getenv(
-            "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
-        ),
-    )
+    if not languages or languages == "autodetect":
+        languages = utils.detect_project_type(src)
+    else:
+        languages = languages.split(",")
+    for lang in languages:
+        executor.exec_tool(
+            lang,
+            src,
+            cpg_out_dir,
+            src,
+            joern_home=os.getenv(
+                "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
+            ),
+        )
     if is_temp_dir:
         try:
             os.remove(src)
         except Exception:
             # Ignore cleanup errors
             pass
-    return {}
+    return {
+        "success": True,
+        "message": f"CPG generated successfully at {cpg_out_dir}",
+        "out_dir": cpg_out_dir,
+    }
 
 
 def init_worker():
@@ -228,11 +238,15 @@ def main():
     joern_home = args.joern_home
     use_container = args.use_container
     if not os.path.exists(joern_home):
-        use_container = True
-        console.print(
-            "Joern installation was not found. Please install joern by following the instructions at https://joern.io and set the environment variable JOERN_HOME to the directory containing the cli tools"
-        )
-        console.print("Fallback to using cpggen container image")
+        if utils.check_command("docker") or utils.check_command("podman"):
+            use_container = True
+        else:
+            console.print(
+                "Joern installation was not found. Please install joern by following the instructions at https://joern.io and set the environment variable JOERN_HOME to the directory containing the cli tools"
+            )
+            console.print(
+                "Alternatively, ensure docker or podman is available to use cpggen container image"
+            )
     is_temp_dir = False
     if src.startswith("http") or src.startswith("git"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
