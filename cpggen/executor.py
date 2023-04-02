@@ -7,8 +7,6 @@ from rich.progress import Progress
 from cpggen.logger import DEBUG, LOG, console
 from cpggen.utils import check_command, find_java_artifacts, find_csharp_artifacts
 
-import traceback
-
 runtimeValues = {}
 
 
@@ -211,11 +209,11 @@ def exec_tool(
                 return cp, cpg_out
             else:
                 LOG.info(f"CPG was not generated successfully for {tool_lang}")
-                LOG.error(cp.stdout)
+                LOG.info(cp.stdout)
+                LOG.info(cp.stderr)
             return cp, None
         except Exception as e:
             if task:
                 progress.update(task, completed=20, total=10, visible=False)
             LOG.error(e)
-            traceback.print_exc()
             return None
