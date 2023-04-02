@@ -1,6 +1,8 @@
 import os
 import re
 import shutil
+import tempfile
+import zipfile
 from pathlib import Path
 
 import git
@@ -143,7 +145,7 @@ def find_files(src, src_ext_name, use_start=False, quick=False):
         filter_ignored_dirs(dirs)
         if not is_ignored_dir(src, root):
             for file in files:
-                if is_ignored_file(src, file):
+                if is_ignored_file(file):
                     continue
                 if file == src_ext_name or file.endswith(src_ext_name):
                     result.append(os.path.join(root, file))
@@ -160,26 +162,21 @@ def find_java_artifacts(search_dir):
     :param src: Directory to search
     :return: List of war or ear or jar files
     """
-    result = [p.as_posix() for p in Path(search_dir).rglob("*.war")]
-    if not result:
-        result = [p.as_posix() for p in Path(search_dir).rglob("*.ear")]
-    if not result:
-        result = [p.as_posix() for p in Path(search_dir).rglob("*.jar")]
-    # Zip up the target directory as a jar file for analysis
-    if not result:
-        is_empty = True
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".jar", encoding="utf-8", delete=False
-        ) as zfile:
-            with zipfile.ZipFile(zfile.name, "w") as zf:
-                for dirname, subdirs, files in os.walk(search_dir):
-                    zf.write(dirname)
-                    is_empty = False
-                    for filename in files:
-                        if not filename.endswith(".jar"):
-                            zf.write(os.path.join(dirname, filename))
-        return [] if is_empty else [zfile.name]
-    return result
+    is_empty = True
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".jar", encoding="utf-8", delete=False
+    ) as zfile:
+        with zipfile.ZipFile(zfile.name, "w") as zf:
+            for dirname, subdirs, files in os.walk(search_dir):
+                is_empty = False
+                for filename in files:
+                    if (
+                        filename.endswith(".jar")
+                        or filename.endswith(".war")
+                        or filename.endswith(".ear")
+                    ):
+                        zf.write(os.path.join(dirname, filename), filename)
+    return [] if is_empty else [zfile.name]
 
 
 def find_csharp_artifacts(search_dir):
@@ -327,7 +324,6 @@ def detect_project_type(src_dir):
     return project_types
 
 
-def clone_repo(repo_url, clone_dir, branch="master", depth=1):
-    if not os.path.exists(clone_dir):
-        repo = git.Repo.clone_from(repo_url, clone_dir, branch, depth)
+def clone_repo(repo_url, clone_dir, depth=1):
+    git.Repo.clone_from(repo_url, clone_dir, depth=depth)
     return clone_dir
