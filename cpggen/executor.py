@@ -30,18 +30,18 @@ def get(configName, default_value=None):
 
 
 cpg_tools_map = {
-    "c": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "cpp": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "java-with-deps": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --fetch-dependencies",
-    "binary": "%(joern_home)s/ghidra2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "js": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "ts": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "kotlin": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "kotlin-with-deps": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --download-dependencies",
-    "kotlin-with-classpath": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
-    "php": "%(joern_home)s/php2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
-    "python": "%(joern_home)s/pysrc2cpg -J-Xmx%(memory)sG -o %(cpg_out)s %(src)s",
+    "c": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "cpp": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "java": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "java-with-deps": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
+    "binary": "%(joern_home)s/ghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "js": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "ts": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "kotlin": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "kotlin-with-deps": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
+    "kotlin-with-classpath": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
+    "php": "%(joern_home)s/php2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "python": "%(joern_home)s/pysrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "csharp": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)s/go2cpg generate -o %(cpg_out)s ./...",
@@ -167,7 +167,7 @@ def exec_tool(
                 home_dir=str(Path.home()),
                 uber_jar=uber_jar,
                 csharp_artifacts=csharp_artifacts,
-                memory=os.getenv("CPGGEN_MEMORY", "32G")
+                memory=os.getenv("CPGGEN_MEMORY", "32G"),
             )
             cmd_with_args = cmd_with_args.split(" ")
             lang_cmd = cmd_with_args[0]

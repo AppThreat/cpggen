@@ -314,8 +314,11 @@ def detect_project_type(src_dir):
         or find_files(src_dir, ".go", False, True)
     ):
         project_types.append("go")
-    if find_files(src_dir, "conan.lock", False, True) or find_files(
-        src_dir, "conanfile.txt", False, True or find_files(src_dir, ".c", False, True)
+    if (
+        find_files(src_dir, "conan.lock", False, True)
+        or find_files(src_dir, "conanfile.txt", False, True)
+        or find_files(src_dir, ".c", False, True)
+        or find_files(src_dir, ".cpp", False, True)
     ):
         project_types.append("c")
 
