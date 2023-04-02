@@ -64,6 +64,10 @@ jobs:
         with:
           repository: 'GoogleCloudPlatform/microservices-demo'
           path: 'repotests/microservices-demo'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'juice-shop/juicy-malware'
+          path: 'repotests/juicy-malware'
       - name: repotests
         run: |
           mkdir /tmp/all_cpgs
@@ -89,6 +93,11 @@ jobs:
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           poetry run cpggen -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          if [ -e "/tmp/all_cpgs/shiftleft-go-example/go-cpg.bin.zip" ]; then
+            echo "go direct test was successful"
+          else
+            echo "go direct test was not successful"
+          fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
           poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
@@ -97,6 +106,13 @@ jobs:
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/juicy-malware/binary-cpg.bin.zip,resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
+          if [ -e "/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json" ]; then
+            echo "Binary cpg test was successful"
+          else
+            echo "Binary cpg test was not successful"
+          fi
           ls -ltr /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
