@@ -7,6 +7,12 @@ from pathlib import Path
 
 from cpggen import executor, utils
 from cpggen.logger import LOG, console
+from quart import Quart, request
+
+try:
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+except Exception:
+    pass
 
 product_logo = """
  ██████╗██████╗  ██████╗
@@ -16,6 +22,9 @@ product_logo = """
 ╚██████╗██║     ╚██████╔╝
  ╚═════╝╚═╝      ╚═════╝
 """
+
+app = Quart(__name__)
+app.config.from_prefixed_env()
 
 
 def build_args():
@@ -85,7 +94,96 @@ def build_args():
             "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
         ),
     )
+    parser.add_argument(
+        "--server",
+        action="store_true",
+        default=False,
+        dest="server_mode",
+        help="Run cpggen as a server",
+    )
+    parser.add_argument(
+        "--server-host",
+        default=os.getenv("CPGGEN_HOST", "127.0.0.1"),
+        dest="server_host",
+        help="cpggen server host",
+    )
+    parser.add_argument(
+        "--server-port",
+        default=os.getenv("CPGGEN_PORT", "7072"),
+        dest="server_port",
+        help="cpggen server port",
+    )
     return parser.parse_args()
+
+
+@app.get("/")
+async def index():
+    return {}
+
+
+def run_server(args):
+    console.print(product_logo, style="info")
+    console.print(f"cpggen server running on {args.server_host}:{args.server_port}")
+    app.run(
+        host=args.server_host,
+        port=args.server_port,
+        debug=True if os.getenv("AT_DEBUG_MODE") == "debug" else False,
+        use_reloader=False,
+    )
+
+
+@app.route("/cpg", methods=["GET", "POST"])
+async def generate_cpg():
+    q = request.args
+    params = await request.get_json()
+    url = None
+    src = None
+    language = None
+    cpg_out_dir = None
+    is_temp_dir = False
+    if not params:
+        params = {}
+    if q.get("url"):
+        url = q.get("url")
+    if q.get("src"):
+        src = q.get("src")
+    if q.get("out_dir"):
+        cpg_out_dir = q.get("out_dir")
+
+    if q.get("lang"):
+        language = q.get("lang")
+    if not url and params.get("url"):
+        url = params.get("url")
+    if not src and params.get("src"):
+        src = params.get("src")
+    if not language and params.get("lang"):
+        language = params.get("lang")
+    if not cpg_out_dir and params.get("out_dir"):
+        cpg_out_dir = params.get("out_dir")
+    if not src and not url:
+        return {"error": "true", "message": "path or url is required"}, 500
+    if url.startswith("http") or url.startswith("git"):
+        clone_dir = tempfile.mkdtemp(prefix="cpggen")
+        src = utils.clone_repo(url, clone_dir)
+        is_temp_dir = True
+    if cpg_out_dir and not os.path.exists(cpg_out_dir):
+        os.makedirs(cpg_out_dir, exist_ok=True)
+    executor.exec_tool(
+        language,
+        src,
+        cpg_out_dir,
+        src,
+        joern_home=os.getenv(
+            "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
+        ),
+    )
+    if is_temp_dir:
+        try:
+            os.remove(src)
+        except Exception:
+            # Ignore cleanup errors
+            pass
+    return {}
 
 
 def init_worker():
@@ -122,6 +220,8 @@ def cpg(src, cpg_out_dir, languages, joern_home, use_container=False, auto_build
 def main():
     console.print(product_logo, style="info")
     args = build_args()
+    if args.server_mode:
+        return run_server(args)
     src = args.src
     cpg_out_dir = args.cpg_out_dir
     languages = args.language

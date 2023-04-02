@@ -40,6 +40,12 @@ To specify input and output directory.
 cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
+You can even pass a git url as source
+
+```
+cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
+```
+
 To specify language type.
 
 ```
@@ -50,4 +56,22 @@ Container based invocation
 
 ```
 docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name> --use-container
+```
+
+## Server mode
+
+cpggen can run in server mode.
+
+```
+cpggen --server
+```
+
+You can invoke the endpoint `/cpg` to generate CPG.
+
+```
+curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
+```
+
+```
+curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
 ```
