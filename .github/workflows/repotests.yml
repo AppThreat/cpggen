@@ -67,6 +67,7 @@ jobs:
       - name: repotests
         run: |
           mkdir all_cpgs
+          docker build -t ghcr.io/appthreat/cpggen .
           poetry run cpggen -i repotests/shiftleft-java-example -o all_cpgs/shiftleft-java-example
           poetry run cpggen -i repotests/shiftleft-ts-example -o all_cpgs/shiftleft-ts-example
           poetry run cpggen -i repotests/shiftleft-go-example -o all_cpgs/shiftleft-go-example --build
