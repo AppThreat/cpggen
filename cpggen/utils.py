@@ -278,8 +278,8 @@ def detect_project_type(src_dir):
     :return List of detected types
     """
     home_dir = str(Path.home())
-    maven_cache = os.path(home_dir, ".m2")
-    gradle_cache = os.path(home_dir, ".gradle", "caches", "modules-2", "files-2.1")
+    maven_cache = os.path.join(home_dir, ".m2")
+    gradle_cache = os.path.join(home_dir, ".gradle", "caches", "modules-2", "files-2.1")
     maven_cache_exists = os.path.exists(maven_cache)
     gradle_cache_exists = os.path.exists(gradle_cache)
     project_types = []
