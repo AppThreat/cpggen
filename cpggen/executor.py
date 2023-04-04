@@ -119,7 +119,9 @@ def exec_tool(
                 if cpg_out_dir.endswith(".bin.zip")
                 or cpg_out_dir.endswith(".bin")
                 or cpg_out_dir.endswith(".cpg")
-                else os.path.join(cpg_out_dir, f"{tool_lang}-cpg.bin.zip")
+                else os.path.join(
+                    cpg_out_dir, f"{os.path.basename(src)}-{tool_lang}-cpg.bin.zip"
+                )
             )
             sbom_out = (
                 cpg_out.replace(".bin.zip", ".bom.json")

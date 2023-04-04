@@ -33,6 +33,8 @@ ignore_directories = [
     "stubs",
     "mock",
     "mocks",
+    "vendor",
+    "pkg"
 ]
 
 ignore_files = [
@@ -275,6 +277,11 @@ def detect_project_type(src_dir):
     :param src_dir: Source directory
     :return List of detected types
     """
+    home_dir = str(Path.home())
+    maven_cache = os.path(home_dir, ".m2")
+    gradle_cache = os.path(home_dir, ".gradle", "caches", "modules-2", "files-2.1")
+    maven_cache_exists = os.path.exists(maven_cache)
+    gradle_cache_exists = os.path.exists(gradle_cache)
     project_types = []
     if find_python_reqfiles(src_dir) or find_files(src_dir, ".py", False, True):
         project_types.append("python")
@@ -289,12 +296,18 @@ def detect_project_type(src_dir):
     if find_files(src_dir, ".kt", False, True) or find_files(
         src_dir, ".kts", False, True
     ):
-        project_types.append("kotlin")
+        if gradle_cache_exists:
+            project_types.append("kotlin-with-classpath")
+        else:
+            project_types.append("kotlin")
     if find_files(src_dir, "pom.xml", False, True) or find_files(
         src_dir, ".gradle", False, True
     ):
         if "kotlin" not in project_types:
-            project_types.append("java")
+            if gradle_cache_exists or maven_cache_exists:
+                project_types.append("java-with-deps")
+            else:
+                project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
         project_types.append("jsp")
     if (
