@@ -348,7 +348,7 @@ def exec_tool(
                                 "src": amodule,
                                 "cpg": cpg_out,
                                 "sbom": sbom_out,
-                                "language": tool_lang,
+                                "language": tool_lang.split("-")[0],
                                 "cpg_frontend_invocation": " ".join(cmd_list_with_args),
                                 "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                             },
