@@ -11,7 +11,7 @@ console = Console(
     log_path=False,
     theme=custom_theme,
     width=280,
-    color_system="auto",
+    color_system="256",
     record=True,
 )
 
