@@ -237,7 +237,7 @@ def main():
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
-    if not os.path.exists(joern_home):
+    if joern_home and not os.path.exists(joern_home):
         if utils.check_command("docker") or utils.check_command("podman"):
             use_container = True
         else:
@@ -247,6 +247,9 @@ def main():
             console.print(
                 "Alternatively, ensure docker or podman is available to use cpggen container image"
             )
+    # GitHub action is very weird
+    if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
+        joern_home = ""
     is_temp_dir = False
     if src.startswith("http") or src.startswith("git"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
