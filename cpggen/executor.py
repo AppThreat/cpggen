@@ -1,21 +1,20 @@
 import json
 import os
-import psutil
-from psutil._common import bytes2human
-
 import subprocess
 import tempfile
 from pathlib import Path
 
-from rich.progress import Progress
+import psutil
+from psutil._common import bytes2human
 from rich.markdown import Markdown
+from rich.progress import Progress
 
 from cpggen.logger import DEBUG, LOG, console
 from cpggen.utils import (
     check_command,
     find_csharp_artifacts,
-    find_java_artifacts,
     find_go_mods,
+    find_java_artifacts,
     find_makefiles,
 )
 
