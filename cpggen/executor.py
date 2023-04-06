@@ -1,3 +1,4 @@
+import json
 import os
 import psutil
 from psutil._common import bytes2human
@@ -208,6 +209,7 @@ def exec_tool(
             if not cmd_with_args:
                 return
             if use_container:
+                # We need to make src an absolute path since relative paths wouldn't work in container mode
                 src = os.path.abspath(src)
                 container_cli = "docker"
                 if check_command("podman"):
@@ -216,7 +218,6 @@ def exec_tool(
                 cmd_with_args = f"""{container_cli} run --rm -w {src} -v {tempfile.gettempdir()}:/tmp -v {src}:{src}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 # We need to fix joern_home to the directory inside the container
                 joern_home = "/opt/joern/joern-cli"
-                # We need to make src an absolute path since relative paths wouldn't work in container mode
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -240,6 +241,7 @@ def exec_tool(
                     modules = [os.path.dirname(gmod) for gmod in go_mods]
             for amodule in modules:
                 cmd_with_args = cpg_tools_map.get(tool_lang)
+                sbom_cmd_with_args = cpg_tools_map.get("sbom")
                 cpg_out = (
                     cpg_out_dir
                     if cpg_out_dir.endswith(".bin.zip")
@@ -251,9 +253,14 @@ def exec_tool(
                     )
                 )
                 sbom_out = (
-                    cpg_out.replace(".bin.zip", ".bom.json")
+                    cpg_out.replace(".bin.zip", ".bom.xml")
                     if cpg_out.endswith(".bin.zip")
-                    else f"{cpg_out}.bom.json"
+                    else f"{cpg_out}.bom.xml"
+                )
+                manifest_out = (
+                    cpg_out.replace(".bin.zip", ".manifest.json")
+                    if cpg_out.endswith(".bin.zip")
+                    else f"{cpg_out}.manifest.json"
                 )
                 LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
                 cmd_with_args = cmd_with_args % dict(
@@ -267,7 +274,13 @@ def exec_tool(
                     tool_lang=tool_lang,
                     sbom_out=sbom_out,
                 )
+                sbom_cmd_with_args = sbom_cmd_with_args % dict(
+                    src=amodule,
+                    tool_lang=tool_lang,
+                    sbom_out=sbom_out,
+                )
                 cmd_list_with_args = cmd_with_args.split(" ")
+                sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
                 lang_cmd = cmd_list_with_args[0]
                 if not check_command(lang_cmd):
                     LOG.warn(
@@ -304,11 +317,38 @@ def exec_tool(
                     and cp.stdout is not None
                 ):
                     LOG.debug(cp.stdout)
+                # Generate sbom
+                try:
+                    subprocess.run(
+                        sbom_cmd_list_with_args,
+                        stdout=stdout,
+                        stderr=stderr,
+                        cwd=cwd,
+                        env=env,
+                        check=False,
+                        shell=False,
+                        encoding="utf-8",
+                    )
+                except Exception:
+                    # Ignore sbom generation errors
+                    pass
                 progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
                     LOG.info(
                         f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
                     )
+                    with open(manifest_out, mode="w") as mfp:
+                        json.dump(
+                            {
+                                "src": amodule,
+                                "cpg": cpg_out,
+                                "sbom": sbom_out,
+                                "language": tool_lang,
+                                "cpg_frontend_invocation": " ".join(cmd_list_with_args),
+                                "sbom_invocation": " ".join(sbom_cmd_list_with_args),
+                            },
+                            mfp,
+                        )
                 else:
                     LOG.info(
                         f"CPG {cpg_out} was not generated successfully for {tool_lang}"

@@ -65,6 +65,15 @@ Container based invocation
 docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
+### Artifacts produced
+
+Upon successful completion, cpggen would produce the following artifacts in the directory specified under `out_dir`
+
+- {name}-{lang}-cpg.bin.zip - Code Property Graph for the given language type
+- {name}-{lang}-cpg.bom.xml - SBoM in CycloneDX XML format
+- {name}-{lang}-cpg.bom.json - SBoM in CycloneDX json format
+- {name}-{lang}-cpg.manifest.json - A json file listing the generated artifacts and the invocation commands
+
 ## Server mode
 
 cpggen can run in server mode.
