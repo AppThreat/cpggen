@@ -343,6 +343,11 @@ def exec_tool(
                         f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
                     )
                     with open(manifest_out, mode="w") as mfp:
+                        # In case of github action, we need to convert this to relative path
+                        if os.getenv("GITHUB_PATH"):
+                            cpg_out = cpg_out.replace("/github/workspace/", "")
+                            sbom_out = sbom_out.replace("/github/workspace/", "")
+                            amodule = amodule.replace("/github/workspace/", "")
                         json.dump(
                             {
                                 "src": amodule,
