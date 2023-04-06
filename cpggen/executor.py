@@ -363,10 +363,14 @@ def exec_tool(
                         # Override the language for jvm
                         if language in ("jar", "scala"):
                             language = "java"
-                        app_base_name = os.getenv(
-                            "GITHUB_REPOSITORY", os.path.basename(amodule)
-                        )
-                        app_base_name = app_base_name.split("/")[-1]
+                        app_base_name = os.path.basename(amodule)
+                        # Let's improve the name for github action
+                        if app_base_name == "workspace" and os.getenv(
+                            "GITHUB_REPOSITORY"
+                        ):
+                            app_base_name = os.getenv("GITHUB_REPOSITORY").split("/")[
+                                -1
+                            ]
                         json.dump(
                             {
                                 "src": amodule,
