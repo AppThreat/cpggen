@@ -301,7 +301,7 @@ def detect_project_type(src_dir):
     ):
         project_types.append("scala")
     if find_files(src_dir, ".kt", False, True):
-        if gradle_cache_exists:
+        if maven_cache_exists or gradle_cache_exists:
             project_types.append("kotlin-with-classpath")
         else:
             project_types.append("kotlin")

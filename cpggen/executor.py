@@ -342,7 +342,7 @@ def exec_tool(
                     # go2cpg seems to produce a cpg without read permissions
                     try:
                         os.chmod(cpg_out, 0o644)
-                    except Exception as e:
+                    except Exception:
                         # Ignore errors
                         pass
                     if os.getenv("CI"):
