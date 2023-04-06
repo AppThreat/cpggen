@@ -366,6 +366,7 @@ def exec_tool(
                         json.dump(
                             {
                                 "src": amodule,
+                                "app": f"{os.path.basename(amodule)}-{language}",
                                 "cpg": cpg_out,
                                 "sbom": sbom_out,
                                 "language": language,
