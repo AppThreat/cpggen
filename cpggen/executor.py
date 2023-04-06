@@ -60,7 +60,7 @@ cpg_tools_map = {
     "scala": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp-with-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
-    "sbom": "cdxgen -t %(tool_lang)s -o %(sbom_out)s %(src)s",
+    "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
 }
 
 build_tools_map = {
@@ -339,6 +339,12 @@ def exec_tool(
                     LOG.debug(cp.stdout)
                 progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
+                    # go2cpg seems to produce a cpg without read permissions
+                    try:
+                        os.chmod(cpg_out, 0o644)
+                    except Exception as e:
+                        # Ignore errors
+                        pass
                     if os.getenv("CI"):
                         LOG.info(
                             f"""CPG {cpg_out} generated successfully for {tool_lang}."""

@@ -300,15 +300,15 @@ def detect_project_type(src_dir):
         src_dir, ".scala", False, True
     ):
         project_types.append("scala")
-    if find_files(src_dir, ".kt", False, True) or find_files(
-        src_dir, ".kts", False, True
-    ):
+    if find_files(src_dir, ".kt", False, True):
         if gradle_cache_exists:
             project_types.append("kotlin-with-classpath")
         else:
             project_types.append("kotlin")
-    if find_files(src_dir, "pom.xml", False, True) or find_files(
-        src_dir, ".gradle", False, True
+    if (
+        find_files(src_dir, "pom.xml", False, True)
+        or find_files(src_dir, ".gradle", False, True)
+        or find_files(src_dir, ".java", False, True)
     ):
         project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
