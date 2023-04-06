@@ -34,7 +34,6 @@ ignore_directories = [
     "mock",
     "mocks",
     "vendor",
-    "pkg"
 ]
 
 ignore_files = [
@@ -193,6 +192,14 @@ def find_csharp_artifacts(search_dir):
     return result
 
 
+def find_go_mods(search_dir):
+    return find_files(search_dir, "go.mod", False, False)
+
+
+def find_makefiles(search_dir):
+    return find_files(search_dir, "Makefile", False, False)
+
+
 def check_command(cmd):
     """
     Method to check if command is available
@@ -303,11 +310,10 @@ def detect_project_type(src_dir):
     if find_files(src_dir, "pom.xml", False, True) or find_files(
         src_dir, ".gradle", False, True
     ):
-        if "kotlin" not in project_types:
-            if gradle_cache_exists or maven_cache_exists:
-                project_types.append("java-with-deps")
-            else:
-                project_types.append("java")
+        if gradle_cache_exists or maven_cache_exists:
+            project_types.append("java-with-deps")
+        else:
+            project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
         project_types.append("jsp")
     if (

@@ -1,14 +1,27 @@
 import os
+import psutil
+from psutil._common import bytes2human
+
 import subprocess
 import tempfile
 from pathlib import Path
 
 from rich.progress import Progress
+from rich.markdown import Markdown
 
 from cpggen.logger import DEBUG, LOG, console
-from cpggen.utils import check_command, find_csharp_artifacts, find_java_artifacts
+from cpggen.utils import (
+    check_command,
+    find_csharp_artifacts,
+    find_java_artifacts,
+    find_go_mods,
+    find_makefiles,
+)
 
 runtimeValues = {}
+svmem = psutil.virtual_memory()
+max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbol)s")
+cpu_count = str(psutil.cpu_count())
 
 
 def get(configName, default_value=None):
@@ -44,27 +57,33 @@ cpg_tools_map = {
     "csharp": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)s/go2cpg generate -o %(cpg_out)s ./...",
-    "jar": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "scala": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "jsp": "java -Xmx32G -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "jar": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "scala": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "jsp": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
     "sbom": "cdxgen -t %(tool_lang)s -o %(sbom_out)s %(src)s",
 }
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
     "java": {
-        "maven": [get("MVN_CMD"), "compile"],
-        "gradle": [get("GRADLE_CMD"), "compileJava"],
+        "maven": [
+            get("MVN_CMD", "mvn"),
+            "compile",
+            "package",
+            "-Dmaven.test.skip=true",
+        ],
+        "gradle": [get("GRADLE_CMD", "gradle"), "build"],
         "sbt": ["sbt", "compile"],
     },
-    "android": {"gradle": [get("GRADLE_CMD"), "compileDebugSources"]},
+    "android": {"gradle": [get("GRADLE_CMD", "gradle"), "compileDebugSources"]},
     "kotlin": {
-        "maven": [get("MVN_CMD"), "compile"],
-        "gradle": [get("GRADLE_CMD"), "build"],
-    },
-    "groovy": {
-        "maven": [get("MVN_CMD"), "compile"],
-        "gradle": [get("GRADLE_CMD"), "compileGroovy"],
+        "maven": [
+            get("MVN_CMD", "mvn"),
+            "compile",
+            "package",
+            "-Dmaven.test.skip=true",
+        ],
+        "gradle": [get("GRADLE_CMD", "gradle"), "build"],
     },
     "scala": ["sbt", "stage"],
     "nodejs": {
@@ -79,7 +98,81 @@ build_tools_map = {
         "update": ["composer", "update", "-n", "--ignore-platform-reqs"],
         "autoload": ["composer", "dump-autoload", "-o"],
     },
+    "make": ["make", "build"],
 }
+
+
+def do_go_build(src, env):
+    go_mods = find_go_mods(src)
+    makes = find_makefiles(src)
+    build_args = build_tools_map["go"]
+    for gmod in go_mods:
+        base_dir = os.path.dirname(gmod)
+        try:
+            LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
+            cp = subprocess.run(
+                build_args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                cwd=base_dir,
+                env=env,
+                check=False,
+                shell=False,
+                encoding="utf-8",
+            )
+        except Exception as e:
+            LOG.debug(e)
+    build_args = build_tools_map["make"]
+    for make in makes:
+        base_dir = os.path.dirname(make)
+        try:
+            LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
+            cp = subprocess.run(
+                build_args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                cwd=base_dir,
+                env=env,
+                check=False,
+                shell=False,
+                encoding="utf-8",
+            )
+        except Exception as e:
+            LOG.debug(e)
+
+
+def do_build(tool_lang, src, cwd, env):
+    build_args = None
+    if tool_lang in ("csharp", "scala"):
+        build_args = build_tools_map[tool_lang]
+    elif tool_lang == "go":
+        do_go_build(src, env)
+    # For go, we need to detect the go.mod files and attempt build from those directories
+    if build_args:
+        LOG.info(
+            '⚡︎ Attempting to auto build {} "{}"'.format(
+                tool_lang, " ".join(build_args)
+            )
+        )
+        try:
+            cp = subprocess.run(
+                build_args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                cwd=cwd,
+                env=env,
+                check=False,
+                shell=False,
+                encoding="utf-8",
+            )
+            if cp:
+                if cp.stdout:
+                    LOG.info(cp.stdout)
+                if cp.stderr:
+                    LOG.info(cp.stderr)
+        except Exception as e:
+            LOG.warn("Auto build has failed")
+            LOG.warn(e)
 
 
 def exec_tool(
@@ -113,28 +206,13 @@ def exec_tool(
             )
             cmd_with_args = cpg_tools_map.get(tool_lang)
             if not cmd_with_args:
-                return None, None, None
-            cpg_out = (
-                cpg_out_dir
-                if cpg_out_dir.endswith(".bin.zip")
-                or cpg_out_dir.endswith(".bin")
-                or cpg_out_dir.endswith(".cpg")
-                else os.path.join(
-                    cpg_out_dir, f"{os.path.basename(src)}-{tool_lang}-cpg.bin.zip"
-                )
-            )
-            sbom_out = (
-                cpg_out.replace(".bin.zip", ".bom.json")
-                if cpg_out.endswith(".bin.zip")
-                else f"{cpg_out}.bom.json"
-            )
-            LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
+                return
             if use_container:
                 src = os.path.abspath(src)
                 container_cli = "docker"
                 if check_command("podman"):
                     container_cli = "podman"
-                # cmd_with_args = f"""{container_cli} run --rm -w {os.path.abspath(src)} -v /tmp:/tmp -v {os.path.abspath(src)}:{os.path.abspath(src)}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", "2")} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", "32g")} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                # cmd_with_args = f"""{container_cli} run --rm -w {os.path.abspath(src)} -v /tmp:/tmp -v {os.path.abspath(src)}:{os.path.abspath(src)}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", cpu_count)} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", max_memory)} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 cmd_with_args = f"""{container_cli} run --rm -w {src} -v {tempfile.gettempdir()}:/tmp -v {src}:{src}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 # We need to fix joern_home to the directory inside the container
                 joern_home = "/opt/joern/joern-cli"
@@ -152,15 +230,62 @@ def exec_tool(
                 csharp_artifacts = find_csharp_artifacts(src)
                 if len(csharp_artifacts) == 1:
                     csharp_artifacts = csharp_artifacts[0]
-            if auto_build and tool_lang in ("csharp", "go", "scala"):
-                build_args = build_tools_map[tool_lang]
-                LOG.info(
-                    '⚡︎ Attempting to auto build {} "{}"'.format(
-                        tool_lang, " ".join(build_args)
+            if auto_build:
+                do_build(tool_lang, src, cwd, env)
+            modules = [src]
+            # For go, the modules are based on the presence of go.mod files
+            if tool_lang == "go":
+                go_mods = find_go_mods(src)
+                if go_mods:
+                    modules = [os.path.dirname(gmod) for gmod in go_mods]
+            for amodule in modules:
+                cmd_with_args = cpg_tools_map.get(tool_lang)
+                cpg_out = (
+                    cpg_out_dir
+                    if cpg_out_dir.endswith(".bin.zip")
+                    or cpg_out_dir.endswith(".bin")
+                    or cpg_out_dir.endswith(".cpg")
+                    else os.path.join(
+                        cpg_out_dir,
+                        f"{os.path.basename(amodule)}-{tool_lang}-cpg.bin.zip",
                     )
                 )
+                sbom_out = (
+                    cpg_out.replace(".bin.zip", ".bom.json")
+                    if cpg_out.endswith(".bin.zip")
+                    else f"{cpg_out}.bom.json"
+                )
+                LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
+                cmd_with_args = cmd_with_args % dict(
+                    src=amodule,
+                    cpg_out=cpg_out,
+                    joern_home=joern_home,
+                    home_dir=str(Path.home()),
+                    uber_jar=uber_jar,
+                    csharp_artifacts=csharp_artifacts,
+                    memory=os.getenv("CPGGEN_MEMORY", max_memory),
+                    tool_lang=tool_lang,
+                    sbom_out=sbom_out,
+                )
+                cmd_list_with_args = cmd_with_args.split(" ")
+                lang_cmd = cmd_list_with_args[0]
+                if not check_command(lang_cmd):
+                    LOG.warn(
+                        f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
+                    )
+                    return
+                LOG.debug(
+                    '⚡︎ Generating CPG for the {} app "{}" - "{}"'.format(
+                        tool_lang,
+                        os.path.basename(amodule),
+                        " ".join(cmd_list_with_args),
+                    )
+                )
+                cwd = amodule
+                if tool_lang in ("binary",):
+                    cwd = os.getcwd()
                 cp = subprocess.run(
-                    build_args,
+                    cmd_list_with_args,
                     stdout=stdout,
                     stderr=stderr,
                     cwd=cwd,
@@ -169,71 +294,30 @@ def exec_tool(
                     shell=False,
                     encoding="utf-8",
                 )
-                if cp:
+                if cp and stdout == subprocess.PIPE:
+                    for line in cp.stdout:
+                        progress.update(task, completed=5)
+                if (
+                    cp
+                    and LOG.isEnabledFor(DEBUG)
+                    and cp.returncode
+                    and cp.stdout is not None
+                ):
+                    LOG.debug(cp.stdout)
+                progress.update(task, completed=100, total=100)
+                if os.path.exists(cpg_out):
+                    LOG.info(
+                        f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
+                    )
+                else:
+                    LOG.info(
+                        f"CPG {cpg_out} was not generated successfully for {tool_lang}"
+                    )
                     if cp.stdout:
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
-            cmd_with_args = cmd_with_args % dict(
-                src=src,
-                cpg_out=cpg_out,
-                joern_home=joern_home,
-                home_dir=str(Path.home()),
-                uber_jar=uber_jar,
-                csharp_artifacts=csharp_artifacts,
-                memory=os.getenv("CPGGEN_MEMORY", "32G"),
-                tool_lang=tool_lang,
-                sbom_out=sbom_out,
-            )
-            cmd_with_args = cmd_with_args.split(" ")
-            lang_cmd = cmd_with_args[0]
-            if not check_command(lang_cmd):
-                LOG.warn(
-                    f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
-                )
-                return None, None, None
-            LOG.info(
-                '⚡︎ Generating CPG for {} "{}"'.format(
-                    tool_lang, " ".join(cmd_with_args)
-                )
-            )
-            if tool_lang in ("binary",):
-                cwd = os.getcwd()
-            cp = subprocess.run(
-                cmd_with_args,
-                stdout=stdout,
-                stderr=stderr,
-                cwd=cwd,
-                env=env,
-                check=False,
-                shell=False,
-                encoding="utf-8",
-            )
-            if cp and stdout == subprocess.PIPE:
-                for line in cp.stdout:
-                    progress.update(task, completed=5)
-            if (
-                cp
-                and LOG.isEnabledFor(DEBUG)
-                and cp.returncode
-                and cp.stdout is not None
-            ):
-                LOG.debug(cp.stdout)
-            progress.update(task, completed=100, total=100)
-            if os.path.exists(cpg_out):
-                LOG.info(
-                    f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
-                )
-                return cp, cpg_out, sbom_out
-            else:
-                LOG.info(f"CPG was not generated successfully for {tool_lang}")
-                if cp.stdout:
-                    LOG.info(cp.stdout)
-                if cp.stderr:
-                    LOG.info(cp.stderr)
-            return cp, None, None
         except Exception as e:
             if task:
                 progress.update(task, completed=20, total=10, visible=False)
             LOG.error(e)
-            return None, None, None

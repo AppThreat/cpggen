@@ -105,15 +105,27 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 
 ## Environment variables
 
-| Name                    | Purpose                                                      |
-| ----------------------- | ------------------------------------------------------------ |
-| JOERN_HOME              | Joern installation directory                                 |
-| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                        |
-| CPGGEN_PORT             | cpggen server port. Default 7072                             |
-| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default 2      |
-| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default 32g |
-| CPGGEN_MEMORY           | Heap memory to use for frontends. Default 32G                |
-| AT_DEBUG_MODE           | Set to debug to enable debug logging                         |
+| Name                    | Purpose                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| JOERN_HOME              | Joern installation directory                                      |
+| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                             |
+| CPGGEN_PORT             | cpggen server port. Default 7072                                  |
+| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default computed    |
+| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed |
+| CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                |
+| AT_DEBUG_MODE           | Set to debug to enable debug logging                              |
+
+## GitHub actions
+
+Use the marketplace [action](https://github.com/marketplace/actions/cpggen) to generate CPGs using GitHub actions. Optionally, the upload the generated CPGs as build artifacts use the below step.
+
+```
+- name: Upload cpg
+  uses: actions/upload-artifact@v1.0.0
+  with:
+    name: cpg
+    path: cpg_out
+```
 
 ## License
 
