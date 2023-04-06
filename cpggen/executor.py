@@ -6,7 +6,6 @@ from pathlib import Path
 
 import psutil
 from psutil._common import bytes2human
-from rich.markdown import Markdown
 from rich.progress import Progress
 
 from cpggen.logger import DEBUG, LOG, console
@@ -110,7 +109,7 @@ def do_go_build(src, env):
         base_dir = os.path.dirname(gmod)
         try:
             LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
-            cp = subprocess.run(
+            subprocess.run(
                 build_args,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -127,7 +126,7 @@ def do_go_build(src, env):
         base_dir = os.path.dirname(make)
         try:
             LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
-            cp = subprocess.run(
+            subprocess.run(
                 build_args,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
