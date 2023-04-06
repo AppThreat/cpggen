@@ -55,9 +55,9 @@ cpg_tools_map = {
     "csharp": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)sgo2cpg generate -o %(cpg_out)s ./...",
-    "jar": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "scala": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "jsp": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "jar": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "scala": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "jsp": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
     "sbom": "cdxgen -t %(tool_lang)s -o %(sbom_out)s %(src)s",
 }
 
