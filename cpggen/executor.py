@@ -339,9 +339,14 @@ def exec_tool(
                     LOG.debug(cp.stdout)
                 progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
-                    LOG.info(
-                        f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
-                    )
+                    if os.getenv("CI"):
+                        LOG.info(
+                            f"""CPG {cpg_out} generated successfully for {tool_lang}."""
+                        )
+                    else:
+                        LOG.info(
+                            f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
+                        )
                     with open(manifest_out, mode="w") as mfp:
                         # In case of github action, we need to convert this to relative path
                         if os.getenv("GITHUB_PATH"):
@@ -364,9 +369,7 @@ def exec_tool(
                             mfp,
                         )
                 else:
-                    LOG.info(
-                        f"CPG {cpg_out} was not generated successfully for {tool_lang}"
-                    )
+                    LOG.info(f"CPG {cpg_out} was not generated for {tool_lang}")
                     if cp.stdout:
                         LOG.info(cp.stdout)
                     if cp.stderr:
