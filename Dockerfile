@@ -31,7 +31,7 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs \
     && curl -LO https://github.com/joernio/joern/releases/latest/download/joern-install.sh \
     && chmod +x ./joern-install.sh \
-    && ./joern-install.sh \
+    && ./joern-install.sh --without-plugins \
     && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
@@ -42,9 +42,11 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/java2cpg.jar \
     && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
     && chmod +x /opt/joern/joern-cli/bin/go2cpg && go2cpg version \
+    && ln -s /opt/joern/joern-cli/bin/go2cpg /usr/local/bin/go2cpg \
     && curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/csharp2cpg.zip \
     && cd /opt/joern/joern-cli/ && unzip csharp2cpg.zip && rm /opt/joern/joern-cli/csharp2cpg.zip \
     && chmod +x /opt/joern/joern-cli/bin/csharp2cpg \
+    && ln -s /opt/joern/joern-cli/bin/csharp2cpg /usr/local/bin/csharp2cpg \
     && mkdir -p /opt/joern/custom_scripts \
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \
