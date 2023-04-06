@@ -258,6 +258,7 @@ def main():
         languages = languages.split(",")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
+
     cpg(
         src,
         cpg_out_dir,

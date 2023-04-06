@@ -42,21 +42,21 @@ def get(configName, default_value=None):
 
 
 cpg_tools_map = {
-    "c": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "cpp": "%(joern_home)s/c2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "java-with-deps": "%(joern_home)s/javasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
-    "binary": "%(joern_home)s/ghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "js": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "ts": "%(joern_home)s/jssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "kotlin": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "kotlin-with-deps": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
-    "kotlin-with-classpath": "%(joern_home)s/kotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
-    "php": "%(joern_home)s/php2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "python": "%(joern_home)s/pysrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "csharp": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
-    "dotnet": "%(joern_home)s/bin/csharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
-    "go": "%(joern_home)s/go2cpg generate -o %(cpg_out)s ./...",
+    "c": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "cpp": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "java-with-deps": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
+    "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "js": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "ts": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "kotlin": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "kotlin-with-deps": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
+    "kotlin-with-classpath": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
+    "php": "%(joern_home)sphp2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "python": "%(joern_home)spysrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "csharp": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
+    "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
+    "go": "%(joern_home)sgo2cpg generate -o %(cpg_out)s ./...",
     "jar": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
     "scala": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
     "jsp": "java -Xmx%(memory)s -jar %(joern_home)s/java2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
@@ -194,6 +194,8 @@ def exec_tool(
         refresh_per_second=1,
     ) as progress:
         task = None
+        if joern_home and not joern_home.endswith(os.path.sep):
+            joern_home = f"{joern_home}{os.path.sep}"
         try:
             stderr = subprocess.DEVNULL
             if LOG.isEnabledFor(DEBUG):
@@ -216,7 +218,7 @@ def exec_tool(
                 # cmd_with_args = f"""{container_cli} run --rm -w {os.path.abspath(src)} -v /tmp:/tmp -v {os.path.abspath(src)}:{os.path.abspath(src)}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", cpu_count)} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", max_memory)} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 cmd_with_args = f"""{container_cli} run --rm -w {src} -v {tempfile.gettempdir()}:/tmp -v {src}:{src}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
                 # We need to fix joern_home to the directory inside the container
-                joern_home = "/opt/joern/joern-cli"
+                joern_home = ""
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -282,9 +284,14 @@ def exec_tool(
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
                 lang_cmd = cmd_list_with_args[0]
                 if not check_command(lang_cmd):
-                    LOG.warn(
-                        f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
-                    )
+                    if not use_container:
+                        LOG.warn(
+                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
+                        )
+                    else:
+                        LOG.warn(
+                            f"{lang_cmd} is not found. Ensure the PATH variable in your container image is set to the bin directory of Joern."
+                        )
                     return
                 LOG.debug(
                     '⚡︎ Generating CPG for the {} app "{}" - "{}"'.format(

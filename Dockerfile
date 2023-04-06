@@ -11,7 +11,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.description="Generate CPG for multiple languages for use with joern" \
       org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i /app -o /app/cpg_out"
 
-ENV JOERN_HOME=/opt/joern/joern-cli \
+ENV JOERN_HOME=/opt/joern/joern-cli/bin \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
     SBT_VERSION=1.8.2 \
@@ -39,9 +39,9 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && unzip -q sbt-${SBT_VERSION}.zip -d /opt/ \
     && chmod +x /opt/sbt/bin/sbt \
     && rm sbt-${SBT_VERSION}.zip \
-    && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/java2cpg.jar \
-    && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/go2cpg \
-    && chmod +x /opt/joern/joern-cli/go2cpg && go2cpg version \
+    && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/java2cpg.jar \
+    && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
+    && chmod +x /opt/joern/joern-cli/bin/go2cpg && go2cpg version \
     && curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/csharp2cpg.zip \
     && cd /opt/joern/joern-cli/ && unzip csharp2cpg.zip && rm /opt/joern/joern-cli/csharp2cpg.zip \
     && chmod +x /opt/joern/joern-cli/bin/csharp2cpg \
