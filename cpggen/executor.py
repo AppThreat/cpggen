@@ -55,9 +55,9 @@ cpg_tools_map = {
     "csharp": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)sgo2cpg generate -o %(cpg_out)s ./...",
-    "jar": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "scala": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s",
-    "jsp": "java -Xmx%(memory)s -jar %(joern_home)sjava2cpg.jar %(uber_jar)s -nb --experimental-langs scala -su -o %(cpg_out)s",
+    "jar": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
+    "scala": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nojsp -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jsp": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -t %(tool_lang)s -o %(sbom_out)s %(src)s",
 }
 
@@ -207,16 +207,6 @@ def exec_tool(
             cmd_with_args = cpg_tools_map.get(tool_lang)
             if not cmd_with_args:
                 return
-            if use_container:
-                # We need to make src an absolute path since relative paths wouldn't work in container mode
-                src = os.path.abspath(src)
-                container_cli = "docker"
-                if check_command("podman"):
-                    container_cli = "podman"
-                # cmd_with_args = f"""{container_cli} run --rm -w {os.path.abspath(src)} -v /tmp:/tmp -v {os.path.abspath(src)}:{os.path.abspath(src)}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw --cpus={os.getenv("CPGGEN_CONTAINER_CPU", cpu_count)} --memory={os.getenv("CPGGEN_CONTAINER_MEMORY", max_memory)} -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
-                cmd_with_args = f"""{container_cli} run --rm -w {src} -v {tempfile.gettempdir()}:/tmp -v {src}:{src}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
-                # We need to fix joern_home to the directory inside the container
-                joern_home = ""
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -240,6 +230,15 @@ def exec_tool(
                     modules = [os.path.dirname(gmod) for gmod in go_mods]
             for amodule in modules:
                 cmd_with_args = cpg_tools_map.get(tool_lang)
+                if use_container:
+                    # We need to make src an absolute path since relative paths wouldn't work in container mode
+                    amodule = os.path.abspath(amodule)
+                    container_cli = "docker"
+                    if check_command("podman"):
+                        container_cli = "podman"
+                    cmd_with_args = f"""{container_cli} run --rm -w {amodule} -v {tempfile.gettempdir()}:/tmp -v {amodule}:{amodule}:rw -v {os.path.abspath(cpg_out_dir)}:{os.path.abspath(cpg_out_dir)}:rw -t {os.getenv("CPGGEN_IMAGE", "ghcr.io/appthreat/cpggen")} {cmd_with_args}"""
+                    # We need to fix joern_home to the directory inside the container
+                    joern_home = ""
                 sbom_cmd_with_args = cpg_tools_map.get("sbom")
                 cpg_out = (
                     cpg_out_dir
@@ -347,12 +346,16 @@ def exec_tool(
                             cpg_out = cpg_out.replace("/github/workspace/", "")
                             sbom_out = sbom_out.replace("/github/workspace/", "")
                             amodule = amodule.replace("/github/workspace/", "")
+                        language = tool_lang.split("-")[0]
+                        # Override the language for jvm
+                        if language in ("jar", "scala"):
+                            language = "java"
                         json.dump(
                             {
                                 "src": amodule,
                                 "cpg": cpg_out,
                                 "sbom": sbom_out,
-                                "language": tool_lang.split("-")[0],
+                                "language": language,
                                 "cpg_frontend_invocation": " ".join(cmd_list_with_args),
                                 "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                             },

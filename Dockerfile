@@ -22,7 +22,7 @@ ENV JOERN_HOME=/opt/joern/joern-cli/bin \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     CLASSPATH=$CLASSPATH:/usr/local/bin: \
-    PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin/:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:
+    PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:
 
 COPY . /usr/local/src/
 
@@ -40,8 +40,9 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && unzip -q sbt-${SBT_VERSION}.zip -d /opt/ \
     && chmod +x /opt/sbt/bin/sbt \
     && rm sbt-${SBT_VERSION}.zip \
-    && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/java2cpg.jar \
-    && ln -s /opt/joern/joern-cli/bin/java2cpg.jar /usr/local/bin/java2cpg.jar \
+    && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /usr/local/bin/java2cpg.jar \
+    && echo -e "#!/usr/bin/env bash\njava -jar /usr/local/bin/java2cpg.jar $*" > /usr/local/bin/java2cpg.sh \
+    && chmod +x /usr/local/bin/java2cpg.sh \
     && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
     && chmod +x /opt/joern/joern-cli/bin/go2cpg && go2cpg version \
     && ln -s /opt/joern/joern-cli/bin/go2cpg /usr/local/bin/go2cpg \
