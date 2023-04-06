@@ -363,10 +363,15 @@ def exec_tool(
                         # Override the language for jvm
                         if language in ("jar", "scala"):
                             language = "java"
+                        app_base_name = os.getenv(
+                            "GITHUB_REPOSITORY", os.path.basename(amodule)
+                        )
+                        app_base_name = app_base_name.split("/")[-1]
                         json.dump(
                             {
                                 "src": amodule,
-                                "app": f"{os.path.basename(amodule)}-{language}",
+                                "group": app_base_name,
+                                "app": f"{app_base_name}-{language}",
                                 "cpg": cpg_out,
                                 "sbom": sbom_out,
                                 "language": language,
