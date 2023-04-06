@@ -310,10 +310,7 @@ def detect_project_type(src_dir):
     if find_files(src_dir, "pom.xml", False, True) or find_files(
         src_dir, ".gradle", False, True
     ):
-        if gradle_cache_exists or maven_cache_exists:
-            project_types.append("java-with-deps")
-        else:
-            project_types.append("java")
+        project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
         project_types.append("jsp")
     if (

@@ -43,8 +43,7 @@ def get(configName, default_value=None):
 cpg_tools_map = {
     "c": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
     "cpp": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "java-with-deps": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
+    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
     "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "ts": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
@@ -302,6 +301,21 @@ def exec_tool(
                 cwd = amodule
                 if tool_lang in ("binary",):
                     cwd = os.getcwd()
+                # Generate sbom first since this would even download dependencies for java
+                try:
+                    subprocess.run(
+                        sbom_cmd_list_with_args,
+                        stdout=stdout,
+                        stderr=stderr,
+                        cwd=cwd,
+                        env=env,
+                        check=False,
+                        shell=False,
+                        encoding="utf-8",
+                    )
+                except Exception:
+                    # Ignore sbom generation errors
+                    pass
                 cp = subprocess.run(
                     cmd_list_with_args,
                     stdout=stdout,
@@ -322,21 +336,6 @@ def exec_tool(
                     and cp.stdout is not None
                 ):
                     LOG.debug(cp.stdout)
-                # Generate sbom
-                try:
-                    subprocess.run(
-                        sbom_cmd_list_with_args,
-                        stdout=stdout,
-                        stderr=stderr,
-                        cwd=cwd,
-                        env=env,
-                        check=False,
-                        shell=False,
-                        encoding="utf-8",
-                    )
-                except Exception:
-                    # Ignore sbom generation errors
-                    pass
                 progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
                     LOG.info(
