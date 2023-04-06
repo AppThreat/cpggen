@@ -207,6 +207,7 @@ def check_command(cmd):
     """
     try:
         cpath = shutil.which(cmd, mode=os.F_OK | os.X_OK)
+        print (cpath)
         return cpath is not None
     except Exception:
         return False

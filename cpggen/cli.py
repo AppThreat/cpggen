@@ -249,7 +249,6 @@ def main():
             )
     # GitHub action is very weird
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
-        print (os.environ)
         joern_home = ""
     is_temp_dir = False
     if src.startswith("http") or src.startswith("git"):
