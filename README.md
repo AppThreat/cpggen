@@ -139,3 +139,13 @@ Use the marketplace [action](https://github.com/marketplace/actions/cpggen) to g
 ## License
 
 Apache-2.0
+
+## Developing / Contributing
+
+```
+git clone git@github.com:AppThreat/cpggen.git
+python -m pip install --upgrade pip
+python -m pip install poetry
+# Add poetry to the PATH environment variable
+poetry install
+```
