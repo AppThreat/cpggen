@@ -57,6 +57,9 @@ To specify language type.
 
 ```
 cpggen -i <src directory> -o <CPG directory or file name> -l java
+
+# Comma separated values are accepted for multiple languages
+cpggen -i <src directory> -o <CPG directory or file name> -l java,js,python
 ```
 
 Container based invocation
@@ -144,8 +147,12 @@ Apache-2.0
 
 ```
 git clone git@github.com:AppThreat/cpggen.git
+cd cpggen
+
 python -m pip install --upgrade pip
 python -m pip install poetry
 # Add poetry to the PATH environment variable
 poetry install
+
+poetry run cpggen -i <src directory>
 ```
