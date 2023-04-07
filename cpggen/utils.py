@@ -123,12 +123,16 @@ def is_ignored_dir(base_dir, dir_name):
     dir_name = dir_name.lower()
     if dir_name.startswith("."):
         return True
-    elif dir_name.startswith("/" + base_dir):
-        dir_name = re.sub(r"^/" + base_dir + "/", "", dir_name)
+    elif dir_name.startswith(os.path.sep + base_dir):
+        dir_name = re.sub(r"^" + os.path.sep + base_dir + os.path.sep, "", dir_name)
     elif dir_name.startswith(base_dir):
-        dir_name = re.sub(r"^" + base_dir + "/", "", dir_name)
+        dir_name = re.sub(r"^" + base_dir + os.path.sep, "", dir_name)
     for d in ignore_directories:
-        if dir_name == d or dir_name.startswith(d) or ("/" + d + "/") in dir_name:
+        if (
+            dir_name == d
+            or dir_name.startswith(d)
+            or (os.path.sep + d + os.path.sep) in dir_name
+        ):
             return True
     return False
 
