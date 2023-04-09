@@ -1,0 +1,82 @@
+on:
+  push:
+  schedule:
+  - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  cpggen-Linux-Build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Checkout cpggen
+      uses: actions/checkout@v3
+      with:
+        repository: AppThreat/cpggen
+        path: cpggen
+    - name: Checkout cdxgen
+      uses: actions/checkout@v3
+      with:
+        repository: CycloneDX/cdxgen
+        path: cdxgen
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - name: Install pyinstaller
+      run: |
+        python3 -m pip install twine setuptools wheel pyinstaller poetry
+        cd cpggen
+        poetry config virtualenvs.create false
+        poetry install --no-cache --without dev
+        wget https://github.com/upx/upx/releases/download/v4.0.1/upx-4.0.1-amd64_linux.tar.xz
+        tar -xvf upx-4.0.1-amd64_linux.tar.xz
+        chmod +x upx-4.0.1-amd64_linux/upx
+        sudo cp upx-4.0.1-amd64_linux/upx /usr/local/bin/
+    - name: Produce cdxgen pkg
+      run: |
+        sudo npm install -g pkg
+        cd cdxgen
+        npm install
+        pkg -t node18-linux --public package.json --out-path dist
+        chmod +x dist/cdxgen
+        ./dist/cdxgen --version
+    - name: Binary amd64 build
+      run: |
+        cd cpggen
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
+        ./dist/cpggen-linux-amd64 --help
+    - name: BLint
+      run: |
+        pip3 install blint
+        blint -i cpggen/dist -o /tmp/reports
+      env:
+        PYTHONIOENCODING: utf-8
+        LANG: en_US.utf-8
+    - name: Upload cpggen
+      run: |
+        cd ./cpggen/dist
+        echo $GITHUB_TOKEN | oras login ghcr.io -u $GITHUB_USERNAME --password-stdin
+        oras push ghcr.io/appthreat/cpggen-bin:v1 \
+          --config ../../bin-build/config.json:application/vnd.oras.config.v1+json \
+          --annotation-file ../../bin-build/annotations.json \
+          ./cpggen-linux-amd64:application/vnd.appthreat.cpggen.layer.v1+tar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ github.actor }}
+    - uses: actions/upload-artifact@v1
+      if: startsWith(github.ref, 'refs/tags/') != true
+      with:
+        path: ./cpggen/dist
+        name: cpggen-linux-amd64
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          cpggen/dist/cpggen-linux-amd64
+          cpggen/dist/cpggen-linux-amd64.sha256

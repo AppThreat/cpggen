@@ -1,0 +1,62 @@
+name: Build Alpine Binaries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cpggen-Alpine-Build:
+    runs-on: ubuntu-latest
+    container: python:3.10-alpine
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install packages
+      run: |
+        apk update
+        apk add py3-pip python3-dev curl wget jq tree cmake make gcc git g++ musl-dev libffi-dev openssl-dev py3-cffi py3-twine py3-wheel py3-setuptools ca-certificates zlib-dev xz nodejs npm bash tar gcompat
+    - name: Checkout cpggen
+      uses: actions/checkout@v3
+      with:
+        repository: AppThreat/cpggen
+        path: cpggen
+    - name: Checkout cdxgen
+      uses: actions/checkout@v3
+      with:
+        repository: CycloneDX/cdxgen
+        path: cdxgen
+    - name: Install pyinstaller
+      run: |
+        python3 -m pip install twine setuptools wheel pyinstaller poetry
+        cd cpggen
+        poetry config virtualenvs.create false
+        poetry install --no-cache --without dev
+        wget https://github.com/upx/upx/releases/download/v4.0.1/upx-4.0.1-amd64_linux.tar.xz
+        tar -xvf upx-4.0.1-amd64_linux.tar.xz
+        chmod +x upx-4.0.1-amd64_linux/upx
+        cp upx-4.0.1-amd64_linux/upx /usr/local/bin/
+    - name: Produce cdxgen pkg
+      run: |
+        npm install -g pkg
+        cd cdxgen
+        npm install
+        pkg -t node18-alpine --public package.json --out-path dist
+        chmod +x dist/cdxgen
+        ./dist/cdxgen --version
+    - name: Binary alpine build
+      run: |
+        cd cpggen
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-musl --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        sha256sum ./dist/cpggen-linux-musl > ./dist/cpggen-linux-musl.sha256
+        ./dist/cpggen-linux-musl --help
+        ./dist/cpggen-linux-musl -i . -o /tmp/cpggen.json
+    - uses: actions/upload-artifact@v1
+      if: startsWith(github.ref, 'refs/tags/') != true
+      with:
+        path: ./cpggen/dist
+        name: cpggen-linux-musl
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          cpggen/dist/cpggen-linux-musl
+          cpggen/dist/cpggen-linux-musl.sha256

@@ -1,0 +1,67 @@
+name: Build Windows Binaries
+
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - 'v*'
+  workflow_dispatch:
+
+jobs:
+  cpggen-Windows-Build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Checkout cpggen
+      uses: actions/checkout@v3
+      with:
+        repository: AppThreat/cpggen
+        path: cpggen
+    - name: Checkout cdxgen
+      uses: actions/checkout@v3
+      with:
+        repository: CycloneDX/cdxgen
+        path: cdxgen
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - name: Install pyinstaller
+      run: |
+        python -m pip install twine setuptools wheel pyinstaller tzdata poetry
+        cd cpggen
+        poetry config virtualenvs.create false
+        poetry install --no-cache --without dev
+        pyinstaller --help
+    - name: Produce cdxgen pkg
+      run: |
+        npm install -g pkg
+        cd cdxgen
+        npm install
+        pkg -t node18-win --public package.json --out-path dist
+        .\dist\cdxgen.exe --version
+    - name: Binary windows build
+      run: |
+        cd cpggen
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
+        .\dist\cpggen.exe --help
+        (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
+      env:
+        PYTHONIOENCODING: utf-8
+        LANG: en_US.utf-8
+    - uses: actions/upload-artifact@v1
+      if: startsWith(github.ref, 'refs/tags/') != true
+      with:
+        path: cpggen/dist
+        name: cpggen-windows
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          cpggen/dist/cpggen.exe
+          cpggen/dist/cpggen.exe.sha256
