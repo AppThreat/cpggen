@@ -1,3 +1,5 @@
+name: Build Linux Binaries
+
 on:
   push:
   schedule:

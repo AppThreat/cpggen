@@ -72,7 +72,7 @@ jobs:
           path: 'repotests/juicy-malware'
       - name: repotests
         run: |
-          mkdir /tmp/all_cpgs
+          mkdir /tmp/all_cpgs /tmp/all_exports
           docker build -t ghcr.io/appthreat/cpggen .
           poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip" ]; then
@@ -80,7 +80,7 @@ jobs:
           else
             echo "Java direct test was not successful"
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java cpg test was successful"
@@ -116,6 +116,7 @@ jobs:
             echo "Binary cpg test was not successful"
           fi
           ls -ltr /tmp/all_cpgs
+          ls -ltr /tmp/all_exports
         env:
           AT_DEBUG_MODE: debug
           CPGGEN_CONTAINER_MEMORY: 7g

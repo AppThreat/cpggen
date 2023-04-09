@@ -61,6 +61,7 @@ cpg_tools_map = {
     "jsp": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp-with-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
+    "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
 }
 
 build_tools_map = {
@@ -183,6 +184,7 @@ def exec_tool(
     joern_home=None,
     use_container=False,
     auto_build=False,
+    extra_args={},
     env=os.environ.copy(),
     stdout=subprocess.DEVNULL,
 ):
@@ -199,10 +201,13 @@ def exec_tool(
         try:
             stderr = subprocess.DEVNULL
             if LOG.isEnabledFor(DEBUG):
-                stderr = subprocess.STDOUT
-            tool_verb = "Building CPG with"
+                stdout = subprocess.PIPE
+                stderr = stdout
+            tool_verb = f"Building CPG with {tool_lang} frontend"
+            if tool_lang == "export":
+                tool_verb = "Exporting CPG with joern-export"
             task = progress.add_task(
-                "[green]" + tool_verb + " " + tool_lang + " frontend",
+                "[green]" + tool_verb,
                 total=100,
                 start=False,
             )
@@ -242,27 +247,32 @@ def exec_tool(
                     # We need to fix joern_home to the directory inside the container
                     joern_home = ""
                 sbom_cmd_with_args = cpg_tools_map.get("sbom")
-                cpg_out = (
-                    cpg_out_dir
-                    if cpg_out_dir.endswith(".bin.zip")
-                    or cpg_out_dir.endswith(".bin")
-                    or cpg_out_dir.endswith(".cpg")
-                    else os.path.join(
-                        cpg_out_dir,
-                        f"{os.path.basename(amodule)}-{tool_lang}-cpg.bin.zip",
+                sbom_out = ""
+                manifest_out = ""
+                if tool_lang == "export":
+                    cpg_out = cpg_out_dir
+                else:
+                    cpg_out = (
+                        cpg_out_dir
+                        if cpg_out_dir.endswith(".bin.zip")
+                        or cpg_out_dir.endswith(".bin")
+                        or cpg_out_dir.endswith(".cpg")
+                        else os.path.join(
+                            cpg_out_dir,
+                            f"{os.path.basename(amodule)}-{tool_lang}-cpg.bin.zip",
+                        )
                     )
-                )
-                sbom_out = (
-                    cpg_out.replace(".bin.zip", ".bom.xml")
-                    if cpg_out.endswith(".bin.zip")
-                    else f"{cpg_out}.bom.xml"
-                )
-                manifest_out = (
-                    cpg_out.replace(".bin.zip", ".manifest.json")
-                    if cpg_out.endswith(".bin.zip")
-                    else f"{cpg_out}.manifest.json"
-                )
-                LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
+                    sbom_out = (
+                        cpg_out.replace(".bin.zip", ".bom.xml")
+                        if cpg_out.endswith(".bin.zip")
+                        else f"{cpg_out}.bom.xml"
+                    )
+                    manifest_out = (
+                        cpg_out.replace(".bin.zip", ".manifest.json")
+                        if cpg_out.endswith(".bin.zip")
+                        else f"{cpg_out}.manifest.json"
+                    )
+                    LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
                 cmd_with_args = cmd_with_args % dict(
                     src=amodule,
                     cpg_out=cpg_out,
@@ -273,11 +283,10 @@ def exec_tool(
                     memory=os.getenv("CPGGEN_MEMORY", max_memory),
                     tool_lang=tool_lang,
                     sbom_out=sbom_out,
+                    **extra_args,
                 )
                 sbom_cmd_with_args = sbom_cmd_with_args % dict(
-                    src=amodule,
-                    tool_lang=tool_lang,
-                    sbom_out=sbom_out,
+                    src=amodule, tool_lang=tool_lang, sbom_out=sbom_out, **extra_args
                 )
                 cmd_list_with_args = cmd_with_args.split(" ")
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
@@ -292,6 +301,34 @@ def exec_tool(
                             f"{lang_cmd} is not found. Ensure the PATH variable in your container image is set to the bin directory of Joern."
                         )
                     return
+                # Is this an Export task?
+                if tool_lang == "export":
+                    try:
+                        cp = subprocess.run(
+                            cmd_list_with_args,
+                            stdout=stdout,
+                            stderr=stderr,
+                            cwd=cwd,
+                            env=env,
+                            check=False,
+                            shell=False,
+                            encoding="utf-8",
+                        )
+                        if cp and cp.returncode and cp.stderr:
+                            LOG.warn(f"Export CPG has failed for {src}")
+                            if cp.stdout:
+                                LOG.info(cp.stdout)
+                            if cp.stderr:
+                                LOG.info("------------------------------")
+                                LOG.info(cp.stderr)
+                                LOG.info("------------------------------")
+                                LOG.info(
+                                    "Please report the above error to https://github.com/joernio/joern/issues"
+                                )
+                    except Exception:
+                        LOG.warn(f"Unable to export {src} to {cpg_out_dir}")
+                    progress.update(task, completed=100, total=100)
+                    continue
                 LOG.debug(
                     '⚡︎ Generating CPG for the {} app "{}" - "{}"'.format(
                         tool_lang,
@@ -330,13 +367,11 @@ def exec_tool(
                 if cp and stdout == subprocess.PIPE:
                     for line in cp.stdout:
                         progress.update(task, completed=5)
-                if (
-                    cp
-                    and LOG.isEnabledFor(DEBUG)
-                    and cp.returncode
-                    and cp.stdout is not None
-                ):
-                    LOG.debug(cp.stdout)
+                if cp and LOG.isEnabledFor(DEBUG) and cp.returncode:
+                    if cp.stdout:
+                        LOG.debug(cp.stdout)
+                    if cp.stderr:
+                        LOG.debug(cp.stderr)
                 progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
                     # go2cpg seems to produce a cpg without read permissions
