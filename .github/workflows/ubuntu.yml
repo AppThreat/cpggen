@@ -2,6 +2,10 @@ name: Build Linux Binaries
 
 on:
   push:
+    branches:
+    - main
+    tags:
+    - 'v*'
   schedule:
   - cron: "0 */12 * * *"
   workflow_dispatch:
