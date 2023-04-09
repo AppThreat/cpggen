@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import json
 import os
+import shutil
 import signal
 import tempfile
 from multiprocessing import Pool
@@ -41,7 +43,7 @@ def build_args():
     )
     parser.add_argument(
         "-o",
-        "--out_dir",
+        "--out-dir",
         dest="cpg_out_dir",
         help="CPG output directory",
         default=os.path.join(os.getcwd(), "cpg_out"),
@@ -116,6 +118,33 @@ def build_args():
         default=os.getenv("CPGGEN_PORT", "7072"),
         dest="server_port",
         help="cpggen server port",
+    )
+    parser.add_argument(
+        "--export",
+        action="store_true",
+        default=False,
+        dest="export",
+        help="Export CPG as a graph",
+    )
+    parser.add_argument(
+        "--export-repr",
+        default="all",
+        dest="export_repr",
+        choices=["ast", "cfg", "cdg", "ddg", "pdg", "cpg", "all"],
+        help="Graph representation to export",
+    )
+    parser.add_argument(
+        "--export-format",
+        default="dot",
+        dest="export_format",
+        choices=["neo4jcsv", "graphml", "graphson", "dot"],
+        help="Export format",
+    )
+    parser.add_argument(
+        "--export-out-dir",
+        default=os.path.join(os.getcwd(), "export_out"),
+        dest="export_out_dir",
+        help="Export output directoru",
     )
     return parser.parse_args()
 
@@ -222,8 +251,72 @@ def cpg(src, cpg_out_dir, languages, joern_home, use_container=False, auto_build
                             joern_home,
                             use_container,
                             auto_build,
+                            {},
                         ),
                     )
+                pool.close()
+            except KeyboardInterrupt:
+                pool.terminate()
+            pool.join()
+
+
+def collect_cpg_manifests(cpg_out_dir):
+    return utils.find_files(cpg_out_dir, ".manifest.json")
+
+
+def export_cpg(
+    src,
+    cpg_out_dir,
+    joern_home,
+    use_container,
+    export_repr,
+    export_format,
+    export_out_dir,
+):
+    if __name__ in ("__main__", "cpggen.cli"):
+        with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
+            try:
+                cpg_manifests = collect_cpg_manifests(cpg_out_dir)
+                for amanifest in cpg_manifests:
+                    with open(amanifest) as mfp:
+                        manifest_obj = json.load(mfp)
+                        if not manifest_obj or not manifest_obj.get("cpg"):
+                            continue
+                        app_export_out_dir = os.path.join(
+                            export_out_dir, manifest_obj["app"]
+                        )
+                        try:
+                            # joern-export annoyingly will not overwrite directories
+                            # but would expect first level directories to exist
+                            if os.path.exists(app_export_out_dir):
+                                try:
+                                    shutil.rmtree(app_export_out_dir)
+                                except Exception:
+                                    # Ignore remove errors
+                                    pass
+                            os.makedirs(export_out_dir, exist_ok=True)
+                        except Exception:
+                            # Ignore errors
+                            pass
+                        LOG.debug(
+                            f"""Exporting CPG for the app {manifest_obj["app"]} to {app_export_out_dir}"""
+                        )
+                        pool.apply_async(
+                            executor.exec_tool,
+                            (
+                                "export",
+                                manifest_obj["cpg"],
+                                app_export_out_dir,
+                                cpg_out_dir,
+                                joern_home,
+                                use_container,
+                                False,
+                                {
+                                    "export_repr": export_repr,
+                                    "export_format": export_format,
+                                },
+                            ),
+                        )
                 pool.close()
             except KeyboardInterrupt:
                 pool.terminate()
@@ -273,9 +366,19 @@ def main():
         use_container=use_container,
         auto_build=args.auto_build,
     )
+    if args.export:
+        export_cpg(
+            src,
+            cpg_out_dir,
+            joern_home=joern_home,
+            use_container=use_container,
+            export_repr=args.export_repr,
+            export_format=args.export_format,
+            export_out_dir=args.export_out_dir,
+        )
     if is_temp_dir:
         try:
-            os.remove(src)
+            shutil.rmtree(src)
         except Exception:
             # Ignore cleanup errors
             pass

@@ -42,7 +42,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen binary plugins
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v0.7.2/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v0.8.0/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -50,7 +50,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v0.7.2/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v0.8.0/cpggen.exe
 .\cpggen.exe --help
 ```
 
@@ -97,6 +97,22 @@ Container based invocation
 
 ```
 docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name>
+```
+
+### Export graphs
+
+By passing `--export`, cpggen can export the various graphs to many formats using [joern-export](https://docs.joern.io/exporting/)
+
+Example to export `all` graphs in `dot` format
+
+```bash
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/export_out
+```
+
+To export `pdg` in `neo4jcsv` format
+
+```bash
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/export_out --export-repr pdg --export-format neo4jcsv
 ```
 
 ### Artifacts produced
