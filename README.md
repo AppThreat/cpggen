@@ -173,6 +173,9 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed |
 | CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                |
 | AT_DEBUG_MODE           | Set to debug to enable debug logging                              |
+| CPG_EXPORT              | Set to true to export CPG graphs in dot format                    |
+| CPG_EXPORT_REPR         | Graph to export. Default all                                      |
+| CPG_EXPORT_FORMAT       | Export format. Default dot                                        |
 
 ## GitHub actions
 

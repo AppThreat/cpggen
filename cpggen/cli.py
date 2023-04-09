@@ -122,20 +122,20 @@ def build_args():
     parser.add_argument(
         "--export",
         action="store_true",
-        default=False,
+        default=True if os.getenv("CPG_EXPORT") in ("true", "1") else False,
         dest="export",
         help="Export CPG as a graph",
     )
     parser.add_argument(
         "--export-repr",
-        default="all",
+        default=os.getenv("CPG_EXPORT_REPR", "all"),
         dest="export_repr",
         choices=["ast", "cfg", "cdg", "ddg", "pdg", "cpg", "all"],
         help="Graph representation to export",
     )
     parser.add_argument(
         "--export-format",
-        default="dot",
+        default=os.getenv("CPG_EXPORT_FORMAT", "dot"),
         dest="export_format",
         choices=["neo4jcsv", "graphml", "graphson", "dot"],
         help="Export format",
