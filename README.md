@@ -42,7 +42,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen binary plugins
 
 ```bash
-curl -LO https://github.com/appthreat/cpggen/releases/latest/cpggen-linux-amd64
+curl -LO https://github.com/appthreat/cpggen/releases/download/latest/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -50,7 +50,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/latest/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/latest/cpggen.exe
 .\cpggen.exe --help
 ```
 
