@@ -298,14 +298,23 @@ def export_cpg(
                         except Exception:
                             # Ignore errors
                             pass
+                        cpg_path = manifest_obj["cpg"]
+                        # In case of GitHub action we need to fix the cpg_path to prefix GITHUB_WORKSPACE
+                        # since the manifest would only have relative path
+                        if os.getenv("GITHUB_WORKSPACE") and not cpg_path.startswith(
+                            os.getenv("GITHUB_WORKSPACE")
+                        ):
+                            cpg_path = os.path.join(
+                                os.getenv("GITHUB_WORKSPACE"), cpg_path
+                            )
                         LOG.debug(
-                            f"""Exporting CPG for the app {manifest_obj["app"]} to {app_export_out_dir}"""
+                            f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
                         )
                         pool.apply_async(
                             executor.exec_tool,
                             (
                                 "export",
-                                manifest_obj["cpg"],
+                                cpg_path,
                                 app_export_out_dir,
                                 cpg_out_dir,
                                 joern_home,
