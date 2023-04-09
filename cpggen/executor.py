@@ -316,6 +316,10 @@ def exec_tool(
                         )
                         if cp and cp.returncode and cp.stderr:
                             LOG.warn(f"Export CPG has failed for {src}")
+                            if not os.getenv("AT_DEBUG_MODE"):
+                                LOG.info(
+                                    "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                                )
                             if cp.stdout:
                                 LOG.info(cp.stdout)
                             if cp.stderr:
@@ -332,7 +336,7 @@ def exec_tool(
                                 )
                             else:
                                 LOG.warn(
-                                    f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually"
+                                    f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually using the command {' '.join(cmd_list_with_args)}"
                                 )
                     except Exception:
                         LOG.warn(f"Unable to export {src} to {cpg_out_dir}")
@@ -430,11 +434,17 @@ def exec_tool(
                         )
                 else:
                     LOG.info(f"CPG {cpg_out} was not generated for {tool_lang}")
+                    if not os.getenv("AT_DEBUG_MODE"):
+                        LOG.info(
+                            "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                        )
                     if cp.stdout:
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
         except Exception as e:
-            if task:
-                progress.update(task, completed=20, total=10, visible=False)
+            if not os.getenv("AT_DEBUG_MODE"):
+                LOG.info(
+                    "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                )
             LOG.error(e)
