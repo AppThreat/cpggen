@@ -325,6 +325,15 @@ def exec_tool(
                                 LOG.info(
                                     "Please report the above error to https://github.com/joernio/joern/issues"
                                 )
+                        else:
+                            if os.path.exists(src):
+                                LOG.info(
+                                    f"CPG {src} successfully exported to {cpg_out_dir}"
+                                )
+                            else:
+                                LOG.warn(
+                                    f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually"
+                                )
                     except Exception:
                         LOG.warn(f"Unable to export {src} to {cpg_out_dir}")
                     progress.update(task, completed=100, total=100)
