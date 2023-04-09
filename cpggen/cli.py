@@ -231,7 +231,7 @@ def cpg(src, cpg_out_dir, languages, joern_home, use_container=False, auto_build
 
 
 def main():
-    console.print(product_logo, style="info")
+    print(product_logo)
     args = build_args()
     if args.server_mode:
         return run_server(args)
