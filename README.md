@@ -33,6 +33,37 @@ docker pull ghcr.io/appthreat/cpggen:nightly
 # podman pull ghcr.io/appthreat/cpggen:nightly
 ```
 
+### Single executable binaries
+
+Download the executable binary for your operating system from the [releases page](https://github.com/appthreat/cpggen/releases). These binary bundle the following:
+
+- cpggen with Python 3.10
+- cdxgen with Node.js 18
+- cdxgen binary plugins
+
+```bash
+curl -LO https://github.com/appthreat/cpggen/releases/latest/cpggen-linux-amd64
+chmod +x cpggen-linux-amd64
+./cpggen-linux-amd64 --help
+```
+
+On Windows,
+
+```powershell
+curl -LO https://github.com/appthreat/cpggen/releases/latest/cpggen.exe
+.\cpggen.exe --help
+```
+
+### OCI Artifacts via ORAS cli
+
+Use [ORAS cli](https://oras.land/cli/) to download the cpggen binary with Python and Node.js preinstalled.
+
+```bash
+oras pull ghcr.io/appthreat/cpggen-bin:v1
+chmod +x cpggen-linux-amd64
+./cpggen-linux-amd64 --help
+```
+
 ## Usage
 
 To auto detect the language from the current directory and generate CPG.
