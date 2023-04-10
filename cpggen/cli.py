@@ -8,7 +8,7 @@ import shutil
 import signal
 import tempfile
 from multiprocessing import Pool
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from quart import Quart, request
 
@@ -337,8 +337,8 @@ def main():
     args = build_args()
     if args.server_mode:
         return run_server(args)
-    src = args.src
-    cpg_out_dir = args.cpg_out_dir
+    src = str(PurePath(args.src))
+    cpg_out_dir = str(PurePath(args.cpg_out_dir))
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
@@ -383,7 +383,7 @@ def main():
             use_container=use_container,
             export_repr=args.export_repr,
             export_format=args.export_format,
-            export_out_dir=args.export_out_dir,
+            export_out_dir=str(PurePath(args.export_out_dir)),
         )
     if is_temp_dir:
         try:
