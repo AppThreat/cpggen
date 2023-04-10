@@ -13,8 +13,11 @@ from cpggen.utils import (
     check_command,
     find_csharp_artifacts,
     find_go_mods,
+    find_gradle_files,
     find_java_artifacts,
     find_makefiles,
+    find_pom_files,
+    find_sbt_files,
 )
 
 runtimeValues = {}
@@ -73,10 +76,20 @@ build_tools_map = {
             "package",
             "-Dmaven.test.skip=true",
         ],
-        "gradle": [get("GRADLE_CMD", "gradle"), "build"],
+        "gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "build"],
         "sbt": ["sbt", "compile"],
     },
-    "android": {"gradle": [get("GRADLE_CMD", "gradle"), "compileDebugSources"]},
+    "jar": {
+        "maven": [
+            get("MVN_CMD", "mvn"),
+            "compile",
+            "package",
+            "-Dmaven.test.skip=true",
+        ],
+        "gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "jar"],
+        "sbt": ["sbt", "stage"],
+    },
+    "android": {"gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "compileDebugSources"]},
     "kotlin": {
         "maven": [
             get("MVN_CMD", "mvn"),
@@ -92,7 +105,10 @@ build_tools_map = {
         "yarn": ["yarn", "install"],
         "rush": ["rush", "install", "--bypass-policy", "--no-link"],
     },
-    "go": ["go", "build", "./..."],
+    "go": {
+        "go": ["go", "build", "./..."],
+        "make": ["make", "build"],
+    },
     "php": {
         "init": ["composer", "init", "--quiet"],
         "install": ["composer", "install", "-n", "--ignore-platform-reqs"],
@@ -103,77 +119,69 @@ build_tools_map = {
 }
 
 
+def do_x_build(src, env, build_artefacts, tool_lang):
+    for k, v in build_artefacts.items():
+        build_sets = build_tools_map.get(tool_lang)
+        if isinstance(build_sets, dict):
+            build_args = build_tools_map[tool_lang][k]
+        else:
+            build_args = build_sets
+        for afile in v:
+            base_dir = os.path.dirname(afile)
+            build_args_str = " ".join(build_args)
+            if "%(" in build_args_str:
+                gradle_cmd = "gradle"
+                if os.path.exists(os.path.join(base_dir, "gradlew")):
+                    gradle_cmd = "gradlew"
+                    try:
+                        os.chmod(os.path.join(base_dir, "gradlew"), 0o755)
+                    except Exception:
+                        # Ignore errors
+                        pass
+                build_args_str = build_args_str % dict(gradle_cmd=gradle_cmd)
+            try:
+                LOG.debug(
+                    f"Executing {build_args_str} in {base_dir}. To speed up this step, cache your project's dependencies using the CI build cache."
+                )
+                cp = subprocess.run(
+                    build_args_str.split(" "),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=base_dir,
+                    env=env,
+                    check=False,
+                    shell=False,
+                    encoding="utf-8",
+                )
+                if cp and LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
+                    if cp.stderr:
+                        LOG.debug(cp.stderr)
+            except Exception as e:
+                LOG.debug(e)
+
+
+def do_jar_build(src, env):
+    build_artefacts = {
+        "gradle": find_gradle_files(src),
+        "maven": find_pom_files(src),
+        "sbt": find_sbt_files(src),
+    }
+    return do_x_build(src, env, build_artefacts, "jar")
+
+
 def do_go_build(src, env):
-    go_mods = find_go_mods(src)
-    makes = find_makefiles(src)
-    build_args = build_tools_map["go"]
-    for gmod in go_mods:
-        base_dir = os.path.dirname(gmod)
-        try:
-            LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
-            subprocess.run(
-                build_args,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                cwd=base_dir,
-                env=env,
-                check=False,
-                shell=False,
-                encoding="utf-8",
-            )
-        except Exception as e:
-            LOG.debug(e)
-    build_args = build_tools_map["make"]
-    for make in makes:
-        base_dir = os.path.dirname(make)
-        try:
-            LOG.debug(f"Executing {' '.join(build_args)} in {base_dir}")
-            subprocess.run(
-                build_args,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                cwd=base_dir,
-                env=env,
-                check=False,
-                shell=False,
-                encoding="utf-8",
-            )
-        except Exception as e:
-            LOG.debug(e)
+    build_artefacts = {"go": find_go_mods(src), "make": find_makefiles(src)}
+    return do_x_build(src, env, build_artefacts, "go")
 
 
 def do_build(tool_lang, src, cwd, env):
     build_args = None
-    if tool_lang in ("csharp", "scala"):
-        build_args = build_tools_map[tool_lang]
+    if tool_lang in ("csharp",):
+        do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
+    elif tool_lang in ("jar", "scala"):
+        do_jar_build(src, env)
     elif tool_lang == "go":
         do_go_build(src, env)
-    # For go, we need to detect the go.mod files and attempt build from those directories
-    if build_args:
-        LOG.info(
-            '⚡︎ Attempting to auto build {} "{}"'.format(
-                tool_lang, " ".join(build_args)
-            )
-        )
-        try:
-            cp = subprocess.run(
-                build_args,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                cwd=cwd,
-                env=env,
-                check=False,
-                shell=False,
-                encoding="utf-8",
-            )
-            if cp:
-                if cp.stdout:
-                    LOG.info(cp.stdout)
-                if cp.stderr:
-                    LOG.info(cp.stderr)
-        except Exception as e:
-            LOG.warn("Auto build has failed")
-            LOG.warn(e)
 
 
 def exec_tool(
@@ -220,12 +228,12 @@ def exec_tool(
             if "uber_jar" in cmd_with_args:
                 stdout = subprocess.PIPE
                 java_artifacts = find_java_artifacts(src)
-                if len(java_artifacts) == 1:
+                if len(java_artifacts):
                     uber_jar = java_artifacts[0]
             if "csharp_artifacts" in cmd_with_args:
                 stdout = subprocess.PIPE
                 csharp_artifacts = find_csharp_artifacts(src)
-                if len(csharp_artifacts) == 1:
+                if len(csharp_artifacts):
                     csharp_artifacts = csharp_artifacts[0]
             if auto_build:
                 do_build(tool_lang, src, cwd, env)

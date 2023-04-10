@@ -34,6 +34,10 @@ ignore_directories = [
     "mock",
     "mocks",
     "vendor",
+    "instancemode-tests",
+    "integration-tests",
+    "oauth2-tests",
+    "twofactor-tests",
 ]
 
 ignore_files = [
@@ -202,6 +206,18 @@ def find_go_mods(search_dir):
 
 def find_makefiles(search_dir):
     return find_files(search_dir, "Makefile", False, False)
+
+
+def find_gradle_files(search_dir):
+    return find_files(search_dir, "build.gradle", False, False)
+
+
+def find_pom_files(search_dir):
+    return find_files(search_dir, "pom.xml", False, False)
+
+
+def find_sbt_files(search_dir):
+    return find_files(search_dir, "build.sbt", False, False)
 
 
 def check_command(cmd):

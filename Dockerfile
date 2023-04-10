@@ -15,6 +15,12 @@ ENV JOERN_HOME=/opt/joern/joern-cli/bin \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
     SBT_VERSION=1.8.2 \
+    GRADLE_VERSION=8.0.2 \
+    GRADLE_HOME=/opt/gradle-8.0.2 \
+    GRADLE_OPTS="-Dorg.gradle.daemon=false" \
+    JAVA_HOME="/etc/alternatives/jre_17" \
+    JAVA_8_HOME="/usr/lib/jvm/jre-1.8.0" \
+    JAVA_11_HOME="/usr/lib/jvm/java-11" \
     CGO_ENABLED=1 \
     GO111MODULE="" \
     GOOS="linux" \
@@ -22,13 +28,13 @@ ENV JOERN_HOME=/opt/joern/joern-cli/bin \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     CLASSPATH=$CLASSPATH:/usr/local/bin: \
-    PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:
+    PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:${GOPATH}/bin:/usr/local/go/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:${JAVA_HOME}/bin:
 
 COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf install -y gcc git-core php php-cli python3 python3-devel pcre2 which tar zip unzip sudo \
-        java-17-openjdk-headless java-1.8.0-openjdk-headless ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
+        java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz \
     && curl -LO https://github.com/joernio/joern/releases/latest/download/joern-install.sh \
     && chmod +x ./joern-install.sh \
@@ -36,6 +42,11 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
+    && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
+    && unzip -q gradle-${GRADLE_VERSION}-bin.zip -d /opt/ \
+    && chmod +x /opt/gradle-${GRADLE_VERSION}/bin/gradle \
+    && rm gradle-${GRADLE_VERSION}-bin.zip \
+    && ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
     && curl -LO "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.zip" \
     && unzip -q sbt-${SBT_VERSION}.zip -d /opt/ \
     && chmod +x /opt/sbt/bin/sbt \

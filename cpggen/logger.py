@@ -28,7 +28,7 @@ logging.basicConfig(
 LOG = logging.getLogger(__name__)
 
 # Set logging level
-if os.getenv("AT_DEBUG_MODE") == "debug":
+if os.getenv("AT_DEBUG_MODE") in ("debug", "true", "1"):
     LOG.setLevel(logging.DEBUG)
 
 DEBUG = logging.DEBUG
