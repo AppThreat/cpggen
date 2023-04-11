@@ -123,9 +123,10 @@ build_tools_map = {
 
 def qwiet_analysis(app_manifest, cwd, env):
     try:
-        LOG.debug(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
+        LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
         build_args = cpg_tools_map["qwiet"]
         build_args = build_args % dict(**app_manifest)
+        LOG.debug(f"Executing {build_args}")
         cp = subprocess.run(
             build_args.split(" "),
             stdout=subprocess.PIPE,
@@ -141,6 +142,8 @@ def qwiet_analysis(app_manifest, cwd, env):
                 LOG.debug(cp.stdout)
             if cp.returncode and cp.stderr:
                 LOG.info(cp.stderr)
+            else:
+                LOG.info(f"{app_manifest['app']} uploaded successfully")
     except Exception as e:
         LOG.error(e)
 
@@ -346,6 +349,9 @@ def exec_tool(
                 # Is this an Export task?
                 if tool_lang == "export":
                     try:
+                        progress.update(
+                            task, description="Exporting CPG", completed=90, total=100
+                        )
                         cp = subprocess.run(
                             cmd_list_with_args,
                             stdout=stdout,
@@ -396,6 +402,12 @@ def exec_tool(
                     cwd = os.getcwd()
                 # Generate sbom first since this would even download dependencies for java
                 try:
+                    progress.update(
+                        task,
+                        description="Generating SBoM using cdxgen",
+                        completed=10,
+                        total=100,
+                    )
                     subprocess.run(
                         sbom_cmd_list_with_args,
                         stdout=stdout,
@@ -409,6 +421,9 @@ def exec_tool(
                 except Exception:
                     # Ignore sbom generation errors
                     pass
+                progress.update(
+                    task, description="Generating CPG", completed=20, total=100
+                )
                 cp = subprocess.run(
                     cmd_list_with_args,
                     stdout=stdout,
@@ -427,7 +442,6 @@ def exec_tool(
                         LOG.debug(cp.stdout)
                     if cp.stderr:
                         LOG.debug(cp.stderr)
-                progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
                     # go2cpg seems to produce a cpg without read permissions
                     try:
@@ -472,6 +486,12 @@ def exec_tool(
                             "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                         }
                         if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
+                            progress.update(
+                                task,
+                                description="Uploading to Qwiet AI for analysis",
+                                completed=90,
+                                total=100,
+                            )
                             qwiet_analysis(app_manifest, cwd, env)
                         json.dump(app_manifest, mfp)
                 else:
@@ -484,6 +504,7 @@ def exec_tool(
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
+                progress.update(task, completed=100, total=100)
         except Exception as e:
             if not os.getenv("AT_DEBUG_MODE"):
                 LOG.info(
