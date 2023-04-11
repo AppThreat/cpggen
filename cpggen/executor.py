@@ -66,7 +66,7 @@ cpg_tools_map = {
     "jsp-without-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "qwiet": "sl analyze --tag branch=cpggen-test --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
+    "qwiet": "sl analyze --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
 
 build_tools_map = {
