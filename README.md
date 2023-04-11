@@ -11,6 +11,13 @@
 
 CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io) for multiple languages. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to [Qwiet.AI](https://docs.shiftleft.io/home) for analysis.
 
+## Pre-requisites
+
+- JDK 11 or above
+- Python 3.10
+- Docker or podman (Windows, Linux or Mac) or
+- Joern [natively installed](https://docs.joern.io/installation) (Linux only)
+
 ## Installation
 
 cpggen is available as a [PyPI package](https://pypi.org/project/cpggen/) or as a [container image](https://github.com/AppThreat/cpggen/pkgs/container/cpggen).
