@@ -331,8 +331,11 @@ def exec_tool(
                     sbom_out=sbom_out,
                     **extra_args,
                 )
+                sbom_lang = tool_lang
+                if tool_lang in ("jar", "scala"):
+                    sbom_lang = "java"
                 sbom_cmd_with_args = sbom_cmd_with_args % dict(
-                    src=amodule, tool_lang=tool_lang, sbom_out=sbom_out, **extra_args
+                    src=src, tool_lang=sbom_lang, sbom_out=sbom_out, **extra_args
                 )
                 cmd_list_with_args = cmd_with_args.split(" ")
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
@@ -409,7 +412,11 @@ def exec_tool(
                         completed=10,
                         total=100,
                     )
-                    subprocess.run(
+                    # Enable debug for sbom tool
+                    if LOG.isEnabledFor(DEBUG):
+                        env["SCAN_DEBUG_MODE"] = "debug"
+                    LOG.debug(f"Executing {' '.join(sbom_cmd_list_with_args)}")
+                    cp = subprocess.run(
                         sbom_cmd_list_with_args,
                         stdout=stdout,
                         stderr=stderr,
@@ -419,8 +426,13 @@ def exec_tool(
                         shell=False,
                         encoding="utf-8",
                     )
+                    if cp and LOG.isEnabledFor(DEBUG):
+                        if cp.stdout:
+                            LOG.debug(cp.stdout)
+                        if cp.stderr:
+                            LOG.debug(cp.stderr)
                 except Exception:
-                    # Ignore sbom generation errors
+                    # Ignore SBoM errors
                     pass
                 progress.update(
                     task, description="Generating CPG", completed=20, total=100

@@ -66,7 +66,7 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && mkdir -p /opt/joern/custom_scripts \
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \
-    && npm install -g @cyclonedx/cdxgen \
+    && npm install -g @cyclonedx/cdxgen --omit=optional \
     && python -m pip install --no-cache-dir poetry==1.3.2 \
     && poetry config virtualenvs.create false \
     && cd /usr/local/src/ && poetry install --no-cache --without dev \
