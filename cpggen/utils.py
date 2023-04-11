@@ -332,7 +332,10 @@ def detect_project_type(src_dir):
         or find_files(src_dir, ".gradle", False, True)
         or find_files(src_dir, ".java", False, True)
     ):
-        project_types.append("java")
+        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
+            project_types.append("jar")
+        else:
+            project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
         project_types.append("jsp")
     if (
