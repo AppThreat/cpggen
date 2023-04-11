@@ -187,7 +187,7 @@ def find_java_artifacts(search_dir):
                         ):
                             jlist.append(os.path.join(dirname, filename))
                             zf.write(os.path.join(dirname, filename))
-    print (jlist)
+    print (jlist, search_dir)
     return jlist if len(jlist) == 1 else [zfile.name]
 
 

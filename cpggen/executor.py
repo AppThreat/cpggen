@@ -66,7 +66,7 @@ cpg_tools_map = {
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "qwiet": "sl analyze --verbose --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
+    "qwiet": "sl analyze --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
 
 build_tools_map = {
@@ -269,6 +269,10 @@ def exec_tool(
             cmd_with_args = cpg_tools_map.get(tool_lang)
             if not cmd_with_args:
                 return
+            # Perform build first
+            if auto_build:
+                LOG.info(f"Auto build {src} for {tool_lang}")
+                do_build(tool_lang, src, cwd, env)
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -282,9 +286,6 @@ def exec_tool(
                 csharp_artifacts = find_csharp_artifacts(src)
                 if len(csharp_artifacts):
                     csharp_artifacts = csharp_artifacts[0]
-            if auto_build:
-                LOG.info(f"Auto build {src} for {tool_lang}")
-                do_build(tool_lang, src, cwd, env)
             modules = [src]
             # For go, the modules are based on the presence of go.mod files
             if tool_lang == "go":
