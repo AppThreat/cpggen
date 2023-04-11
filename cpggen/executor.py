@@ -47,7 +47,7 @@ def get(configName, default_value=None):
 cpg_tools_map = {
     "c": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
     "cpp": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies",
+    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.m2",
     "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "ts": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
@@ -75,8 +75,6 @@ build_tools_map = {
         "maven": [
             get("MVN_CMD", "%(maven_cmd)s"),
             "compile",
-            "package",
-            "-Dmaven.test.skip=true",
         ],
         "gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "build"],
         "sbt": ["sbt", "compile"],
@@ -179,9 +177,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     gradle_cmd=gradle_cmd, maven_cmd=maven_cmd
                 )
             try:
-                LOG.debug(
-                    f"Executing {build_args_str} in {base_dir}. To speed up this step, cache your project's dependencies using the CI build cache."
-                )
+                LOG.debug(f"Executing {build_args_str} in {base_dir}")
                 cp = subprocess.run(
                     build_args_str.split(" "),
                     stdout=subprocess.PIPE,
@@ -199,7 +195,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                 LOG.debug(e)
 
 
-def do_jar_build(src, env):
+def do_jar_build(tool_lang, src, env):
     build_artefacts = {
         "gradle": find_gradle_files(src),
         "maven": find_pom_files(src),
@@ -214,7 +210,7 @@ def do_jar_build(src, env):
             LOG.info(
                 "Set the environment variable AT_DEBUG_MODE to debug and look for any build errors"
             )
-    return do_x_build(src, env, build_artefacts, "jar")
+    return do_x_build(src, env, build_artefacts, tool_lang)
 
 
 def do_go_build(src, env):
@@ -226,7 +222,7 @@ def do_build(tool_lang, src, cwd, env):
     if tool_lang in ("csharp",):
         do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
     elif tool_lang in ("jar", "scala"):
-        do_jar_build(src, env)
+        do_jar_build(tool_lang, src, env)
     elif tool_lang == "go":
         do_go_build(src, env)
 
@@ -271,7 +267,9 @@ def exec_tool(
                 return
             # Perform build first
             if auto_build:
-                LOG.info(f"Auto build {src} for {tool_lang}")
+                LOG.info(
+                    f"Auto build {src} for {tool_lang}. To speed up this step, cache your project's dependencies using the CI build cache. Contact your DevOps person or refer to the documentation for your build server."
+                )
                 do_build(tool_lang, src, cwd, env)
             uber_jar = ""
             csharp_artifacts = ""
