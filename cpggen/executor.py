@@ -12,6 +12,7 @@ from cpggen.logger import DEBUG, LOG, console
 from cpggen.utils import (
     check_command,
     find_csharp_artifacts,
+    find_files,
     find_go_mods,
     find_gradle_files,
     find_java_artifacts,
@@ -65,6 +66,7 @@ cpg_tools_map = {
     "jsp-with-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
+    "qwiet": "sl analyze --tag app.group=%(group)s --app %(app)s-%(language)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
 
 build_tools_map = {
@@ -119,6 +121,33 @@ build_tools_map = {
 }
 
 
+def qwiet_analysis(app_manifest, cwd, env):
+    try:
+        LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
+        build_args = cpg_tools_map["qwiet"]
+        build_args = build_args % dict(**app_manifest)
+        LOG.debug(f"Executing {build_args}")
+        cp = subprocess.run(
+            build_args.split(" "),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=cwd,
+            env=env,
+            check=False,
+            shell=False,
+            encoding="utf-8",
+        )
+        if cp:
+            if LOG.isEnabledFor(DEBUG) and cp.stdout:
+                LOG.debug(cp.stdout)
+            if cp.returncode and cp.stderr:
+                LOG.info(cp.stderr)
+            else:
+                LOG.info(f"{app_manifest['app']} uploaded successfully")
+    except Exception as e:
+        LOG.error(e)
+
+
 def do_x_build(src, env, build_artefacts, tool_lang):
     for k, v in build_artefacts.items():
         build_sets = build_tools_map.get(tool_lang)
@@ -166,6 +195,15 @@ def do_jar_build(src, env):
         "maven": find_pom_files(src),
         "sbt": find_sbt_files(src),
     }
+    settings_xmls = find_files(src, "settings.xml", False, False)
+    if settings_xmls:
+        LOG.info(
+            "Maven settings.xml is present in this repo. This usually means that specific maven settings and profiles needs to be passed via the environment variable MVN_ARGS to build this application correctly."
+        )
+        if not os.getenv("AT_DEBUG_MODE"):
+            LOG.info(
+                "Set the environment variable AT_DEBUG_MODE to debug and look for any build errors"
+            )
     return do_x_build(src, env, build_artefacts, "jar")
 
 
@@ -175,7 +213,6 @@ def do_go_build(src, env):
 
 
 def do_build(tool_lang, src, cwd, env):
-    build_args = None
     if tool_lang in ("csharp",):
         do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
     elif tool_lang in ("jar", "scala"):
@@ -312,6 +349,9 @@ def exec_tool(
                 # Is this an Export task?
                 if tool_lang == "export":
                     try:
+                        progress.update(
+                            task, description="Exporting CPG", completed=90, total=100
+                        )
                         cp = subprocess.run(
                             cmd_list_with_args,
                             stdout=stdout,
@@ -326,7 +366,7 @@ def exec_tool(
                             LOG.warn(f"Export CPG has failed for {src}")
                             if not os.getenv("AT_DEBUG_MODE"):
                                 LOG.info(
-                                    "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                                    "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                                 )
                             if cp.stdout:
                                 LOG.info(cp.stdout)
@@ -362,6 +402,12 @@ def exec_tool(
                     cwd = os.getcwd()
                 # Generate sbom first since this would even download dependencies for java
                 try:
+                    progress.update(
+                        task,
+                        description="Generating SBoM using cdxgen",
+                        completed=10,
+                        total=100,
+                    )
                     subprocess.run(
                         sbom_cmd_list_with_args,
                         stdout=stdout,
@@ -375,6 +421,9 @@ def exec_tool(
                 except Exception:
                     # Ignore sbom generation errors
                     pass
+                progress.update(
+                    task, description="Generating CPG", completed=20, total=100
+                )
                 cp = subprocess.run(
                     cmd_list_with_args,
                     stdout=stdout,
@@ -393,7 +442,6 @@ def exec_tool(
                         LOG.debug(cp.stdout)
                     if cp.stderr:
                         LOG.debug(cp.stderr)
-                progress.update(task, completed=100, total=100)
                 if os.path.exists(cpg_out):
                     # go2cpg seems to produce a cpg without read permissions
                     try:
@@ -427,32 +475,39 @@ def exec_tool(
                             app_base_name = os.getenv("GITHUB_REPOSITORY").split("/")[
                                 -1
                             ]
-                        json.dump(
-                            {
-                                "src": amodule,
-                                "group": app_base_name,
-                                "app": f"{app_base_name}-{language}",
-                                "cpg": cpg_out,
-                                "sbom": sbom_out,
-                                "language": language,
-                                "cpg_frontend_invocation": " ".join(cmd_list_with_args),
-                                "sbom_invocation": " ".join(sbom_cmd_list_with_args),
-                            },
-                            mfp,
-                        )
+                        app_manifest = {
+                            "src": amodule,
+                            "group": app_base_name,
+                            "app": f"{app_base_name}-{language}",
+                            "cpg": cpg_out,
+                            "sbom": sbom_out,
+                            "language": language,
+                            "cpg_frontend_invocation": " ".join(cmd_list_with_args),
+                            "sbom_invocation": " ".join(sbom_cmd_list_with_args),
+                        }
+                        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
+                            progress.update(
+                                task,
+                                description="Uploading to Qwiet AI for analysis",
+                                completed=90,
+                                total=100,
+                            )
+                            qwiet_analysis(app_manifest, cwd, env)
+                        json.dump(app_manifest, mfp)
                 else:
                     LOG.info(f"CPG {cpg_out} was not generated for {tool_lang}")
                     if not os.getenv("AT_DEBUG_MODE"):
                         LOG.info(
-                            "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                            "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                         )
                     if cp.stdout:
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
+                progress.update(task, completed=100, total=100)
         except Exception as e:
             if not os.getenv("AT_DEBUG_MODE"):
                 LOG.info(
-                    "Set the environment variable AT_DEBUG_MODE to true to see the debug logs"
+                    "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                 )
             LOG.error(e)

@@ -42,11 +42,7 @@ def build_args():
         "-i", "--src", dest="src", help="Source directory or url", default=os.getcwd()
     )
     parser.add_argument(
-        "-o",
-        "--out-dir",
-        dest="cpg_out_dir",
-        help="CPG output directory",
-        default=os.path.join(os.getcwd(), "cpg_out"),
+        "-o", "--out-dir", dest="cpg_out_dir", help="CPG output directory"
     )
     parser.add_argument(
         "-l",
@@ -142,7 +138,6 @@ def build_args():
     )
     parser.add_argument(
         "--export-out-dir",
-        default=os.path.join(os.getcwd(), "export_out"),
         dest="export_out_dir",
         help="Export output directoru",
     )
@@ -160,7 +155,7 @@ def run_server(args):
     app.run(
         host=args.server_host,
         port=args.server_port,
-        debug=True if os.getenv("AT_DEBUG_MODE") == "debug" else False,
+        debug=True if os.getenv("AT_DEBUG_MODE") in ("debug", "true", "1") else False,
         use_reloader=False,
     )
 
@@ -338,7 +333,14 @@ def main():
     if args.server_mode:
         return run_server(args)
     src = str(PurePath(args.src))
-    cpg_out_dir = str(PurePath(args.cpg_out_dir))
+    cpg_out_dir = args.cpg_out_dir
+    if not cpg_out_dir and src:
+        cpg_out_dir = os.path.join(src, "cpg_out")
+    cpg_out_dir = str(PurePath(cpg_out_dir))
+    export_out_dir = args.export_out_dir
+    if not export_out_dir and src:
+        export_out_dir = os.path.join(src, "export_out")
+    export_out_dir = str(PurePath(export_out_dir))
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
@@ -383,7 +385,7 @@ def main():
             use_container=use_container,
             export_repr=args.export_repr,
             export_format=args.export_format,
-            export_out_dir=str(PurePath(args.export_out_dir)),
+            export_out_dir=export_out_dir,
         )
     if is_temp_dir:
         try:

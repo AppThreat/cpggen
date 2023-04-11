@@ -4,7 +4,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
       org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
       org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
-      org.opencontainers.image.version="0.7.1" \
+      org.opencontainers.image.version="0.8.1" \
       org.opencontainers.image.vendor="AppThreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
@@ -61,6 +61,8 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && cd /opt/joern/joern-cli/ && unzip csharp2cpg.zip && rm /opt/joern/joern-cli/csharp2cpg.zip \
     && chmod +x /opt/joern/joern-cli/bin/csharp2cpg \
     && ln -s /opt/joern/joern-cli/bin/csharp2cpg /usr/local/bin/csharp2cpg \
+    && curl "https://cdn.shiftleft.io/download/sl" > /usr/local/bin/sl \
+    && chmod a+rx /usr/local/bin/sl \
     && mkdir -p /opt/joern/custom_scripts \
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \
