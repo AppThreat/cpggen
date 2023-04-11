@@ -171,14 +171,13 @@ def find_java_artifacts(search_dir):
     :param src: Directory to search
     :return: List of war or ear or jar files
     """
-    is_empty = True
+    jlist = []
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".jar", encoding="utf-8", delete=False
     ) as zfile:
         with zipfile.ZipFile(zfile.name, "w") as zf:
             for dirname, subdirs, files in os.walk(search_dir):
                 filter_ignored_dirs(subdirs)
-                is_empty = False
                 if not is_ignored_dir(search_dir, dirname):
                     for filename in files:
                         if (
@@ -186,8 +185,9 @@ def find_java_artifacts(search_dir):
                             or filename.endswith(".war")
                             or filename.endswith(".ear")
                         ):
+                            jlist.append(os.path.join(dirname, filename))
                             zf.write(os.path.join(dirname, filename))
-    return [] if is_empty else [zfile.name]
+    return jlist if len(jlist) == 1 else [zfile.name]
 
 
 def find_csharp_artifacts(search_dir):
