@@ -59,11 +59,11 @@ cpg_tools_map = {
     "csharp": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
     "go": "%(joern_home)sgo2cpg generate -o %(cpg_out)s ./...",
-    "jar": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb -nojsp --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jar-with-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nojsp --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
-    "scala": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nojsp --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jsp": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jsp-with-blocklist": "java -Xmx%(memory)s -jar /usr/local/bin/java2cpg.jar --experimental-langs scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "qwiet": "sl analyze --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
@@ -73,7 +73,7 @@ build_tools_map = {
     "csharp": ["dotnet", "build"],
     "java": {
         "maven": [
-            get("MVN_CMD", "mvn"),
+            get("MVN_CMD", "%(maven_cmd)s"),
             "compile",
             "package",
             "-Dmaven.test.skip=true",
@@ -83,7 +83,7 @@ build_tools_map = {
     },
     "jar": {
         "maven": [
-            get("MVN_CMD", "mvn"),
+            get("MVN_CMD", "%(maven_cmd)s"),
             "compile",
             "package",
             "-Dmaven.test.skip=true",
@@ -94,7 +94,7 @@ build_tools_map = {
     "android": {"gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "compileDebugSources"]},
     "kotlin": {
         "maven": [
-            get("MVN_CMD", "mvn"),
+            get("MVN_CMD", "%(maven_cmd)s"),
             "compile",
             "package",
             "-Dmaven.test.skip=true",
@@ -160,6 +160,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
             build_args_str = " ".join(build_args)
             if "%(" in build_args_str:
                 gradle_cmd = "gradle"
+                maven_cmd = "mvn"
                 if os.path.exists(os.path.join(base_dir, "gradlew")):
                     gradle_cmd = "gradlew"
                     try:
@@ -167,7 +168,16 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     except Exception:
                         # Ignore errors
                         pass
-                build_args_str = build_args_str % dict(gradle_cmd=gradle_cmd)
+                if os.path.exists(os.path.join(base_dir, "mvnw")):
+                    maven_cmd = "mvnw"
+                    try:
+                        os.chmod(os.path.join(base_dir, "mvnw"), 0o755)
+                    except Exception:
+                        # Ignore errors
+                        pass
+                build_args_str = build_args_str % dict(
+                    gradle_cmd=gradle_cmd, maven_cmd=maven_cmd
+                )
             try:
                 LOG.debug(
                     f"Executing {build_args_str} in {base_dir}. To speed up this step, cache your project's dependencies using the CI build cache."

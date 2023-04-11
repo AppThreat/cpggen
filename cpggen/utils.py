@@ -177,14 +177,16 @@ def find_java_artifacts(search_dir):
     ) as zfile:
         with zipfile.ZipFile(zfile.name, "w") as zf:
             for dirname, subdirs, files in os.walk(search_dir):
+                filter_ignored_dirs(subdirs)
                 is_empty = False
-                for filename in files:
-                    if (
-                        filename.endswith(".jar")
-                        or filename.endswith(".war")
-                        or filename.endswith(".ear")
-                    ):
-                        zf.write(os.path.join(dirname, filename), filename)
+                if not is_ignored_dir(search_dir, dirname):
+                    for filename in files:
+                        if (
+                            filename.endswith(".jar")
+                            or filename.endswith(".war")
+                            or filename.endswith(".ear")
+                        ):
+                            zf.write(os.path.join(dirname, filename))
     return [] if is_empty else [zfile.name]
 
 
