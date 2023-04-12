@@ -237,7 +237,11 @@ def do_go_build(src, env):
 def do_build(tool_lang, src, cwd, env):
     if tool_lang in ("csharp",):
         do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
-    elif tool_lang in ("jar", "scala"):
+    elif (
+        tool_lang in ("jar", "scala")
+        or tool_lang.startswith("jar")
+        or tool_lang.startswith("jsp")
+    ):
         do_jar_build(tool_lang, src, env)
     elif tool_lang == "go":
         do_go_build(src, env)
