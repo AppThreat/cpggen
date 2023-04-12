@@ -39,6 +39,8 @@ ignore_directories = [
     "integration-tests",
     "oauth2-tests",
     "twofactor-tests",
+    "gradle",
+    "buildSrc",
 ]
 
 ignore_files = [
