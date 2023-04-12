@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import zipfile
 from pathlib import Path
+from sys import platform
 
 import git
 
@@ -125,12 +126,13 @@ def is_ignored_dir(base_dir, dir_name):
     """
     base_dir = base_dir.lower()
     dir_name = dir_name.lower()
-    if dir_name.startswith("."):
-        return True
-    elif dir_name.startswith(os.path.sep + base_dir):
-        dir_name = re.sub(r"^" + os.path.sep + base_dir + os.path.sep, "", dir_name)
-    elif dir_name.startswith(base_dir):
-        dir_name = re.sub(r"^" + base_dir + os.path.sep, "", dir_name)
+    if platform != "win32":
+        if dir_name.startswith("."):
+            return True
+        elif dir_name.startswith(os.path.sep + base_dir):
+            dir_name = re.sub(r"^" + os.path.sep + base_dir + os.path.sep, "", dir_name)
+        elif dir_name.startswith(base_dir):
+            dir_name = re.sub(r"^" + base_dir + os.path.sep, "", dir_name)
     for d in ignore_directories:
         if (
             dir_name == d
