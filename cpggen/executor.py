@@ -176,7 +176,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
             build_args = build_sets
         if len(v) > 5:
             LOG.debug(
-                f"This project has multiple modules {len(v)}. Build might take a while ..."
+                f"This project has {len(v)} modules. Build might take a while ..."
             )
         for afile in v:
             base_dir = os.path.dirname(afile)

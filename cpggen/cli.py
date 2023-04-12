@@ -309,18 +309,22 @@ def main():
     args = build_args()
     if args.server_mode:
         return run_server(args)
-    src = str(PurePath(args.src))
+    src = args.src
     cpg_out_dir = args.cpg_out_dir
-    if not cpg_out_dir and src:
-        if os.path.isfile(src):
-            cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
-        else:
-            cpg_out_dir = os.path.join(src, "cpg_out")
-    cpg_out_dir = str(PurePath(cpg_out_dir))
     export_out_dir = args.export_out_dir
-    if not export_out_dir and src:
-        export_out_dir = os.path.join(src, "export_out")
-    export_out_dir = str(PurePath(export_out_dir))
+    if not src.startswith("http") and not src.startswith("git://"):
+        src = str(PurePath(args.src))
+        if not cpg_out_dir and src:
+            if os.path.isfile(src):
+                cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
+            else:
+                cpg_out_dir = os.path.join(src, "cpg_out")
+        if not export_out_dir and src:
+            export_out_dir = os.path.join(src, "export_out")
+    if cpg_out_dir:
+        cpg_out_dir = str(PurePath(cpg_out_dir))
+    if export_out_dir:
+        export_out_dir = str(PurePath(export_out_dir))
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
@@ -338,10 +342,14 @@ def main():
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
         joern_home = ""
     is_temp_dir = False
-    if src.startswith("http") or src.startswith("git"):
+    if src.startswith("http") or src.startswith("git://"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
         src = utils.clone_repo(src, clone_dir)
         is_temp_dir = True
+        if not cpg_out_dir:
+            cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
+        if not export_out_dir:
+            export_out_dir = tempfile.mkdtemp(prefix="cpggen_export_out")
     if not languages or languages == "autodetect":
         languages = utils.detect_project_type(src)
     else:
