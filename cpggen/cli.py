@@ -312,7 +312,10 @@ def main():
     src = str(PurePath(args.src))
     cpg_out_dir = args.cpg_out_dir
     if not cpg_out_dir and src:
-        cpg_out_dir = os.path.join(src, "cpg_out")
+        if os.path.isfile(src):
+            cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
+        else:
+            cpg_out_dir = os.path.join(src, "cpg_out")
     cpg_out_dir = str(PurePath(cpg_out_dir))
     export_out_dir = args.export_out_dir
     if not export_out_dir and src:
