@@ -289,7 +289,7 @@ def exec_tool(
             # Perform build first
             if auto_build:
                 LOG.info(
-                    f"Automatically building {src}. To speed up this step, cache the {tool_lang} dependencies using the CI build cache."
+                    f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
                 )
                 do_build(tool_lang, src, cwd, env)
             uber_jar = ""
