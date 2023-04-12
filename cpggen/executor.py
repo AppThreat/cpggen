@@ -210,8 +210,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     encoding="utf-8",
                 )
                 if cp and LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
-                    if cp.stderr:
-                        LOG.debug(cp.stderr)
+                    LOG.debug(cp.stderr)
             except Exception as e:
                 LOG.debug(e)
 
