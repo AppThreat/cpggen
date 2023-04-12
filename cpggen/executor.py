@@ -66,7 +66,7 @@ cpg_tools_map = {
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "qwiet": "sl analyze --tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
+    "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
 
 build_tools_map = {
@@ -123,7 +123,23 @@ def qwiet_analysis(app_manifest, cwd, env):
     try:
         LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
         build_args = cpg_tools_map["qwiet"]
-        build_args = build_args % dict(**app_manifest)
+        policy = ""
+        vcs_correction = ""
+        if os.getenv("SHIFTLEFT_POLICY"):
+            policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
+        elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
+            policy = f"""--policy io.shiftleft/defaultWithDictAndBestPractices """
+
+        if app_manifest.get("tool_lang"):
+            if "jar" in app_manifest.get("tool_lang") or "jsp" in app_manifest.get(
+                "tool_lang"
+            ):
+                vcs_correction = '--vcs-prefix-correction "*=src/main/java" '
+            if "scala" in app_manifest.get("tool_lang"):
+                vcs_correction = '--vcs-prefix-correction "*=src/main/scala" '
+        build_args = build_args % dict(
+            **app_manifest, policy=policy, vcs_correction=vcs_correction
+        )
         LOG.debug(f"Executing {build_args}")
         cp = subprocess.run(
             build_args.split(" "),
@@ -268,7 +284,7 @@ def exec_tool(
             # Perform build first
             if auto_build:
                 LOG.info(
-                    f"Auto build {src} for {tool_lang}. To speed up this step, cache your project's dependencies using the CI build cache. Contact your DevOps person or refer to the documentation for your build server."
+                    f"Automatically building {src}. To speed up this step, cache the {tool_lang} dependencies using the CI build cache."
                 )
                 do_build(tool_lang, src, cwd, env)
             uber_jar = ""
@@ -504,6 +520,7 @@ def exec_tool(
                             "cpg": cpg_out,
                             "sbom": sbom_out,
                             "language": language,
+                            "tool_lang": tool_lang,
                             "cpg_frontend_invocation": " ".join(cmd_list_with_args),
                             "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                         }
