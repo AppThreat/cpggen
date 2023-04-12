@@ -163,6 +163,7 @@ def qwiet_analysis(app_manifest, cwd, env):
 
 
 def do_x_build(src, env, build_artefacts, tool_lang):
+    tool_lang = tool_lang.split("-")[0]
     for k, v in build_artefacts.items():
         build_sets = build_tools_map.get(tool_lang)
         if isinstance(build_sets, dict):
@@ -361,7 +362,11 @@ def exec_tool(
                     **extra_args,
                 )
                 sbom_lang = tool_lang
-                if tool_lang in ("jar", "scala"):
+                if (
+                    tool_lang in ("jar", "scala")
+                    or tool_lang.startswith("jar")
+                    or tool_lang.startswith("jsp")
+                ):
                     sbom_lang = "java"
                 sbom_cmd_with_args = sbom_cmd_with_args % dict(
                     src=src, tool_lang=sbom_lang, sbom_out=sbom_out, **extra_args
