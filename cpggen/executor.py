@@ -107,7 +107,8 @@ build_tools_map = {
     },
     "go": {
         "go": ["go", "build", "./..."],
-        "make": ["make", "build"],
+        "make": ["make"],
+        "mage": ["mage", "build"],
     },
     "php": {
         "init": ["composer", "init", "--quiet"],
@@ -115,7 +116,7 @@ build_tools_map = {
         "update": ["composer", "update", "-n", "--ignore-platform-reqs"],
         "autoload": ["composer", "dump-autoload", "-o"],
     },
-    "make": ["make", "build"],
+    "make": ["make"],
 }
 
 
@@ -164,7 +165,10 @@ def qwiet_analysis(app_manifest, cwd, env):
 
 def do_x_build(src, env, build_artefacts, tool_lang):
     tool_lang = tool_lang.split("-")[0]
+    build_crashes = {}
     for k, v in build_artefacts.items():
+        failed_modules = 0
+        crashed_modules = 0
         build_sets = build_tools_map.get(tool_lang)
         if isinstance(build_sets, dict):
             build_args = build_tools_map[tool_lang][k]
@@ -211,8 +215,15 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                 )
                 if cp and LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
                     LOG.debug(cp.stderr)
+                    failed_modules = failed_modules + 1
             except Exception as e:
                 LOG.debug(e)
+                crashed_modules = crashed_modules + 1
+        build_crashes[k] = {
+            "failed_modules": failed_modules,
+            "crashed_modules": crashed_modules,
+        }
+    return build_crashes
 
 
 def do_jar_build(tool_lang, src, env):
@@ -234,21 +245,29 @@ def do_jar_build(tool_lang, src, env):
 
 
 def do_go_build(src, env):
-    build_artefacts = {"go": find_go_mods(src), "make": find_makefiles(src)}
+    build_artefacts = {
+        "mage": find_files(src, "magefile.go", False, False),
+        "go": find_go_mods(src),
+        "make": find_makefiles(src),
+    }
     return do_x_build(src, env, build_artefacts, "go")
 
 
 def do_build(tool_lang, src, cwd, env):
     if tool_lang in ("csharp",):
-        do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
+        return do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
     elif (
         tool_lang in ("jar", "scala")
         or tool_lang.startswith("jar")
         or tool_lang.startswith("jsp")
     ):
-        do_jar_build(tool_lang, src, env)
+        return do_jar_build(tool_lang, src, env)
     elif tool_lang == "go":
-        do_go_build(src, env)
+        return do_go_build(src, env)
+
+
+def troubleshoot_app(lang_build_crashes, tool_lang):
+    print(lang_build_crashes, tool_lang)
 
 
 def exec_tool(
@@ -271,6 +290,7 @@ def exec_tool(
         refresh_per_second=1,
     ) as progress:
         task = None
+        lang_build_crashes = None
         if joern_home and not joern_home.endswith(os.path.sep):
             joern_home = f"{joern_home}{os.path.sep}"
         try:
@@ -294,7 +314,7 @@ def exec_tool(
                 LOG.info(
                     f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
                 )
-                do_build(tool_lang, src, cwd, env)
+                lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)
             uber_jar = ""
             csharp_artifacts = ""
             # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
@@ -453,6 +473,7 @@ def exec_tool(
                     if LOG.isEnabledFor(DEBUG):
                         env["SCAN_DEBUG_MODE"] = "debug"
                     LOG.debug(f"Executing {' '.join(sbom_cmd_list_with_args)}")
+
                     cp = subprocess.run(
                         sbom_cmd_list_with_args,
                         stdout=stdout,
@@ -555,6 +576,7 @@ def exec_tool(
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
+                    troubleshoot_app(lang_build_crashes, tool_lang)
                 progress.update(task, completed=100, total=100)
         except Exception as e:
             if not os.getenv("AT_DEBUG_MODE"):
