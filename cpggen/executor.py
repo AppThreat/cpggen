@@ -129,7 +129,7 @@ def qwiet_analysis(app_manifest, cwd, env):
         if os.getenv("SHIFTLEFT_POLICY"):
             policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
         elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
-            policy = f"""--policy io.shiftleft/defaultWithDictAndBestPractices """
+            policy = """--policy io.shiftleft/defaultWithDictAndBestPractices """
 
         if app_manifest.get("tool_lang"):
             if "jar" in app_manifest.get("tool_lang") or "jsp" in app_manifest.get(
@@ -176,7 +176,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
             build_args = build_sets
         if len(v) > 5:
             LOG.debug(
-                f"This project has multiple modules. Build might take a while ..."
+                f"This project has multiple modules {len(v)}. Build might take a while ..."
             )
         for afile in v:
             base_dir = os.path.dirname(afile)
@@ -267,7 +267,7 @@ def do_build(tool_lang, src, cwd, env):
 
 
 def troubleshoot_app(lang_build_crashes, tool_lang):
-    print(lang_build_crashes, tool_lang)
+    pass
 
 
 def exec_tool(
@@ -290,7 +290,9 @@ def exec_tool(
         refresh_per_second=1,
     ) as progress:
         task = None
-        lang_build_crashes = None
+        lang_build_crashes = {}
+        if cwd and os.path.isfile(cwd):
+            cwd = os.path.dirname(cwd)
         if joern_home and not joern_home.endswith(os.path.sep):
             joern_home = f"{joern_home}{os.path.sep}"
         try:
@@ -392,7 +394,11 @@ def exec_tool(
                 ):
                     sbom_lang = "java"
                 sbom_cmd_with_args = sbom_cmd_with_args % dict(
-                    src=src, tool_lang=sbom_lang, sbom_out=sbom_out, **extra_args
+                    src=src,
+                    tool_lang=sbom_lang,
+                    cwd=cwd,
+                    sbom_out=sbom_out,
+                    **extra_args,
                 )
                 cmd_list_with_args = cmd_with_args.split(" ")
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
@@ -461,37 +467,38 @@ def exec_tool(
                 cwd = amodule
                 if tool_lang in ("binary",):
                     cwd = os.getcwd()
-                # Generate sbom first since this would even download dependencies for java
-                try:
-                    progress.update(
-                        task,
-                        description="Generating SBoM using cdxgen",
-                        completed=10,
-                        total=100,
-                    )
-                    # Enable debug for sbom tool
-                    if LOG.isEnabledFor(DEBUG):
-                        env["SCAN_DEBUG_MODE"] = "debug"
-                    LOG.debug(f"Executing {' '.join(sbom_cmd_list_with_args)}")
+                if tool_lang != "binary":
+                    # Generate sbom first since this would even download dependencies for java
+                    try:
+                        progress.update(
+                            task,
+                            description="Generating SBoM using cdxgen",
+                            completed=10,
+                            total=100,
+                        )
+                        # Enable debug for sbom tool
+                        if LOG.isEnabledFor(DEBUG):
+                            env["SCAN_DEBUG_MODE"] = "debug"
+                        LOG.debug(f"Executing {' '.join(sbom_cmd_list_with_args)}")
 
-                    cp = subprocess.run(
-                        sbom_cmd_list_with_args,
-                        stdout=stdout,
-                        stderr=stderr,
-                        cwd=cwd,
-                        env=env,
-                        check=False,
-                        shell=False,
-                        encoding="utf-8",
-                    )
-                    if cp and LOG.isEnabledFor(DEBUG):
-                        if cp.stdout:
-                            LOG.debug(cp.stdout)
-                        if cp.stderr:
-                            LOG.debug(cp.stderr)
-                except Exception:
-                    # Ignore SBoM errors
-                    pass
+                        cp = subprocess.run(
+                            sbom_cmd_list_with_args,
+                            stdout=stdout,
+                            stderr=stderr,
+                            cwd=cwd,
+                            env=env,
+                            check=False,
+                            shell=False,
+                            encoding="utf-8",
+                        )
+                        if cp and LOG.isEnabledFor(DEBUG):
+                            if cp.stdout:
+                                LOG.debug(cp.stdout)
+                            if cp.stderr:
+                                LOG.debug(cp.stderr)
+                    except Exception:
+                        # Ignore SBoM errors
+                        pass
                 progress.update(
                     task, description="Generating CPG", completed=20, total=100
                 )
