@@ -452,7 +452,7 @@ def exec_tool(
                 cmd_list_with_args = cmd_with_args.split(" ")
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
                 lang_cmd = cmd_list_with_args[0]
-                if not check_command(lang_cmd):
+                if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
                         LOG.warn(
                             f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
