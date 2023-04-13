@@ -43,26 +43,25 @@ def resource_path(relative_path):
 cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
 local_bin_dir = resource_path("local_bin")
 if os.path.exists(local_bin_dir):
-    try:
-        joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
-        if os.path.exists(joern_bundled):
-            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
-                zip_ref.extractall(local_bin_dir)
-                print(os.listdir(os.path.join(local_bin_dir, "joern-cli")))
-                try:
-                    os.chmod(
-                        os.path.join(local_bin_dir, "joern-cli", "c2cpg.sh"), 0o655
-                    )
-                except Exception:
-                    # Ignore errors
-                    pass
+    joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+    if os.path.exists(joern_bundled):
+        with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+            zip_ref.extractall(local_bin_dir)
+            try:
+                # Add execute permissions
+                for dirname, subdirs, files in os.walk(local_bin_dir):
+                    for filename in files:
+                        if not filename.endswith(".jar") and (
+                            filename.endswith(".sh") or "2cpg" in filename
+                        ):
+                            os.chmod(os.path.join(dirname, filename), 0o755)
                 LOG.debug(f"Extracted {joern_bundled}")
                 os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
                 os.environ["CPGGEN_BIN_DIR"] = os.environ["JOERN_HOME"]
                 os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
-    except Exception:
-        pass
-
+            except Exception:
+                # Ignore errors
+                pass
     if not shutil.which(cdxgen_cmd):
         local_cdxgen_cmd = resource_path(
             os.path.join(
