@@ -54,7 +54,7 @@ jobs:
       run: |
         cd cpggen
         curl -LO https://github.com/joernio/joern/releases/download/v1.1.1581/joern-cli.zip
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 --add-data "joern-cli.zip:local_bin" --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 --add-binary="joern-cli.zip:local_bin" --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         ./dist/cpggen-linux-amd64 --help
     - name: BLint
