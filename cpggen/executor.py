@@ -42,28 +42,30 @@ def resource_path(relative_path):
 # extract the binaries
 cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
 local_bin_dir = resource_path("local_bin")
-print(os.listdir(local_bin_dir))
-try:
-    joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
-    if os.path.exists(joern_bundled):
-        with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
-            zip_ref.extractall(local_bin_dir)
-            print(os.listdir(local_bin_dir))
-            LOG.debug(f"Extracted {joern_bundled}")
-except Exception as e:
-    print(e)
+if os.path.exists(local_bin_dir):
+    try:
+        joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+        if os.path.exists(joern_bundled):
+            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+                zip_ref.extractall(local_bin_dir)
+                print(os.listdir(os.path.join(local_bin_dir, "joern-cli")))
+                LOG.debug(f"Extracted {joern_bundled}")
+                os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
+                os.environ["CPGGEN_BIN_DIR"] = os.environ["JOERN_HOME"]
+                os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
+    except Exception:
+        pass
 
-if not shutil.which(cdxgen_cmd):
-    local_cdxgen_cmd = resource_path(
-        os.path.join("local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen")
-    )
-    if os.path.exists(local_cdxgen_cmd):
-        cdxgen_cmd = local_cdxgen_cmd
-        # Set the plugins directory as an environment variable
-        os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
-        os.environ["JOERN_HOME"] = local_bin_dir
-        os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
-        os.environ["PATH"] += os.sep + os.environ["CPGGEN_BIN_DIR"] + os.sep
+    if not shutil.which(cdxgen_cmd):
+        local_cdxgen_cmd = resource_path(
+            os.path.join(
+                "local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen"
+            )
+        )
+        if os.path.exists(local_cdxgen_cmd):
+            cdxgen_cmd = local_cdxgen_cmd
+            # Set the plugins directory as an environment variable
+            os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
 
 
 def get(configName, default_value=None):
