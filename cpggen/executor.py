@@ -56,7 +56,10 @@ if not shutil.which(cdxgen_cmd):
     if os.path.exists(local_cdxgen_cmd):
         cdxgen_cmd = local_cdxgen_cmd
         # Set the plugins directory as an environment variable
-        os.environ["CPGGEN_BIN_DIR"] = resource_path("local_bin")
+        local_bin_dir = resource_path("local_bin")
+        os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
+        os.environ["JOERN_HOME"] = local_bin_dir
+        os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
         os.environ["PATH"] += os.sep + os.environ["CPGGEN_BIN_DIR"]
 
 
