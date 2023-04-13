@@ -51,7 +51,7 @@ if os.path.exists(local_bin_dir):
                 print(os.listdir(os.path.join(local_bin_dir, "joern-cli")))
                 try:
                     os.chmod(
-                        os.path.join(local_bin_dir, "joern-cli", "c2cpg.sh"), 0o644
+                        os.path.join(local_bin_dir, "joern-cli", "c2cpg.sh"), 0o655
                     )
                 except Exception:
                     # Ignore errors
