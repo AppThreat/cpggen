@@ -50,9 +50,9 @@ if os.path.exists(local_bin_dir):
                 zip_ref.extractall(local_bin_dir)
                 print(os.listdir(os.path.join(local_bin_dir, "joern-cli")))
                 LOG.debug(f"Extracted {joern_bundled}")
-                os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
-                os.environ["CPGGEN_BIN_DIR"] = os.environ["JOERN_HOME"]
-                os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
+                joern_home = os.path.join(local_bin_dir, "joern-cli")
+                os.environ["CPGGEN_BIN_DIR"] = joern_home
+                os.environ["PATH"] += os.sep + joern_home + os.sep
     except Exception:
         pass
 
