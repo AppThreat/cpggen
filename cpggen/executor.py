@@ -41,6 +41,7 @@ def resource_path(relative_path):
 # Check if we are running as a bundled executable and
 # extract the binaries
 cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
+print (os.listdir(resource_path("local_bin")))
 if not shutil.which(cdxgen_cmd):
     local_cdxgen_cmd = resource_path(
         os.path.join("local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen")
