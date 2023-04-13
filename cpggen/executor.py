@@ -41,19 +41,21 @@ def resource_path(relative_path):
 # Check if we are running as a bundled executable and
 # extract the binaries
 cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
-print (os.listdir(resource_path("local_bin")))
+print(os.listdir(resource_path("local_bin")))
+try:
+    joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+    if os.path.exists(joern_bundled):
+        with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+            zip_ref.extractall("local_bin")
+            print(os.listdir(resource_path("local_bin")))
+            LOG.debug(f"Extracted {joern_bundled}")
+except Exception as e:
+    print(e)
+
 if not shutil.which(cdxgen_cmd):
     local_cdxgen_cmd = resource_path(
         os.path.join("local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen")
     )
-    try:
-        joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
-        if os.path.exists(joern_bundled):
-            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
-                zip_ref.extractall(zip_ref)
-                LOG.debug(f"Extracted {joern_bundled}")
-    except Exception:
-        pass
     if os.path.exists(local_cdxgen_cmd):
         cdxgen_cmd = local_cdxgen_cmd
         # Set the plugins directory as an environment variable
