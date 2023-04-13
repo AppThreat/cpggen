@@ -60,7 +60,7 @@ if not shutil.which(cdxgen_cmd):
         os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
         os.environ["JOERN_HOME"] = local_bin_dir
         os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
-        os.environ["PATH"] += os.sep + os.environ["CPGGEN_BIN_DIR"]
+        os.environ["PATH"] += os.sep + os.environ["CPGGEN_BIN_DIR"] + os.sep
 
 
 def get(configName, default_value=None):
