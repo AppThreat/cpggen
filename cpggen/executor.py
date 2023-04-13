@@ -1,7 +1,10 @@
 import json
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 import psutil
@@ -25,6 +28,36 @@ runtimeValues = {}
 svmem = psutil.virtual_memory()
 max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbol)s")
 cpu_count = str(psutil.cpu_count())
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
+
+# Check if we are running as a bundled executable and
+# extract the binaries
+cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
+if not shutil.which(cdxgen_cmd):
+    local_cdxgen_cmd = resource_path(
+        os.path.join("local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen")
+    )
+    try:
+        joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+        if os.path.exists(joern_bundled):
+            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+                zip_ref.extractall(zip_ref)
+                LOG.debug(f"Extracted {joern_bundled}")
+    except Exception:
+        pass
+    if os.path.exists(local_cdxgen_cmd):
+        cdxgen_cmd = local_cdxgen_cmd
+        # Set the plugins directory as an environment variable
+        os.environ["CPGGEN_BIN_DIR"] = resource_path("local_bin")
+        os.environ["PATH"] += os.sep + os.environ["CPGGEN_BIN_DIR"]
 
 
 def get(configName, default_value=None):
@@ -64,7 +97,7 @@ cpg_tools_map = {
     "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
+    "sbom": "%(cdxgen_cmd)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
@@ -398,6 +431,7 @@ def exec_tool(
                     tool_lang=sbom_lang,
                     cwd=cwd,
                     sbom_out=sbom_out,
+                    cdxgen_cmd=cdxgen_cmd,
                     **extra_args,
                 )
                 cmd_list_with_args = cmd_with_args.split(" ")
