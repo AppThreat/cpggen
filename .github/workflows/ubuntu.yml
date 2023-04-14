@@ -57,7 +57,9 @@ jobs:
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
+        curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o java2cpg.jar
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 \
+          --add-binary="java2cpg.jar:local_bin" \
           --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
