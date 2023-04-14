@@ -36,7 +36,6 @@ jobs:
         cd cpggen
         poetry config virtualenvs.create false
         poetry install --no-cache --without dev
-        pyinstaller --help
     - name: Produce cdxgen pkg
       run: |
         npm install -g pkg
