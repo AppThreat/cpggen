@@ -340,6 +340,10 @@ def detect_project_type(src_dir):
             project_types.append("jar")
         else:
             project_types.append("java")
+    if find_files(src_dir, ".bzl", False, True) or find_files(
+        src_dir, "BUILD", False, True
+    ):
+        project_types.append("java")
     if find_files(src_dir, ".jsp", False, True):
         project_types.append("jsp")
     if (
@@ -364,9 +368,16 @@ def detect_project_type(src_dir):
         or find_files(src_dir, "conanfile.txt", False, True)
         or find_files(src_dir, ".c", False, True)
         or find_files(src_dir, ".cpp", False, True)
+        or find_files(src_dir, ".cc", False, True)
+        or find_files(src_dir, ".h", False, True)
+        or find_files(src_dir, ".hpp", False, True)
+        or find_files(src_dir, ".hh", False, True)
     ):
         project_types.append("c")
-
+    if find_files(src_dir, ".bc", False, True) or find_files(
+        src_dir, ".ll", False, True
+    ):
+        project_types.append("llvm")
     if is_exe(src_dir):
         project_types.append("binary")
     return project_types

@@ -54,7 +54,12 @@ jobs:
       run: |
         cd cpggen
         curl -LO https://github.com/joernio/joern/releases/download/v1.1.1581/joern-cli.zip
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 --add-binary="joern-cli.zip:local_bin" --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
+        chmod +x go2cpg
+        curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 \
+          --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
+          --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         ./dist/cpggen-linux-amd64 --help
     - name: BLint

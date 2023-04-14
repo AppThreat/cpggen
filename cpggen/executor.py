@@ -43,7 +43,17 @@ def resource_path(relative_path):
 cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
 local_bin_dir = resource_path("local_bin")
 if os.path.exists(local_bin_dir):
+    csharp2cpg_bundled = resource_path(
+        os.path.join("local_bin", "joern-cli", "csharp2cpg.zip")
+    )
     joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+    if os.path.exists(csharp2cpg_bundled):
+        with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
+            zip_ref.extractall(local_bin_dir)
+            os.symlink(
+                os.path.join(local_bin_dir, "bin", "csharp2cpg"),
+                os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
+            )
     if os.path.exists(joern_bundled):
         with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
             zip_ref.extractall(local_bin_dir)
