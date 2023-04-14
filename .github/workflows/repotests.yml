@@ -3,7 +3,6 @@ name: Repo tests
 on:
   push:
     branches:
-      - feature/*
       - release/*
       - fix/*
   workflow_dispatch:
