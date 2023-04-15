@@ -1,7 +1,10 @@
 import json
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 import psutil
@@ -25,6 +28,60 @@ runtimeValues = {}
 svmem = psutil.virtual_memory()
 max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbol)s")
 cpu_count = str(psutil.cpu_count())
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
+
+# Check if we are running as a bundled executable and
+# extract the binaries
+cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
+local_bin_dir = resource_path("local_bin")
+if os.path.exists(local_bin_dir):
+    csharp2cpg_bundled = resource_path(
+        os.path.join("local_bin", "joern-cli", "csharp2cpg.zip")
+    )
+    joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+    if os.path.exists(csharp2cpg_bundled):
+        with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
+            zip_ref.extractall(local_bin_dir)
+            os.symlink(
+                os.path.join(local_bin_dir, "bin", "csharp2cpg"),
+                os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
+            )
+    if os.path.exists(joern_bundled):
+        with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+            zip_ref.extractall(local_bin_dir)
+            try:
+                # Add execute permissions
+                for dirname, subdirs, files in os.walk(local_bin_dir):
+                    for filename in files:
+                        if not filename.endswith(".jar") and (
+                            filename.endswith(".sh") or "2cpg" in filename
+                        ):
+                            os.chmod(os.path.join(dirname, filename), 0o755)
+                LOG.debug(f"Extracted {joern_bundled}")
+                os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
+                os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
+                os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
+            except Exception:
+                # Ignore errors
+                pass
+    if not shutil.which(cdxgen_cmd):
+        local_cdxgen_cmd = resource_path(
+            os.path.join(
+                "local_bin", "cdxgen.exe" if sys.platform == "win32" else "cdxgen"
+            )
+        )
+        if os.path.exists(local_cdxgen_cmd):
+            cdxgen_cmd = local_cdxgen_cmd
+            # Set the plugins directory as an environment variable
+            os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
 
 
 def get(configName, default_value=None):
@@ -57,14 +114,14 @@ cpg_tools_map = {
     "php": "%(joern_home)sphp2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "python": "%(joern_home)spysrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "csharp": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
-    "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-tests -l error",
+    "dotnet": "%(joern_home)scsharp2cpg -i %(csharp_artifacts)s -o %(cpg_out)s --collect-js-files %(src)s --ignore-errors --no-log-file --ignore-tests -l error",
     "go": "%(joern_home)sgo2cpg generate -o %(cpg_out)s ./...",
-    "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar /usr/local/bin/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "sbom": "cdxgen -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
+    "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
+    "sbom": "%(cdxgen_cmd)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "joern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
 }
@@ -384,6 +441,7 @@ def exec_tool(
                     memory=os.getenv("CPGGEN_MEMORY", max_memory),
                     tool_lang=tool_lang,
                     sbom_out=sbom_out,
+                    cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     **extra_args,
                 )
                 sbom_lang = tool_lang
@@ -398,12 +456,14 @@ def exec_tool(
                     tool_lang=sbom_lang,
                     cwd=cwd,
                     sbom_out=sbom_out,
+                    cdxgen_cmd=cdxgen_cmd,
+                    cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     **extra_args,
                 )
                 cmd_list_with_args = cmd_with_args.split(" ")
                 sbom_cmd_list_with_args = sbom_cmd_with_args.split(" ")
                 lang_cmd = cmd_list_with_args[0]
-                if not check_command(lang_cmd):
+                if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
                         LOG.warn(
                             f"{lang_cmd} is not found. Try running cpggen with --use-container argument"

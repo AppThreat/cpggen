@@ -139,3 +139,7 @@ reports/
 out.json
 requirements-dist.txt
 workspace/
+joern-cli.zip
+csharp2cpg.zip
+go2cpg
+java2cpg.jar

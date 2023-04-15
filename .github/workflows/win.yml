@@ -36,7 +36,6 @@ jobs:
         cd cpggen
         poetry config virtualenvs.create false
         poetry install --no-cache --without dev
-        pyinstaller --help
     - name: Produce cdxgen pkg
       run: |
         npm install -g pkg
@@ -47,7 +46,14 @@ jobs:
     - name: Binary windows build
       run: |
         cd cpggen
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
+        $csharp2cpg_bin = (Invoke-RestMethod -Uri 'https://cdn.shiftleft.io/download/csharp2cpg-net-win-x64.json' | Select downloadURL)
+        $go2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/go2cpgmanifest-windows-x64.json' | Select downloadURL)
+        $java2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/java2cpg.json' | Select downloadURL)
+        Invoke-WebRequest -Uri 'https://github.com/joernio/joern/releases/download/v1.1.1581/joern-cli.zip' -OutFile joern-cli.zip
+        Invoke-WebRequest -Uri $csharp2cpg_bin.downloadURL -OutFile csharp2cpg.zip
+        Invoke-WebRequest -Uri $go2cpg_bin.downloadURL -OutFile go2cpg
+        Invoke-WebRequest -Uri $java2cpg_bin.downloadURL -OutFile java2cpg.jar
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="java2cpg.jar;local_bin" --add-binary="csharp2cpg.zip;local_bin\joern-cli" --add-binary="go2cpg;local_bin\joern-cli" --add-binary="joern-cli.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
       env:
         PYTHONIOENCODING: utf-8
