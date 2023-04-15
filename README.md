@@ -44,12 +44,12 @@ docker pull ghcr.io/appthreat/cpggen:nightly
 
 Download the executable binary for your operating system from the [releases page](https://github.com/appthreat/cpggen/releases). These binary bundle the following:
 
+- Joern with all the CPG frontends
 - cpggen with Python 3.10
-- cdxgen with Node.js 18
-- cdxgen binary plugins
+- cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v0.9.1/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v0.9.2/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -57,7 +57,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v0.9.1/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v0.9.2/cpggen.exe
 .\cpggen.exe --help
 ```
 
