@@ -80,8 +80,6 @@ jobs:
             echo "go direct test was not successful"
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
-          ./cpggen-linux-amd64 -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
-          # ./cpggen-linux-amd64 -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
           ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
           ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat

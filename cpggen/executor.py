@@ -62,7 +62,9 @@ if os.path.exists(local_bin_dir):
                 for dirname, subdirs, files in os.walk(local_bin_dir):
                     for filename in files:
                         if not filename.endswith(".jar") and (
-                            filename.endswith(".sh") or "2cpg" in filename
+                            filename.endswith(".sh")
+                            or "2cpg" in filename
+                            or "joern-" in filename
                         ):
                             os.chmod(os.path.join(dirname, filename), 0o755)
                 LOG.debug(f"Extracted {joern_bundled}")
@@ -513,8 +515,9 @@ def exec_tool(
                                 LOG.warn(
                                     f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually using the command {' '.join(cmd_list_with_args)}"
                                 )
-                    except Exception:
+                    except Exception as e:
                         LOG.warn(f"Unable to export {src} to {cpg_out_dir}")
+                        LOG.error(e)
                     progress.update(task, completed=100, total=100)
                     continue
                 LOG.info(
