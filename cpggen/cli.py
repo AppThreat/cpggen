@@ -141,9 +141,9 @@ def run_server(args):
 async def generate_cpg():
     q = request.args
     params = await request.get_json()
-    url = None
-    src = None
-    languages = None
+    url = ""
+    src = ""
+    languages = "autodetect"
     cpg_out_dir = None
     is_temp_dir = False
     if not params:
