@@ -1,0 +1,109 @@
+name: Repo tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "! contains(github.event.head_commit.message, '[ci skip]')"
+    strategy:
+      matrix:
+        node-version: [18.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-java-example'
+          path: 'repotests/shiftleft-java-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-ts-example'
+          path: 'repotests/shiftleft-ts-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-go-example'
+          path: 'repotests/shiftleft-go-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'prabhu/shiftleft-scala-example'
+          path: 'repotests/shiftleft-scala-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/vulnerable_net_core'
+          path: 'repotests/vulnerable_net_core'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/Goatly.NET'
+          path: 'repotests/Goatly.NET'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/DjanGoat'
+          path: 'repotests/DjanGoat'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'prabhu/Vulnerable-Web-Application'
+          path: 'repotests/Vulnerable-Web-Application'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'GoogleCloudPlatform/microservices-demo'
+          path: 'repotests/microservices-demo'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'juice-shop/juicy-malware'
+          path: 'repotests/juicy-malware'
+      - name: repotests
+        run: |
+          mkdir /tmp/all_cpgs /tmp/all_exports
+          oras pull ghcr.io/appthreat/cpggen-bin:v1
+          chmod +x cpggen-linux-amd64
+          ./cpggen-linux-amd64 --help
+          ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip" ]; then
+            echo "Java direct test was successful"
+          else
+            echo "Java direct test was not successful"
+          fi
+          ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/java-cpg.bin.zip,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
+            echo "Java cpg test was successful"
+          else
+            echo "Java cpg test was not successful"
+          fi
+          ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/js-cpg.bin.zip" ]; then
+            echo "JS direct test was successful"
+          else
+            echo "JS direct test was not successful"
+          fi
+          ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          if [ -e "/tmp/all_cpgs/shiftleft-go-example/go-cpg.bin.zip" ]; then
+            echo "go direct test was successful"
+          else
+            echo "go direct test was not successful"
+          fi
+          ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
+          ./cpggen-linux-amd64 -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
+          # ./cpggen-linux-amd64 -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
+          ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+          ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
+          ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          ./cpggen-linux-amd64 -i repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
+          ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          ./cpggen-linux-amd64 -i repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/juicy-malware/binary-cpg.bin.zip,resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
+          if [ -e "/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json" ]; then
+            echo "Binary cpg test was successful"
+          else
+            echo "Binary cpg test was not successful"
+          fi
+          ls -ltr /tmp/all_cpgs
+          ls -ltr /tmp/all_exports
+        env:
+          AT_DEBUG_MODE: debug
+          CPGGEN_CONTAINER_MEMORY: 7g
+          CPGGEN_MEMORY: 7G
