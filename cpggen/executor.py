@@ -350,8 +350,11 @@ def exec_tool(
     ) as progress:
         task = None
         lang_build_crashes = {}
-        if cwd and os.path.isfile(cwd):
-            cwd = os.path.dirname(cwd)
+        if cwd:
+            if os.path.isfile(cwd):
+                cwd = os.path.dirname(cwd)
+            else:
+                cwd = os.path.abspath(cwd)
         if joern_home and not joern_home.endswith(os.path.sep):
             joern_home = f"{joern_home}{os.path.sep}"
         try:
@@ -434,7 +437,7 @@ def exec_tool(
                     )
                     LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
                 cmd_with_args = cmd_with_args % dict(
-                    src=amodule,
+                    src=os.path.abspath(amodule),
                     cpg_out=cpg_out,
                     joern_home=joern_home,
                     home_dir=str(Path.home()),
@@ -454,7 +457,7 @@ def exec_tool(
                 ):
                     sbom_lang = "java"
                 sbom_cmd_with_args = sbom_cmd_with_args % dict(
-                    src=src,
+                    src=os.path.abspath(src),
                     tool_lang=sbom_lang,
                     cwd=cwd,
                     sbom_out=sbom_out,
