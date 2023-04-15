@@ -1,4 +1,4 @@
-name: Repo tests
+name: Exe tests
 
 on:
   workflow_dispatch:
