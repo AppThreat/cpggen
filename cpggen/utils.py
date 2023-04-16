@@ -202,9 +202,9 @@ def find_csharp_artifacts(search_dir):
     :param src: Directory to search
     :return: List of war or ear or jar files
     """
-    result = [p.as_posix() for p in Path(search_dir).rglob("*.sln")]
+    result = [p.as_posix() for p in Path(search_dir).absolute().rglob("*.sln")]
     if not result:
-        result = [p.as_posix() for p in Path(search_dir).rglob("*.csproj")]
+        result = [p.as_posix() for p in Path(search_dir).absolute().rglob("*.csproj")]
     return result
 
 
