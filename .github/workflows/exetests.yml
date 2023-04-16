@@ -77,7 +77,7 @@ jobs:
           ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ./cpggen-linux-amd64 -i repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application
-          ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
+          ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
           ./cpggen-linux-amd64 -i repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
           ls -ltr /tmp/all_cpgs
           ls -ltr /tmp/all_exports
@@ -85,3 +85,4 @@ jobs:
           AT_DEBUG_MODE: debug
           CPGGEN_CONTAINER_MEMORY: 7g
           CPGGEN_MEMORY: 7G
+          AUTO_BUILD: true
