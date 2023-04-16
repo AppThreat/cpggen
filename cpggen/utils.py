@@ -161,9 +161,9 @@ def find_files(src, src_ext_name, use_start=False, quick=False):
                 if is_ignored_file(file):
                     continue
                 if file == src_ext_name or file.endswith(src_ext_name):
-                    result.append(os.path.join(root, file))
+                    result.append(os.path.abspath(os.path.join(root, file)))
                 elif use_start and file.startswith(src_ext_name):
-                    result.append(os.path.join(root, file))
+                    result.append(os.path.abspath(os.path.join(root, file)))
                 if quick and result:
                     return result
     return result
@@ -189,9 +189,11 @@ def find_java_artifacts(search_dir):
                             or filename.endswith(".war")
                             or filename.endswith(".ear")
                         ):
-                            jlist.append(os.path.join(dirname, filename))
+                            jlist.append(
+                                os.path.abspath(os.path.join(dirname, filename))
+                            )
                             zf.write(os.path.join(dirname, filename))
-    return jlist if len(jlist) == 1 else [zfile.name]
+    return jlist if len(jlist) == 1 else [os.path.abspath(zfile.name)]
 
 
 def find_csharp_artifacts(search_dir):
