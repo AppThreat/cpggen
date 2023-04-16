@@ -420,9 +420,11 @@ def exec_tool(
                         if cpg_out_dir.endswith(".bin.zip")
                         or cpg_out_dir.endswith(".bin")
                         or cpg_out_dir.endswith(".cpg")
-                        else os.path.join(
-                            cpg_out_dir,
-                            f"{os.path.abspath(os.path.basename(amodule))}-{tool_lang}-cpg.bin.zip",
+                        else os.path.abspath(
+                            os.path.join(
+                                cpg_out_dir,
+                                f"{os.path.basename(amodule)}-{tool_lang}-cpg.bin.zip",
+                            )
                         )
                     )
                     sbom_out = (
