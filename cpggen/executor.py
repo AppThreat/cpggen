@@ -341,6 +341,10 @@ def do_go_build(src, env):
 
 def do_build(tool_lang, src, cwd, env):
     if tool_lang in ("csharp",):
+        if os.path.exists(src, "global.json"):
+            LOG.debug(
+                "global.json is found in the root directory. Ensure the correct version of dotnet sdk is installed.\nAlternatively, set the rollForward property to latestMajor to use the bundled .Net 7 SDK from the cpggen container image."
+            )
         return do_x_build(src, env, {"csharp": find_csharp_artifacts(src)}, "csharp")
     elif (
         tool_lang in ("jar", "scala")
