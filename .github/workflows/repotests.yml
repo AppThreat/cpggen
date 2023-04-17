@@ -99,6 +99,12 @@ jobs:
           poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
           # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/vulnerable_net_core/csharp-cpg.bin.zip,resultFile=/tmp/all_cpgs/vulnerable_net_core/csharp-cpg-methods.json
+          if [ -e "/tmp/all_cpgs/vulnerable_net_core/csharp-cpg-methods.json" ]; then
+            echo "csharp cpg test was successful"
+          else
+            echo "csharp cpg test was not successful"
+          fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Vulnerable-Web-Application -o /tmp/all_cpgs/Vulnerable-Web-Application

@@ -101,9 +101,9 @@ def build_args():
     )
     parser.add_argument(
         "--export-repr",
-        default=os.getenv("CPG_EXPORT_REPR", "all"),
+        default=os.getenv("CPG_EXPORT_REPR", "cpg14"),
         dest="export_repr",
-        choices=["ast", "cfg", "cdg", "ddg", "pdg", "cpg", "all"],
+        choices=["ast", "cfg", "cdg", "ddg", "pdg", "cpg", "cpg14", "all"],
         help="Graph representation to export",
     )
     parser.add_argument(

@@ -33,6 +33,13 @@ docker pull ghcr.io/appthreat/cpggen
 # podman pull ghcr.io/appthreat/cpggen
 ```
 
+Almalinux 9 requires the CPU to support SSE4.2. For kvm64 VM use the Almalinux 8 version instead.
+
+```
+docker pull ghcr.io/appthreat/cpggen-alma8
+# podman pull ghcr.io/appthreat/cpggen-alma8
+```
+
 Or use the nightly to always get the latest joern and tools.
 
 ```
@@ -110,7 +117,7 @@ docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr
 
 By passing `--export`, cpggen can export the various graphs to many formats using [joern-export](https://docs.joern.io/exporting/)
 
-Example to export `all` graphs in `dot` format
+Example to export `cpg14` graphs in `dot` format
 
 ```bash
 cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/export_out

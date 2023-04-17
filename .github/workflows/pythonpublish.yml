@@ -67,12 +67,36 @@ jobs:
             ghcr.io/appthreat/cpggen
 
       - name: Build and push Docker images
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
+          file: Dockerfile
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=cpggen
           cache-to: type=gha,mode=max,scope=cpggen
+          provenance: true
+          sbom: true
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta2
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/appthreat/cpggen-alma8
+
+      - name: Build and push Docker alma 8 images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile-alma8
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta2.outputs.tags }}
+          labels: ${{ steps.meta2.outputs.labels }}
+          cache-from: type=gha,scope=cpggen-alma8
+          cache-to: type=gha,mode=max,scope=cpggen-alma8
+          provenance: true
+          sbom: true

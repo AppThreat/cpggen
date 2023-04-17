@@ -126,6 +126,7 @@ cpg_tools_map = {
     "sbom": "%(cdxgen_cmd)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "%(joern_home)sjoern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
+    "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
 
 build_tools_map = {
@@ -220,6 +221,32 @@ def qwiet_analysis(app_manifest, cwd, env):
                 LOG.info(f"{app_manifest['app']} uploaded successfully")
     except Exception as e:
         LOG.error(e)
+
+
+def dot_convert(export_out_dir, env):
+    if check_command("dot"):
+        dot_files = find_files(export_out_dir, ".dot", False, False)
+        for df in dot_files:
+            convert_cmd_with_args = cpg_tools_map["dot2png"] % dict(
+                dot_file=df, png_out=df.replace(".dot", ".png")
+            )
+            try:
+                subprocess.run(
+                    convert_cmd_with_args.split(" "),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=export_out_dir,
+                    env=env,
+                    check=False,
+                    shell=False,
+                    encoding="utf-8",
+                )
+            except Exception as e:
+                LOG.debug(e)
+    else:
+        LOG.debug(
+            f"Install graphviz package and ensure the command `dot` is available in the PATH to convert to png automatically"
+        )
 
 
 def do_x_build(src, env, build_artefacts, tool_lang):
@@ -413,7 +440,7 @@ def exec_tool(
                 sbom_out = ""
                 manifest_out = ""
                 if tool_lang == "export":
-                    cpg_out = cpg_out_dir
+                    cpg_out = os.path.abspath(cpg_out_dir)
                 else:
                     cpg_out = (
                         cpg_out_dir
@@ -512,10 +539,17 @@ def exec_tool(
                                     "Please report the above error to https://github.com/joernio/joern/issues"
                                 )
                         else:
-                            if os.path.exists(src):
+                            if os.path.exists(cpg_out_dir):
                                 LOG.info(
                                     f"CPG {src} successfully exported to {cpg_out_dir}"
                                 )
+                                progress.update(
+                                    task,
+                                    description="Convert exported graph to png",
+                                    completed=95,
+                                    total=100,
+                                )
+                                dot_convert(cpg_out_dir, env)
                             else:
                                 LOG.warn(
                                     f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually using the command {' '.join(cmd_list_with_args)}"
