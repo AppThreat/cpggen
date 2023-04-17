@@ -50,10 +50,16 @@ if os.path.exists(local_bin_dir):
     if os.path.exists(csharp2cpg_bundled):
         with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
             zip_ref.extractall(local_bin_dir)
-            os.symlink(
-                os.path.join(local_bin_dir, "bin", "csharp2cpg"),
-                os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
-            )
+            if not os.path.exists(
+                os.path.join(local_bin_dir, "joern-cli", "csharp2cpg")
+            ):
+                try:
+                    os.symlink(
+                        os.path.join(local_bin_dir, "bin", "csharp2cpg"),
+                        os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
+                    )
+                except Exception:
+                    pass
     if os.path.exists(joern_bundled):
         with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
             zip_ref.extractall(local_bin_dir)
