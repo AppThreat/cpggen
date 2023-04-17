@@ -7,7 +7,7 @@ import os
 import shutil
 import signal
 import tempfile
-from multiprocessing import Pool
+from multiprocessing import freeze_support, Pool
 from pathlib import Path, PurePath
 
 from quart import Quart, request
@@ -385,4 +385,5 @@ def main():
 
 
 if __name__ == "__main__":
+    freeze_support()
     main()
