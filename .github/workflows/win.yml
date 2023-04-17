@@ -96,15 +96,15 @@ jobs:
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="java2cpg.jar;local_bin" --add-binary="csharp2cpg.zip;local_bin\joern-cli" --add-binary="go2cpg;local_bin\joern-cli" --add-binary="joern-cli.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
         .\dist\cpggen.exe --help
-        .\dist\cpggen.exe -i repotests\\shiftleft-java-example --export
-        .\dist\cpggen.exe -i repotests\\shiftleft-ts-example
-        .\dist\cpggen.exe -i repotests\\shiftleft-go-example --build
-        .\dist\cpggen.exe -i repotests\\vulnerable_net_core --build
-        .\dist\cpggen.exe -i repotests\\Goatly.NET --build
-        .\dist\cpggen.exe -i repotests\\DjanGoat
-        .\dist\cpggen.exe -i repotests\\Vulnerable-Web-Application
-        .\dist\cpggen.exe -i repotests\\microservices-demo --build
-        .\dist\cpggen.exe -i repotests\\juicy-malware\\juicy_malware_windows_64.exe
+        .\dist\cpggen.exe -i repotests/shiftleft-java-example --export
+        .\dist\cpggen.exe -i repotests/shiftleft-ts-example
+        .\dist\cpggen.exe -i repotests/shiftleft-go-example --build
+        .\dist\cpggen.exe -i repotests/vulnerable_net_core --build
+        .\dist\cpggen.exe -i repotests/Goatly.NET --build
+        .\dist\cpggen.exe -i repotests/DjanGoat
+        .\dist\cpggen.exe -i repotests/Vulnerable-Web-Application
+        .\dist\cpggen.exe -i repotests/microservices-demo --build
+        .\dist\cpggen.exe -i repotests/juicy-malware/juicy_malware_windows_64.exe
       env:
         PYTHONIOENCODING: utf-8
         LANG: en_US.utf-8
