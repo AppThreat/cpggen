@@ -9,9 +9,9 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
       org.opencontainers.image.description="Generate CPG for multiple languages for use with joern" \
-      org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app -o /app/cpg_out --build"
+      org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -w /app -t ghcr.io/appthreat/cpggen cpggen --build"
 
-ENV JOERN_HOME=/opt/joern/joern-cli/bin \
+ENV JOERN_HOME=/usr/local/bin \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
     SBT_VERSION=1.8.2 \
