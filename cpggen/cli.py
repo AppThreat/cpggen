@@ -7,7 +7,7 @@ import os
 import shutil
 import signal
 import tempfile
-from multiprocessing import freeze_support, Pool
+from multiprocessing import Pool, freeze_support
 from pathlib import Path, PurePath
 
 from quart import Quart, request

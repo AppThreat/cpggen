@@ -298,7 +298,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     gradle_cmd=gradle_cmd, maven_cmd=maven_cmd
                 )
             try:
-                LOG.debug(f"Executing {build_args_str} in {base_dir}")
+                LOG.debug(f"Executing build command: {build_args_str} in {base_dir}")
                 cp = subprocess.run(
                     build_args_str.split(" "),
                     stdout=subprocess.PIPE,
@@ -309,11 +309,18 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     shell=False,
                     encoding="utf-8",
                 )
-                if cp and LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
-                    LOG.debug(cp.stderr)
+                if cp:
+                    # These languages always need troubleshooting
+                    if tool_lang in ("csharp", "dotnet", "go"):
+                        if cp.stderr:
+                            LOG.info(cp.stderr)
+                        if cp.stdout:
+                            LOG.info(cp.stdout)
+                    elif LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
+                        LOG.debug(cp.stderr)
                     failed_modules = failed_modules + 1
             except Exception as e:
-                LOG.debug(e)
+                LOG.info(e)
                 crashed_modules = crashed_modules + 1
         build_crashes[k] = {
             "failed_modules": failed_modules,
@@ -632,11 +639,11 @@ def exec_tool(
                 if cp and stdout == subprocess.PIPE:
                     for line in cp.stdout:
                         progress.update(task, completed=5)
-                if cp and LOG.isEnabledFor(DEBUG) and cp.returncode:
+                if cp and cp.returncode:
                     if cp.stdout:
-                        LOG.debug(cp.stdout)
+                        LOG.info(cp.stdout)
                     if cp.stderr:
-                        LOG.debug(cp.stderr)
+                        LOG.info(cp.stderr)
                 if os.path.exists(cpg_out):
                     # go2cpg seems to produce a cpg without read permissions
                     try:
