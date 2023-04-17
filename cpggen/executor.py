@@ -401,7 +401,7 @@ def exec_tool(
             if not cmd_with_args:
                 return
             # Perform build first
-            if auto_build:
+            if auto_build and build_tools_map.get(tool_lang):
                 LOG.info(
                     f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
                 )

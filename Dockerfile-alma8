@@ -19,12 +19,14 @@ ENV JOERN_HOME=/usr/local/bin \
     GRADLE_HOME=/opt/gradle-8.0.2 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
     JAVA_HOME="/etc/alternatives/jre_17" \
+    JAVA_17_HOME="/etc/alternatives/jre_17" \
     JAVA_8_HOME="/usr/lib/jvm/jre-1.8.0" \
     JAVA_11_HOME="/usr/lib/jvm/java-11" \
     CGO_ENABLED=1 \
     GO111MODULE="" \
     GOOS="linux" \
     PYTHONUNBUFFERED=1 \
+    PYTHONIOENCODING="utf-8" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     CLASSPATH=$CLASSPATH:/usr/local/bin: \
