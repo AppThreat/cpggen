@@ -29,6 +29,8 @@ svmem = psutil.virtual_memory()
 max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbol)s")
 cpu_count = str(psutil.cpu_count())
 
+bin_ext = ".bat" if sys.platform == "win32" else ".sh"
+
 
 def resource_path(relative_path):
     try:
@@ -68,7 +70,7 @@ if os.path.exists(local_bin_dir):
                 for dirname, subdirs, files in os.walk(local_bin_dir):
                     for filename in files:
                         if not filename.endswith(".jar") and (
-                            filename.endswith(".sh")
+                            filename.endswith("%(bin_ext)s")
                             or "2cpg" in filename
                             or "joern-" in filename
                         ):
@@ -110,12 +112,12 @@ def get(configName, default_value=None):
 
 
 cpg_tools_map = {
-    "c": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "cpp": "%(joern_home)sc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
     "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.m2",
     "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "js": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "ts": "%(joern_home)sjssrc2cpg.sh -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "js": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "ts": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin-with-deps": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
@@ -195,7 +197,9 @@ def qwiet_analysis(app_manifest, cwd, env):
         if os.getenv("SHIFTLEFT_POLICY"):
             policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
         elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
-            policy = """--policy io.shiftleft/defaultWithDictAndBestPractices """
+            policy = (
+                """--policy io%(bin_ext)siftleft/defaultWithDictAndBestPractices """
+            )
 
         if app_manifest.get("tool_lang"):
             if "jar" in app_manifest.get("tool_lang") or "jsp" in app_manifest.get(
@@ -411,7 +415,7 @@ def exec_tool(
             if not cmd_with_args:
                 return
             # Perform build first
-            if auto_build and build_tools_map.get(tool_lang):
+            if auto_build or build_tools_map.get(tool_lang):
                 LOG.info(
                     f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
                 )
@@ -486,6 +490,7 @@ def exec_tool(
                     tool_lang=tool_lang,
                     sbom_out=sbom_out,
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
+                    bin_ext=bin_ext,
                     **extra_args,
                 )
                 sbom_lang = tool_lang

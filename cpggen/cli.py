@@ -64,7 +64,12 @@ def build_args():
         dest="auto_build",
         help="Attempt to build the project automatically",
         action="store_true",
-        default=True if os.getenv("AUTO_BUILD") in ("true", "1") else False,
+        default=True
+        if (
+            os.getenv("AUTO_BUILD") in ("true", "1")
+            or os.getenv("SHIFTLEFT_ACCESS_TOKEN")
+        )
+        else False,
     )
     parser.add_argument(
         "--joern-home",
