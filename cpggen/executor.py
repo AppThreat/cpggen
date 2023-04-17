@@ -251,7 +251,7 @@ def dot_convert(export_out_dir, env):
                 LOG.debug(e)
     else:
         LOG.debug(
-            f"Install graphviz package and ensure the command `dot` is available in the PATH to convert to png automatically"
+            "Install graphviz package and ensure the command `dot` is available in the PATH to convert to png automatically"
         )
 
 
