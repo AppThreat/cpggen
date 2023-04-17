@@ -17,6 +17,7 @@ from cpggen.logger import LOG, console
 
 try:
     os.environ["PYTHONIOENCODING"] = "utf-8"
+    os.environ["PYTHONUTF8"] = 1
 except Exception:
     pass
 
