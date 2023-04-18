@@ -68,6 +68,8 @@ curl -LO https://github.com/appthreat/cpggen/releases/download/v0.9.4/cpggen.exe
 .\cpggen.exe --help
 ```
 
+NOTE: On Windows, antivirus and antimalware could prevent this single executable from functioning properly. Depending on the system, administrative privileges might also be required. Use container-based execution as a fallback.
+
 ### OCI Artifacts via ORAS cli
 
 Use [ORAS cli](https://oras.land/cli/) to download the cpggen binary with Python and Node.js preinstalled.

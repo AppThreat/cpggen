@@ -50,22 +50,25 @@ if os.path.exists(local_bin_dir):
     )
     joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
     if os.path.exists(csharp2cpg_bundled):
-        with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
-            zip_ref.extractall(local_bin_dir)
-            if not os.path.exists(
-                os.path.join(local_bin_dir, "joern-cli", "csharp2cpg")
-            ):
-                try:
+        try:
+            with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
+                zip_ref.extractall(local_bin_dir)
+                if not os.path.exists(
+                    os.path.join(local_bin_dir, "joern-cli", "csharp2cpg")
+                ):
                     os.symlink(
                         os.path.join(local_bin_dir, "bin", "csharp2cpg"),
                         os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
                     )
-                except Exception:
-                    pass
+        except Exception as e:
+            LOG.info(
+                "cpggen was prevented from extracting the csharp2cpg frontend.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
+            )
+            LOG.error(e)
     if os.path.exists(joern_bundled):
-        with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
-            zip_ref.extractall(local_bin_dir)
-            try:
+        try:
+            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+                zip_ref.extractall(local_bin_dir)
                 # Add execute permissions
                 for dirname, subdirs, files in os.walk(local_bin_dir):
                     for filename in files:
@@ -79,9 +82,11 @@ if os.path.exists(local_bin_dir):
                 os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
                 os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
                 os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
-            except Exception:
-                # Ignore errors
-                pass
+        except Exception as e:
+            LOG.info(
+                "cpggen was prevented from extracting the joern library.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
+            )
+            LOG.error(e)
     if not shutil.which(cdxgen_cmd):
         local_cdxgen_cmd = resource_path(
             os.path.join(
