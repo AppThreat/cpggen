@@ -6,7 +6,13 @@ import zipfile
 from pathlib import Path
 from sys import platform
 
-import git
+GIT_AVAILABLE = False
+try:
+    import git
+
+    GIT_AVAILABLE = True
+except Exception:
+    pass
 
 # Default ignore list
 ignore_directories = [
@@ -386,5 +392,7 @@ def detect_project_type(src_dir):
 
 
 def clone_repo(repo_url, clone_dir, depth=1):
+    if not GIT_AVAILABLE:
+        return None
     git.Repo.clone_from(repo_url, clone_dir, depth=depth)
     return clone_dir
