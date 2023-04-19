@@ -435,15 +435,15 @@ def exec_tool(
             if auto_build or build_tools_map.get(tool_lang):
                 if os.getenv("CI"):
                     LOG.info(
-                        f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
+                        f"Automatically building {src} for {tool_lang}. To speed up this step, cache the build dependencies using the CI cache settings."
                     )
                 elif use_container:
                     LOG.info(
-                        f"Attempting to build {src} using the bundled build tools from the container image."
+                        f"Attempting to build {src} for {tool_lang} using the bundled build tools from the container image."
                     )
                 else:
                     LOG.info(
-                        f"Attempting to build {src} using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution."
+                        f"Attempting to build {src} for {tool_lang} using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution."
                     )
                 lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)
             uber_jar = ""
