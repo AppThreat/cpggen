@@ -152,14 +152,6 @@ cpg_tools_map = {
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
-    "java": {
-        "maven": [
-            get("MVN_CMD", "%(maven_cmd)s"),
-            "compile",
-        ],
-        "gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "build"],
-        "sbt": ["sbt", "compile"],
-    },
     "jar": {
         "maven": [
             get("MVN_CMD", "%(maven_cmd)s"),
