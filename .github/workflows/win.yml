@@ -89,7 +89,7 @@ jobs:
         $csharp2cpg_bin = (Invoke-RestMethod -Uri 'https://cdn.shiftleft.io/download/csharp2cpg-net-win-x64.json' | Select downloadURL)
         $go2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/go2cpgmanifest-windows-x64.json' | Select downloadURL)
         $java2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/java2cpg.json' | Select downloadURL)
-        Invoke-WebRequest -Uri 'https://github.com/joernio/joern/releases/download/v1.1.1581/joern-cli.zip' -OutFile joern-cli.zip
+        Invoke-WebRequest -Uri 'https://github.com/joernio/joern/releases/download/v1.1.1605/joern-cli.zip' -OutFile joern-cli.zip
         Invoke-WebRequest -Uri $csharp2cpg_bin.downloadURL -OutFile csharp2cpg.zip
         Invoke-WebRequest -Uri $go2cpg_bin.downloadURL -OutFile go2cpg
         Invoke-WebRequest -Uri $java2cpg_bin.downloadURL -OutFile java2cpg.jar

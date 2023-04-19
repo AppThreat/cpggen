@@ -72,12 +72,20 @@ NOTE: On Windows, antivirus and antimalware could prevent this single executable
 
 ### OCI Artifacts via ORAS cli
 
-Use [ORAS cli](https://oras.land/cli/) to download the cpggen binary with Python and Node.js preinstalled.
+Use [ORAS cli](https://oras.land/cli/) to download the cpggen binary.
 
 ```bash
 oras pull ghcr.io/appthreat/cpggen-bin:v1
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
+```
+
+On Windows
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
+Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
+oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
 ```
 
 ## Usage
