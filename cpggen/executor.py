@@ -56,7 +56,10 @@ if os.path.exists(local_bin_dir):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
                 zip_ref.extractall(local_bin_dir)
-                if not os.path.exists(
+                # Create symlinks only when the binary exists
+                if os.path.exists(
+                    os.path.join(local_bin_dir, "bin", "csharp2cpg")
+                ) and not os.path.exists(
                     os.path.join(local_bin_dir, "joern-cli", "csharp2cpg")
                 ):
                     os.symlink(
