@@ -326,7 +326,7 @@ def main():
             else:
                 cpg_out_dir = os.path.join(src, "cpg_out")
         if not export_out_dir and src:
-            export_out_dir = os.path.join(src, "export_out")
+            export_out_dir = os.path.join(src, "cpg_export")
     if cpg_out_dir:
         cpg_out_dir = str(PurePath(cpg_out_dir))
     if export_out_dir:

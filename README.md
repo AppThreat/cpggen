@@ -122,13 +122,13 @@ By passing `--export`, cpggen can export the various graphs to many formats usin
 Example to export `cpg14` graphs in `dot` format
 
 ```bash
-cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/export_out
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export
 ```
 
 To export `pdg` in `neo4jcsv` format
 
 ```bash
-cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/export_out --export-repr pdg --export-format neo4jcsv
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export --export-repr pdg --export-format neo4jcsv
 ```
 
 ### Artifacts produced
