@@ -118,7 +118,7 @@ jobs:
         cd cpggen\dist
         Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
         Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
-        echo "$GITHUB_TOKEN" | .\oras.exe login ghcr.io -u $GITHUB_USERNAME --password-stdin
+        .\oras.exe login ghcr.io -u $Env:GITHUB_USERNAME -p $Env:GITHUB_TOKEN
         .\oras.exe push ghcr.io/appthreat/cpggen-windows-bin:v1 --config ../bin-build/config.json:application/vnd.oras.config.v1+json --annotation-file ../bin-build/annotations.json ./cpggen.exe:application/vnd.appthreat.cpggen.layer.v1+tar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
