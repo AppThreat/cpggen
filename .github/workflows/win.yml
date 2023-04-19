@@ -113,6 +113,18 @@ jobs:
         CPGGEN_MEMORY: 7G
         AUTO_BUILD: true
         AT_DEBUG_MODE: debug
+    - name: Upload cpggen
+      run: |
+        cd dist
+        echo $GITHUB_TOKEN | oras login ghcr.io -u $GITHUB_USERNAME --password-stdin
+        oras push ghcr.io/appthreat/cpggen-windows-bin:v1 \
+          --config ../bin-build/config.json:application/vnd.oras.config.v1+json \
+          --annotation-file ../bin-build/annotations.json \
+          ./cpggen.exe:application/vnd.appthreat.cpggen.layer.v1+tar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ github.actor }}
+
     - uses: actions/upload-artifact@v1
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
