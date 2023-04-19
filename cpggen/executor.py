@@ -30,6 +30,7 @@ max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbo
 cpu_count = str(psutil.cpu_count())
 
 bin_ext = ".bat" if sys.platform == "win32" else ".sh"
+use_shell = True if sys.platform == "win32" else False
 
 
 def resource_path(relative_path):
@@ -228,7 +229,7 @@ def qwiet_analysis(app_manifest, cwd, env):
             cwd=cwd,
             env=env,
             check=False,
-            shell=False,
+            shell=use_shell,
             encoding="utf-8",
         )
         if cp:
@@ -257,7 +258,7 @@ def dot_convert(export_out_dir, env):
                     cwd=export_out_dir,
                     env=env,
                     check=False,
-                    shell=False,
+                    shell=use_shell,
                     encoding="utf-8",
                 )
             except Exception as e:
@@ -315,7 +316,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     cwd=base_dir,
                     env=env,
                     check=False,
-                    shell=False,
+                    shell=use_shell,
                     encoding="utf-8",
                 )
                 if cp:
@@ -432,9 +433,18 @@ def exec_tool(
                 return
             # Perform build first
             if auto_build or build_tools_map.get(tool_lang):
-                LOG.info(
-                    f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
-                )
+                if os.getenv("CI"):
+                    LOG.info(
+                        f"Automatically building {src}. To speed up this step, cache the build dependencies using the CI cache settings."
+                    )
+                elif use_container:
+                    LOG.info(
+                        f"Attempting to build {src} using the bundled build tools from the container image."
+                    )
+                else:
+                    LOG.info(
+                        f"Attempting to build {src} using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution."
+                    )
                 lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)
             uber_jar = ""
             csharp_artifacts = ""
@@ -551,7 +561,7 @@ def exec_tool(
                             cwd=cwd,
                             env=env,
                             check=False,
-                            shell=False,
+                            shell=use_shell,
                             encoding="utf-8",
                         )
                         if cp and cp.returncode and cp.stderr:
@@ -621,7 +631,7 @@ def exec_tool(
                             cwd=cwd,
                             env=env,
                             check=False,
-                            shell=False,
+                            shell=use_shell,
                             encoding="utf-8",
                         )
                         if cp and LOG.isEnabledFor(DEBUG):
@@ -642,7 +652,7 @@ def exec_tool(
                     cwd=cwd,
                     env=env,
                     check=False,
-                    shell=False,
+                    shell=use_shell,
                     encoding="utf-8",
                 )
                 if cp and stdout == subprocess.PIPE:
