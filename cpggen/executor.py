@@ -218,7 +218,7 @@ def qwiet_analysis(app_manifest, cwd, env):
             policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
         elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
             policy = (
-                """--policy io%(bin_ext)siftleft/defaultWithDictAndBestPractices """
+                """--policy io.shiftleft/defaultWithDictAndBestPractices """
             )
 
         if app_manifest.get("tool_lang"):
