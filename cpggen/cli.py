@@ -13,7 +13,7 @@ from pathlib import Path, PurePath
 from quart import Quart, request
 
 from cpggen import executor, utils
-from cpggen.logger import LOG, console
+from cpggen.logger import LOG, console, enable_debug
 
 try:
     os.environ["PYTHONIOENCODING"] = "utf-8"
@@ -123,6 +123,13 @@ def build_args():
         "--export-out-dir",
         dest="export_out_dir",
         help="Export output directoru",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        default=False,
+        dest="verbose_mode",
+        help="Run cpggen in verbose mode",
     )
     return parser.parse_args()
 
@@ -313,6 +320,9 @@ def export_cpg(
 def main():
     print(product_logo)
     args = build_args()
+    # Turn on verbose mode
+    if args.verbose_mode:
+        enable_debug()
     if args.server_mode:
         return run_server(args)
     src = args.src
