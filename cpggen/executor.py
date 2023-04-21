@@ -243,10 +243,10 @@ def qwiet_analysis(app_manifest, cwd, env):
             encoding="utf-8",
         )
         if cp:
-            if LOG.isEnabledFor(DEBUG) and cp.stdout:
-                LOG.debug(cp.stdout)
+            if cp.stdout:
+                LOG.info(cp.stdout)
             if cp.returncode and cp.stderr:
-                LOG.info(cp.stderr)
+                LOG.warn(cp.stderr)
             else:
                 LOG.info(f"{app_manifest['app']} uploaded successfully")
     except Exception as e:
