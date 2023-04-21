@@ -217,9 +217,7 @@ def qwiet_analysis(app_manifest, cwd, env):
         if os.getenv("SHIFTLEFT_POLICY"):
             policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
         elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
-            policy = (
-                """--policy io.shiftleft/defaultWithDictAndBestPractices """
-            )
+            policy = """--policy io.shiftleft/defaultWithDictAndBestPractices """
 
         if app_manifest.get("tool_lang"):
             if "jar" in app_manifest.get("tool_lang") or "jsp" in app_manifest.get(
