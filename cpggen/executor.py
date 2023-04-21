@@ -192,6 +192,21 @@ build_tools_map = {
     "make": ["make"],
 }
 
+qwiet_lang_map = {
+    "jar": "java",
+    "jsp": "java",
+    "scala": "java",
+    "java": "javasrc",
+    "python": "pythonsrc",
+    "js": "javascriptsrc",
+    "ts": "javascriptsrc",
+    "javascript": "javascriptsrc",
+    "typescript": "javascriptsrc",
+    "go": "go",
+    "csharp": "csharp",
+    "dotnet": "csharp",
+}
+
 
 def qwiet_analysis(app_manifest, cwd, env):
     try:
@@ -681,8 +696,8 @@ def exec_tool(
                             amodule = amodule.replace("/github/workspace/", "")
                         language = tool_lang.split("-")[0]
                         # Override the language for jvm
-                        if language in ("jar", "scala"):
-                            language = "java"
+                        if qwiet_lang_map.get(language):
+                            language = qwiet_lang_map.get(language)
                         app_base_name = os.path.basename(amodule)
                         # Let's improve the name for github action
                         if app_base_name == "workspace" and os.getenv(
