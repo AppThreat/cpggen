@@ -20,32 +20,7 @@ CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg
 
 ## Installation
 
-cpggen is available as a [PyPI package](https://pypi.org/project/cpggen/) or as a [container image](https://github.com/AppThreat/cpggen/pkgs/container/cpggen).
-
-```
-pip install cpggen
-```
-
-Bundled container image
-
-```
-docker pull ghcr.io/appthreat/cpggen
-# podman pull ghcr.io/appthreat/cpggen
-```
-
-Almalinux 9 requires the CPU to support SSE4.2. For kvm64 VM use the Almalinux 8 version instead.
-
-```
-docker pull ghcr.io/appthreat/cpggen-alma8
-# podman pull ghcr.io/appthreat/cpggen-alma8
-```
-
-Or use the nightly to always get the latest joern and tools.
-
-```
-docker pull ghcr.io/appthreat/cpggen:nightly
-# podman pull ghcr.io/appthreat/cpggen:nightly
-```
+cpggen is available as a single executable binary, [PyPI package](https://pypi.org/project/cpggen/) or as a [container image](https://github.com/AppThreat/cpggen/pkgs/container/cpggen).
 
 ### Single executable binaries
 
@@ -86,6 +61,35 @@ On Windows
 Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
 Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
 oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
+```
+
+### PyPI package
+
+This would install just the python cli tool without any CPG language frontends. Joern must be installed separately to make the cli work.
+
+```
+pip install cpggen
+```
+
+### Bundled container image
+
+```
+docker pull ghcr.io/appthreat/cpggen
+# podman pull ghcr.io/appthreat/cpggen
+```
+
+Almalinux 9 requires the CPU to support SSE4.2. For kvm64 VM use the Almalinux 8 version instead.
+
+```
+docker pull ghcr.io/appthreat/cpggen-alma8
+# podman pull ghcr.io/appthreat/cpggen-alma8
+```
+
+Or use the nightly to always get the latest joern and tools.
+
+```
+docker pull ghcr.io/appthreat/cpggen:nightly
+# podman pull ghcr.io/appthreat/cpggen:nightly
 ```
 
 ## Usage

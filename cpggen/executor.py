@@ -208,8 +208,12 @@ qwiet_lang_map = {
 }
 
 
-def qwiet_analysis(app_manifest, cwd, env):
+def qwiet_analysis(app_manifest, src, cwd, env):
     try:
+        relative_path = os.path.relpath(cwd, src)
+        if not relative_path.startswith(".."):
+            os.environ["SL_VCS_RELATIVE_PATH"] = relative_path
+            env["SL_VCS_RELATIVE_PATH"] = relative_path
         LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
         build_args = cpg_tools_map["qwiet"]
         policy = ""
@@ -722,7 +726,7 @@ def exec_tool(
                                 completed=90,
                                 total=100,
                             )
-                            qwiet_analysis(app_manifest, cwd, env)
+                            qwiet_analysis(app_manifest, src, cwd, env)
                         json.dump(app_manifest, mfp)
                 else:
                     LOG.info(f"CPG {cpg_out} was not generated for {tool_lang}")
