@@ -211,7 +211,7 @@ qwiet_lang_map = {
 def qwiet_analysis(app_manifest, src, cwd, env):
     try:
         relative_path = os.path.relpath(cwd, src)
-        if not relative_path.startswith(".."):
+        if relative_path and not relative_path.startswith(".."):
             os.environ["SL_VCS_RELATIVE_PATH"] = relative_path
             env["SL_VCS_RELATIVE_PATH"] = relative_path
         LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
