@@ -131,6 +131,13 @@ def build_args():
         dest="verbose_mode",
         help="Run cpggen in verbose mode",
     )
+    parser.add_argument(
+        "--skip-sbom",
+        action="store_true",
+        default=True if not os.getenv("SHIFTLEFT_ACCESS_TOKEN") else False,
+        dest="skip_sbom",
+        help="Do not generate SBoM",
+    )
     return parser.parse_args()
 
 
@@ -220,7 +227,15 @@ def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def cpg(src, cpg_out_dir, languages, joern_home, use_container=False, auto_build=False):
+def cpg(
+    src,
+    cpg_out_dir,
+    languages,
+    joern_home,
+    use_container=False,
+    auto_build=False,
+    skip_sbom=False,
+):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
@@ -236,7 +251,7 @@ def cpg(src, cpg_out_dir, languages, joern_home, use_container=False, auto_build
                             joern_home,
                             use_container,
                             auto_build,
-                            {},
+                            {"skip_sbom": skip_sbom},
                         ),
                     )
                 pool.close()
@@ -380,6 +395,7 @@ def main():
         joern_home=joern_home,
         use_container=use_container,
         auto_build=args.auto_build,
+        skip_sbom=args.skip_sbom,
     )
     if args.export:
         export_cpg(

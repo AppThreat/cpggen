@@ -9,7 +9,7 @@ from pathlib import Path
 
 import psutil
 from psutil._common import bytes2human
-from rich.progress import Progress
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from cpggen.logger import DEBUG, LOG, console
 from cpggen.utils import (
@@ -125,9 +125,12 @@ def get(configName, default_value=None):
 
 
 cpg_tools_map = {
-    "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
-    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.m2",
+    "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "cpp-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
+    "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "java-with-deps": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.m2",
     "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "ts": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
@@ -205,6 +208,7 @@ qwiet_lang_map = {
     "go": "go",
     "csharp": "csharp",
     "dotnet": "csharp",
+    "cpp": "c"
 }
 
 
@@ -589,7 +593,7 @@ def exec_tool(
                                 LOG.info(cp.stderr)
                                 LOG.info("------------------------------")
                                 LOG.info(
-                                    "Please report the above error to https://github.com/joernio/joern/issues"
+                                    f"Command used {' '.join(cmd_list_with_args)}\nPlease report the above error to https://github.com/joernio/joern/issues"
                                 )
                         else:
                             if os.path.exists(cpg_out_dir):
@@ -622,7 +626,7 @@ def exec_tool(
                 cwd = amodule
                 if tool_lang in ("binary",):
                     cwd = os.getcwd()
-                if tool_lang != "binary":
+                if tool_lang != "binary" and not extra_args.get("skip_sbom"):
                     # Generate sbom first since this would even download dependencies for java
                     try:
                         progress.update(

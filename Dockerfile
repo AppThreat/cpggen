@@ -35,7 +35,7 @@ ENV JOERN_HOME=/usr/local/bin \
 COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
-    && microdnf install -y gcc git-core php php-cli python3 python3-devel pcre2 which tar zip unzip sudo \
+    && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3 python3-devel pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz \
     && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
