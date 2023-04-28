@@ -208,7 +208,7 @@ qwiet_lang_map = {
     "go": "go",
     "csharp": "csharp",
     "dotnet": "csharp",
-    "cpp": "c"
+    "cpp": "c",
 }
 
 
@@ -424,6 +424,7 @@ def exec_tool(
     ) as progress:
         task = None
         lang_build_crashes = {}
+        app_manifest_list = []
         if cwd:
             if os.path.isfile(cwd):
                 cwd = os.path.dirname(cwd)
@@ -723,6 +724,7 @@ def exec_tool(
                             "cpg_frontend_invocation": " ".join(cmd_list_with_args),
                             "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                         }
+                        app_manifest_list.append(app_manifest)
                         if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
                             progress.update(
                                 task,
@@ -750,3 +752,4 @@ def exec_tool(
                     "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                 )
             LOG.error(e)
+    return app_manifest_list

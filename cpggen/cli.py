@@ -88,7 +88,7 @@ def build_args():
     )
     parser.add_argument(
         "--server-host",
-        default=os.getenv("CPGGEN_HOST", "127.0.0.1"),
+        default=os.getenv("CPGGEN_HOST", "0.0.0.0"),
         dest="server_host",
         help="cpggen server host",
     )
@@ -163,9 +163,10 @@ async def generate_cpg():
     params = await request.get_json()
     url = ""
     src = ""
-    languages = "autodetect"
+    languages = ""
     cpg_out_dir = None
     is_temp_dir = False
+    app_manifest_list = []
     if not params:
         params = {}
     if q.get("url"):
@@ -174,7 +175,6 @@ async def generate_cpg():
         src = q.get("src")
     if q.get("out_dir"):
         cpg_out_dir = q.get("out_dir")
-
     if q.get("lang"):
         languages = q.get("lang")
     if not url and params.get("url"):
@@ -187,6 +187,9 @@ async def generate_cpg():
         cpg_out_dir = params.get("out_dir")
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
+    # If src contains url, then reassign
+    if not url and (src.startswith("http") or src.startswith("git")):
+        url = src
     if url.startswith("http") or url.startswith("git"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
         src = utils.clone_repo(url, clone_dir)
@@ -198,7 +201,7 @@ async def generate_cpg():
     else:
         languages = languages.split(",")
     for lang in languages:
-        executor.exec_tool(
+        mlist = executor.exec_tool(
             lang,
             src,
             cpg_out_dir,
@@ -207,6 +210,8 @@ async def generate_cpg():
                 "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
             ),
         )
+        if mlist:
+            app_manifest_list += mlist
     if is_temp_dir:
         try:
             os.remove(src)
@@ -217,6 +222,7 @@ async def generate_cpg():
         "success": True,
         "message": f"CPG generated successfully at {cpg_out_dir}",
         "out_dir": cpg_out_dir,
+        "app_manifests": app_manifest_list,
     }
 
 
