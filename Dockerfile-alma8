@@ -12,6 +12,9 @@ LABEL maintainer="appthreat" \
       org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -w /app -t ghcr.io/appthreat/cpggen-alma8 cpggen --build"
 
 ENV JOERN_HOME=/usr/local/bin \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
     SBT_VERSION=1.8.2 \
@@ -37,7 +40,7 @@ COPY . /usr/local/src/
 RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python38 python38-devel pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl10 zlib \
-        dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz \
+        dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz glibc-common glibc-all-langpacks \
     && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
