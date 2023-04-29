@@ -166,6 +166,8 @@ async def generate_cpg():
     languages = ""
     cpg_out_dir = None
     is_temp_dir = False
+    auto_build = True
+    skip_sbom = True
     app_manifest_list = []
     if not params:
         params = {}
@@ -185,6 +187,10 @@ async def generate_cpg():
         languages = params.get("lang")
     if not cpg_out_dir and params.get("out_dir"):
         cpg_out_dir = params.get("out_dir")
+    if params.get("auto_build", "") in ("false", "0"):
+        auto_build = False
+    if params.get("skip_sbom", "") in ("false", "0"):
+        skip_sbom = False
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
     # If src contains url, then reassign
@@ -209,6 +215,9 @@ async def generate_cpg():
             joern_home=os.getenv(
                 "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
             ),
+            use_container=False,
+            auto_build=auto_build,
+            extra_args={"skip_sbom": skip_sbom},
         )
         if mlist:
             app_manifest_list += mlist

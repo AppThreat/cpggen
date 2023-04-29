@@ -536,7 +536,7 @@ def exec_tool(
                     bin_ext=bin_ext,
                     **extra_args,
                 )
-                sbom_lang = tool_lang
+                sbom_lang = tool_lang.split("-")[0]
                 if (
                     tool_lang in ("jar", "scala")
                     or tool_lang.startswith("jar")
