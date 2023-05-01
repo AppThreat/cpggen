@@ -207,6 +207,9 @@ async def generate_cpg():
     else:
         languages = languages.split(",")
     for lang in languages:
+        # Use the deps version of the language when using auto build mode
+        if lang in ("c", "cpp", "java", "kotlin") and auto_build:
+            lang = f"{lang}-with-deps"
         mlist = executor.exec_tool(
             lang,
             src,

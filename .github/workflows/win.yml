@@ -72,7 +72,7 @@ jobs:
         node-version: 18.x
     - name: Install pyinstaller
       run: |
-        python -m pip install twine setuptools wheel pyinstaller tzdata poetry
+        python -m pip install setuptools pyinstaller tzdata poetry
         cd cpggen
         poetry config virtualenvs.create false
         poetry install --no-cache --without dev

@@ -34,7 +34,7 @@ jobs:
         node-version: 18.x
     - name: Install pyinstaller
       run: |
-        python3 -m pip install twine setuptools wheel pyinstaller poetry
+        python3 -m pip install setuptools pyinstaller poetry
         cd cpggen
         poetry config virtualenvs.create false
         poetry install --no-cache --without dev
