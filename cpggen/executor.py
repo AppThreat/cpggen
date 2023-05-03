@@ -9,7 +9,7 @@ from pathlib import Path
 
 import psutil
 from psutil._common import bytes2human
-from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+from rich.progress import Progress
 
 from cpggen.logger import DEBUG, LOG, console
 from cpggen.utils import (
@@ -149,6 +149,7 @@ cpg_tools_map = {
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "%(cdxgen_cmd)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "%(joern_home)sjoern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
+    "slice": "%(joern_home)sjoern-slice -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
     "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
@@ -440,6 +441,8 @@ def exec_tool(
             tool_verb = f"Building CPG with {tool_lang} frontend"
             if tool_lang == "export":
                 tool_verb = "Exporting CPG with joern-export"
+            elif tool_lang == "slice":
+                tool_verb = "Slicing CPG with joern-slice"
             task = progress.add_task(
                 "[green]" + tool_verb,
                 total=100,
@@ -496,8 +499,13 @@ def exec_tool(
                 sbom_cmd_with_args = cpg_tools_map.get("sbom")
                 sbom_out = ""
                 manifest_out = ""
+                slice_out = ""
                 if tool_lang == "export":
                     cpg_out = os.path.abspath(cpg_out_dir)
+                elif tool_lang == "slice":
+                    cpg_out = src
+                    slice_out = src.replace(".bin.zip", ".slices")
+                    LOG.debug(f"Output file for {tool_lang} is {slice_out}")
                 else:
                     cpg_out = (
                         cpg_out_dir
@@ -532,6 +540,7 @@ def exec_tool(
                     memory=os.getenv("CPGGEN_MEMORY", max_memory),
                     tool_lang=tool_lang,
                     sbom_out=sbom_out,
+                    slice_out=slice_out,
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     bin_ext=bin_ext,
                     **extra_args,
@@ -565,11 +574,14 @@ def exec_tool(
                             f"{lang_cmd} is not found. Ensure the PATH variable in your container image is set to the bin directory of Joern."
                         )
                     return
-                # Is this an Export task?
-                if tool_lang == "export":
+                # Is this an Export or Slice task?
+                if tool_lang in ("export", "slice"):
                     try:
                         progress.update(
-                            task, description="Exporting CPG", completed=90, total=100
+                            task,
+                            description=f"{tool_lang.capitalize()} CPG",
+                            completed=90,
+                            total=100,
                         )
                         cp = subprocess.run(
                             cmd_list_with_args,
@@ -582,7 +594,9 @@ def exec_tool(
                             encoding="utf-8",
                         )
                         if cp and cp.returncode and cp.stderr:
-                            LOG.warn(f"Export CPG has failed for {src}")
+                            LOG.warn(
+                                f"{tool_lang.capitalize()} operation has failed for {src}"
+                            )
                             if not os.getenv("AT_DEBUG_MODE"):
                                 LOG.info(
                                     "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
@@ -597,23 +611,37 @@ def exec_tool(
                                     f"Command used {' '.join(cmd_list_with_args)}\nPlease report the above error to https://github.com/joernio/joern/issues"
                                 )
                         else:
-                            if os.path.exists(cpg_out_dir):
+                            check_dir = (
+                                cpg_out_dir
+                                if tool_lang == "export"
+                                else (
+                                    slice_out
+                                    + (
+                                        ".json"
+                                        if extra_args.get("slice_mode") == "Usages"
+                                        else ".cpg"
+                                    )
+                                )
+                            )
+                            if os.path.exists(check_dir):
                                 LOG.info(
-                                    f"CPG {src} successfully exported to {cpg_out_dir}"
+                                    f"CPG {src} successfully {tool_lang + ('d' if tool_lang.endswith('e') else 'ed')} to {check_dir}"
                                 )
-                                progress.update(
-                                    task,
-                                    description="Convert exported graph to png",
-                                    completed=95,
-                                    total=100,
-                                )
-                                dot_convert(cpg_out_dir, env)
+                                # Convert dot files to png
+                                if tool_lang == "export":
+                                    progress.update(
+                                        task,
+                                        description="Convert exported graph to png",
+                                        completed=95,
+                                        total=100,
+                                    )
+                                    dot_convert(cpg_out_dir, env)
                             else:
                                 LOG.warn(
-                                    f"Unable to export {src} to {cpg_out_dir}. Try running joern-export manually using the command {' '.join(cmd_list_with_args)}"
+                                    f"Unable to {tool_lang} {src} to {check_dir}. Try running joern-{tool_lang} manually using the command {' '.join(cmd_list_with_args)}"
                                 )
                     except Exception as e:
-                        LOG.warn(f"Unable to export {src} to {cpg_out_dir}")
+                        LOG.warn(f"Unable to {tool_lang} {src} to {cpg_out_dir}")
                         LOG.error(e)
                     progress.update(task, completed=100, total=100)
                     continue

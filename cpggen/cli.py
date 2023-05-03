@@ -138,6 +138,20 @@ def build_args():
         dest="skip_sbom",
         help="Do not generate SBoM",
     )
+    parser.add_argument(
+        "--slice",
+        action="store_true",
+        default=True if os.getenv("CPG_SLICE") in ("true", "1") else False,
+        dest="slice",
+        help="Extract intra-procedural slices from the CPG",
+    )
+    parser.add_argument(
+        "--slice-mode",
+        default=os.getenv("CPG_SLICE_MODE", "Usages"),
+        dest="slice_mode",
+        choices=["Usages", "DataFlow"],
+        help="Mode used for CPG slicing",
+    )
     return parser.parse_args()
 
 
@@ -282,14 +296,17 @@ def collect_cpg_manifests(cpg_out_dir):
     return utils.find_files(cpg_out_dir, ".manifest.json")
 
 
-def export_cpg(
+def export_slice_cpg(
     src,
     cpg_out_dir,
     joern_home,
     use_container,
+    export,
     export_repr,
     export_format,
     export_out_dir,
+    slice,
+    slice_mode,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
@@ -325,13 +342,16 @@ def export_cpg(
                             cpg_path = os.path.join(
                                 os.getenv("GITHUB_WORKSPACE"), cpg_path
                             )
-                        LOG.debug(
-                            f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
-                        )
+                        if export:
+                            LOG.debug(
+                                f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
+                            )
+                        if slice:
+                            cpg_path = manifest_obj["cpg"]
                         pool.apply_async(
                             executor.exec_tool,
                             (
-                                "export",
+                                "export" if export else "slice",
                                 cpg_path,
                                 app_export_out_dir,
                                 cpg_out_dir,
@@ -339,8 +359,9 @@ def export_cpg(
                                 use_container,
                                 False,
                                 {
-                                    "export_repr": export_repr,
-                                    "export_format": export_format,
+                                    "export_repr": export_repr if export else None,
+                                    "export_format": export_format if export else None,
+                                    "slice_mode": slice_mode if slice else None,
                                 },
                             ),
                         )
@@ -415,15 +436,18 @@ def main():
         auto_build=args.auto_build,
         skip_sbom=args.skip_sbom,
     )
-    if args.export:
-        export_cpg(
+    if args.export or args.slice:
+        export_slice_cpg(
             src,
             cpg_out_dir,
             joern_home=joern_home,
             use_container=use_container,
+            export=args.export,
             export_repr=args.export_repr,
             export_format=args.export_format,
             export_out_dir=export_out_dir,
+            slice=args.slice,
+            slice_mode=args.slice_mode,
         )
     if is_temp_dir:
         try:

@@ -24,13 +24,14 @@ exclude = ["contrib", "tests"]
 
 [tool.poetry.scripts]
 cpggen = 'cpggen.cli:main'
+cpg = 'cpggen.cli:main'
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-rich = "^13.3.2"
+rich = "^13.3.5"
 gitpython = "^3.1.31"
-quart = "^0.18.3"
-psutil = "^5.9.4"
+quart = "^0.18.4"
+psutil = "^5.9.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
