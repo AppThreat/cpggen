@@ -31,7 +31,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.0.1/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.0.2/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -39,7 +39,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v1.0.1/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v1.0.2/cpggen.exe
 .\cpggen.exe --help
 ```
 
@@ -230,6 +230,8 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | CPG_EXPORT              | Set to true to export CPG graphs in dot format                    |
 | CPG_EXPORT_REPR         | Graph to export. Default all                                      |
 | CPG_EXPORT_FORMAT       | Export format. Default dot                                        |
+| CPG_SLICE               | Set to true to slice CPG                                          |
+| CPG_SLICE_MODE          | Slice mode. Default Usages                                        |
 | SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI      |
 
 ## GitHub actions
