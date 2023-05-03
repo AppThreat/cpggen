@@ -347,7 +347,14 @@ def detect_project_type(src_dir):
         if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
             project_types.append("jar")
         else:
-            project_types.append("java")
+            if os.path.exists(str(Path.home() / ".m2")):
+                project_types.append("java-with-deps")
+            elif os.path.exists(
+                str(Path.home() / ".gradle" / "caches" / "modules-2" / "files-2.1")
+            ):
+                project_types.append("java-with-gradle-deps")
+            else:
+                project_types.append("java")
     if find_files(src_dir, ".bzl", False, True) or find_files(
         src_dir, "BUILD", False, True
     ):

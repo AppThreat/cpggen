@@ -131,6 +131,7 @@ cpg_tools_map = {
     "cpp-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
     "java": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "java-with-deps": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.m2",
+    "java-with-gradle-deps": "%(joern_home)sjavasrc2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --fetch-dependencies --inference-jar-paths %(home_dir)s/.gradle/caches/modules-2/files-2.1",
     "binary": "%(joern_home)sghidra2cpg -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "ts": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
@@ -426,6 +427,7 @@ def exec_tool(
         task = None
         lang_build_crashes = {}
         app_manifest_list = []
+        tool_lang_simple = tool_lang.split("-")[0]
         if cwd:
             if os.path.isfile(cwd):
                 cwd = os.path.dirname(cwd)
@@ -515,7 +517,7 @@ def exec_tool(
                         else os.path.abspath(
                             os.path.join(
                                 cpg_out_dir,
-                                f"{os.path.basename(amodule)}-{tool_lang}-cpg.bin.zip",
+                                f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin.zip",
                             )
                         )
                     )
@@ -545,7 +547,7 @@ def exec_tool(
                     bin_ext=bin_ext,
                     **extra_args,
                 )
-                sbom_lang = tool_lang.split("-")[0]
+                sbom_lang = tool_lang_simple
                 if (
                     tool_lang in ("jar", "scala")
                     or tool_lang.startswith("jar")
@@ -729,7 +731,7 @@ def exec_tool(
                             cpg_out = cpg_out.replace("/github/workspace/", "")
                             sbom_out = sbom_out.replace("/github/workspace/", "")
                             amodule = amodule.replace("/github/workspace/", "")
-                        language = tool_lang.split("-")[0]
+                        language = tool_lang_simple
                         # Override the language for jvm
                         if qwiet_lang_map.get(language):
                             language = qwiet_lang_map.get(language)
