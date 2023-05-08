@@ -233,6 +233,7 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | CPG_SLICE               | Set to true to slice CPG                                          |
 | CPG_SLICE_MODE          | Slice mode. Default Usages                                        |
 | SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI      |
+| CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                 |
 
 ## GitHub actions
 

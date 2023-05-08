@@ -148,7 +148,7 @@ cpg_tools_map = {
     "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
-    "sbom": "%(cdxgen_cmd)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
+    "sbom": "%(cdxgen_cmd)s%(cdxgen_args)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "export": "%(joern_home)sjoern-export --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "slice": "%(joern_home)sjoern-slice -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
     "qwiet": "sl analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
@@ -557,6 +557,9 @@ def exec_tool(
                     cwd=cwd,
                     sbom_out=sbom_out,
                     cdxgen_cmd=cdxgen_cmd,
+                    cdxgen_args=f' {os.getenv("CDXGEN_ARGS", "").strip()}'
+                    if os.getenv("CDXGEN_ARGS")
+                    else "",
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     **extra_args,
                 )
