@@ -198,21 +198,21 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 
 ## Languages supported
 
-| Language    | Requires build |
-| ----------- | -------------- |
-| C           | No             |
-| C++         | No             |
-| Java        | No (\*)        |
-| Scala       | Yes            |
-| Jsp         | Yes            |
-| Jar/War     | No             |
-| JavaScript  | No             |
-| TypeScript  | No             |
-| Kotlin      | No (\*)        |
-| Php         | No             |
-| Python      | No             |
-| C# / dotnet | Yes            |
-| Go          | Yes            |
+| Language    | Requires build | Maturity |
+| ----------- | -------------- | -------- |
+| C           | No             | High     |
+| C++         | No             | High     |
+| Java        | No (\*)        | Medium   |
+| Scala       | Yes            | High     |
+| Jsp         | Yes            | High     |
+| Jar/War     | No             | High     |
+| JavaScript  | No             | Medium   |
+| TypeScript  | No             | Medium   |
+| Kotlin      | No (\*)        | Low      |
+| Php         | No             | Low      |
+| Python      | No             | Low      |
+| C# / dotnet | Yes            | High     |
+| Go          | Yes            | High     |
 
 (\*) - Precision could be improved with dependencies
 
