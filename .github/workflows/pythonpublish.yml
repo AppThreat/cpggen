@@ -47,6 +47,14 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           name: Release ${{ github.ref }}
+  default-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -78,6 +86,13 @@ jobs:
           cache-to: type=gha,mode=max,scope=cpggen
           provenance: true
           sbom: true
+  alma8-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta2
@@ -99,6 +114,13 @@ jobs:
           cache-to: type=gha,mode=max,scope=cpggen-alma8
           provenance: true
           sbom: true
+  oss-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta3
@@ -107,7 +129,7 @@ jobs:
           images: |
             ghcr.io/appthreat/cpggen-oss
 
-      - name: Build and push Docker alma 8 images
+      - name: Build and push Docker OSS images
         uses: docker/build-push-action@v4
         with:
           context: .
