@@ -69,20 +69,20 @@ jobs:
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
           docker build -t ghcr.io/appthreat/cpggen .
-          poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          poetry run cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export-out-dir /tmp/all_exports/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export-out-dir /tmp/all_exports/shiftleft-java-example
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java cpg test was successful"
           else
             echo "Java cpg test was not successful"
           fi
-          poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example --export-out-dir /tmp/all_exports/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
             echo "JS direct test was successful"
           else
@@ -96,7 +96,7 @@ jobs:
             echo "go direct test was not successful"
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
-          poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
+          poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build --export-out-dir /tmp/all_exports/shiftleft-scala-example
           # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/vulnerable_net_core/vulnerable_net_core-csharp-cpg.bin.zip,resultFile=/tmp/all_cpgs/vulnerable_net_core/csharp-cpg-methods.json
@@ -120,5 +120,5 @@ jobs:
           ls -ltr /tmp/all_exports
         env:
           AT_DEBUG_MODE: debug
-          CPGGEN_CONTAINER_MEMORY: 7g
-          CPGGEN_MEMORY: 7G
+          CPG_EXPORT: true
+          CPG_SLICE: true
