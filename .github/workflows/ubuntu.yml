@@ -38,11 +38,7 @@ jobs:
         python3 -m pip install setuptools pyinstaller poetry
         cd cpggen
         poetry config virtualenvs.create false
-        poetry install --no-cache --without dev
-        wget https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
-        tar -xvf upx-4.0.2-amd64_linux.tar.xz
-        chmod +x upx-4.0.2-amd64_linux/upx
-        sudo cp upx-4.0.2-amd64_linux/upx /usr/local/bin/
+        poetry install --no-cache
     - name: Produce cdxgen pkg
       run: |
         sudo npm install -g pkg
