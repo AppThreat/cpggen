@@ -182,7 +182,10 @@ async def generate_cpg():
     is_temp_dir = False
     auto_build = True
     skip_sbom = True
+    slice = False
+    slice_mode = "Usages"
     app_manifest_list = []
+    errors_warnings = []
     if not params:
         params = {}
     if q.get("url"):
@@ -193,6 +196,14 @@ async def generate_cpg():
         cpg_out_dir = q.get("out_dir")
     if q.get("lang"):
         languages = q.get("lang")
+    if q.get("slice", "") in ("true", "1"):
+        slice = True
+    if q.get("slice_mode"):
+        slice_mode = q.get("slice_mode")
+    if q.get("auto_build", "") in ("false", "0"):
+        auto_build = False
+    if q.get("skip_sbom", "") in ("false", "0"):
+        skip_sbom = False
     if not url and params.get("url"):
         url = params.get("url")
     if not src and params.get("src"):
@@ -205,6 +216,10 @@ async def generate_cpg():
         auto_build = False
     if params.get("skip_sbom", "") in ("false", "0"):
         skip_sbom = False
+    if params.get("slice", "") in ("true", "1"):
+        slice = True
+    if params.get("slice_mode"):
+        slice_mode = params.get("slice_mode")
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
     # If src contains url, then reassign
@@ -234,10 +249,33 @@ async def generate_cpg():
             ),
             use_container=False,
             auto_build=auto_build,
-            extra_args={"skip_sbom": skip_sbom},
+            extra_args={"skip_sbom": skip_sbom, "slice_mode": slice_mode},
         )
         if mlist:
             app_manifest_list += mlist
+        if slice and mlist:
+            for ml in mlist:
+                if not os.path.exists(ml.get("cpg")):
+                    errors_warnings.append(
+                        f"""CPG file was not found at {ml.get("cpg")}"""
+                    )
+                    continue
+                executor.exec_tool(
+                    "slice",
+                    ml.get("cpg"),
+                    cpg_out_dir,
+                    src,
+                    joern_home=os.getenv(
+                        "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
+                    ),
+                    use_container=False,
+                    auto_build=False,
+                    extra_args={"slice_mode": slice_mode},
+                )
+                if not os.path.exists(ml.get("slice_out")):
+                    errors_warnings.append(
+                        f"""CPG slice file was not found at {ml.get("slice_out")}"""
+                    )
     if is_temp_dir:
         try:
             os.remove(src)
@@ -245,8 +283,10 @@ async def generate_cpg():
             # Ignore cleanup errors
             pass
     return {
-        "success": True,
-        "message": f"CPG generated successfully at {cpg_out_dir}",
+        "success": False if errors_warnings else True,
+        "message": "\n".join(errors_warnings)
+        if errors_warnings
+        else f"CPG generated successfully at {cpg_out_dir}",
         "out_dir": cpg_out_dir,
         "app_manifests": app_manifest_list,
     }

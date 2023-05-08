@@ -506,8 +506,6 @@ def exec_tool(
                     cpg_out = os.path.abspath(cpg_out_dir)
                 elif tool_lang == "slice":
                     cpg_out = src
-                    slice_out = src.replace(".bin.zip", ".slices")
-                    LOG.debug(f"Output file for {tool_lang} is {slice_out}")
                 else:
                     cpg_out = (
                         cpg_out_dir
@@ -532,6 +530,10 @@ def exec_tool(
                         else f"{cpg_out}.manifest.json"
                     )
                     LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
+                slice_out = cpg_out.replace(".bin.zip", ".slices")
+                slice_out = slice_out + (
+                    ".json" if extra_args.get("slice_mode") == "Usages" else ".cpg"
+                )
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
                     cpg_out=cpg_out,
@@ -614,16 +616,7 @@ def exec_tool(
                                 )
                         else:
                             check_dir = (
-                                cpg_out_dir
-                                if tool_lang == "export"
-                                else (
-                                    slice_out
-                                    + (
-                                        ".json"
-                                        if extra_args.get("slice_mode") == "Usages"
-                                        else ".cpg"
-                                    )
-                                )
+                                cpg_out_dir if tool_lang == "export" else slice_out
                             )
                             if os.path.exists(check_dir):
                                 LOG.info(
@@ -749,6 +742,7 @@ def exec_tool(
                             "app": f"{app_base_name}-{language}",
                             "cpg": cpg_out,
                             "sbom": sbom_out,
+                            "slice_out": slice_out,
                             "language": language,
                             "tool_lang": tool_lang,
                             "cpg_frontend_invocation": " ".join(cmd_list_with_args),
