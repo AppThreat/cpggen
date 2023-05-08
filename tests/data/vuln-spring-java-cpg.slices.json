@@ -1,0 +1,3296 @@
+{
+  "objectSlices" : {
+    "com.example.vulnspring.SessionFilter.doFilter:void(javax.servlet.ServletRequest,javax.servlet.ServletResponse,javax.servlet.FilterChain)" : [
+      {
+        "targetObj" : {
+          "name" : "String username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "java.lang.String",
+                "null"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.notEquals",
+              "paramTypes" : [
+                "java.lang.String",
+                "null"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "request",
+          "typeFullName" : "javax.servlet.ServletRequest",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "request",
+          "typeFullName" : "javax.servlet.ServletRequest",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.cast",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.ServletRequest"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "chain",
+          "typeFullName" : "javax.servlet.FilterChain",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "chain",
+          "typeFullName" : "javax.servlet.FilterChain",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "doFilter",
+            "paramTypes" : [
+              "javax.servlet.http.HttpServletRequest",
+              "javax.servlet.http.HttpServletResponse"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "doFilter",
+            "paramTypes" : [
+              "javax.servlet.http.HttpServletRequest",
+              "javax.servlet.http.HttpServletResponse"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "HttpServletResponse res",
+          "typeFullName" : "javax.servlet.http.HttpServletResponse",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "javax.servlet.http.HttpServletResponse",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "sendRedirect",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletResponse",
+                "javax.servlet.http.HttpServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "doFilter",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "doFilter",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "HttpServletRequest req",
+          "typeFullName" : "javax.servlet.http.HttpServletRequest",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "javax.servlet.http.HttpServletRequest",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getSession",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getMethod",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getServletPath",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getServletPath",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletRequest"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "doFilter",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "doFilter",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "response",
+          "typeFullName" : "javax.servlet.ServletResponse",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "response",
+          "typeFullName" : "javax.servlet.ServletResponse",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.cast",
+              "paramTypes" : [
+                "javax.servlet.http.HttpServletResponse",
+                "javax.servlet.ServletResponse"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.update:java.lang.String(javax.servlet.http.HttpSession,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "Map<String, Object> resultMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.queryForMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "get",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.util.Map",
+                "java.util.Map"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.Object"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.AddressDetails.<init>:void(int,java.lang.String)" : [
+      {
+        "targetObj" : {
+          "name" : "streetNumber",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "streetNumber",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "streetName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "streetName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.checkDB:java.lang.String(java.lang.String,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String sanitizedValue",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "FilenameUtils.getBaseName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "equalsIgnoreCase",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<init>",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String out",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new Scanner",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "Scanner",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "URL remoteUrl",
+          "typeFullName" : "java.net.URL",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new URL",
+          "typeFullName" : "java.net.URL",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "<init>",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "openStream",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "URL",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "File",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "dbpath",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "dbpath",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "equalsIgnoreCase",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "getBaseName",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.issue:java.lang.String(org.springframework.ui.Model,java.lang.String)" : [
+      {
+        "targetObj" : {
+          "name" : "String parsedDocument",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "this.getNodeString",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "StringBuffer",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "Document doc",
+          "typeFullName" : "org.w3c.dom.Document",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "dBuilder.parse",
+          "typeFullName" : "org.w3c.dom.Document",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getFirstChild",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "StringReader",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "DocumentBuilder dBuilder",
+          "typeFullName" : "javax.xml.parsers.DocumentBuilder",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "dbFactory.newDocumentBuilder",
+          "typeFullName" : "javax.xml.parsers.DocumentBuilder",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "StringReader",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "javax.xml.parsers.DocumentBuilder",
+                "javax.xml.parsers.DocumentBuilder"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "DocumentBuilderFactory dbFactory",
+          "typeFullName" : "javax.xml.parsers.DocumentBuilderFactory",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "DocumentBuilderFactory.newInstance",
+          "typeFullName" : "javax.xml.parsers.DocumentBuilderFactory",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "newDocumentBuilder",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "javax.xml.parsers.DocumentBuilderFactory",
+                "javax.xml.parsers.DocumentBuilderFactory"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "body",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "body",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<init>",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.logout:java.lang.String(javax.servlet.http.HttpSession)" : [
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "invalidate",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.login:java.lang.String(javax.servlet.http.HttpSession,java.lang.String,java.lang.String,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "setAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "loginSuccess",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "setAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "password",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "password",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "loginSuccess",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.loginSuccess:boolean(java.lang.String,java.lang.String)" : [
+      {
+        "targetObj" : {
+          "name" : "Map<String, Object> result",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.queryForMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "containsKey",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.util.Map",
+                "java.util.Map"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "java.lang.String",
+                "null"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "password",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "password",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "java.lang.String",
+                "null"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.addressValidation:java.lang.String(org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "ByteArrayOutputStream baos",
+          "typeFullName" : "java.io.ByteArrayOutputStream",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new ByteArrayOutputStream",
+          "typeFullName" : "java.io.ByteArrayOutputStream",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "<init>",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "toByteArray",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "ByteArrayOutputStream",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<init>",
+              "paramTypes" : [
+                "java.io.ByteArrayOutputStream"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "ObjectOutputStream oos",
+          "typeFullName" : "java.io.ObjectOutputStream",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new ObjectOutputStream",
+          "typeFullName" : "java.io.ObjectOutputStream",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "<init>",
+            "paramTypes" : [
+              "java.io.ByteArrayOutputStream"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "writeObject",
+            "paramTypes" : [
+              "com.example.vulnspring.AddressDetails"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "close",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "ObjectOutputStream",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "AddressDetails ad",
+          "typeFullName" : "com.example.vulnspring.AddressDetails",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new AddressDetails",
+          "typeFullName" : "com.example.vulnspring.AddressDetails",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "<init>",
+            "paramTypes" : [
+              "int",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "AddressDetails",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "writeObject",
+              "paramTypes" : [
+                "com.example.vulnspring.AddressDetails"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String b64",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "Base64.getEncoder",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.jwt:java.lang.String(org.springframework.ui.Model,java.lang.String,javax.servlet.http.HttpSession)" : [
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "DecodedJWT decodedJWT",
+          "typeFullName" : "com.auth0.jwt.interfaces.DecodedJWT",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "JWT.decode",
+          "typeFullName" : "com.auth0.jwt.interfaces.DecodedJWT",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getClaim",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "com.auth0.jwt.interfaces.DecodedJWT",
+                "com.auth0.jwt.interfaces.DecodedJWT"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String usernameFromJWT",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "decodedJWT.getClaim",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "equalsIgnoreCase",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "jwtString",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jwtString",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "decode",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.getNodeString:java.lang.StringBuffer(org.w3c.dom.Node,java.lang.StringBuffer)" : [
+      {
+        "targetObj" : {
+          "name" : "String nodeName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "node.getNodeName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "equals",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "currentString",
+          "typeFullName" : "java.lang.StringBuffer",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "currentString",
+          "typeFullName" : "java.lang.StringBuffer",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "append",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "append",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "append",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.StringBuffer",
+                "java.lang.StringBuffer"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "getNodeString",
+              "paramTypes" : [
+                "org.w3c.dom.Node",
+                "java.lang.StringBuffer"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "node",
+          "typeFullName" : "org.w3c.dom.Node",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "node",
+          "typeFullName" : "org.w3c.dom.Node",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getNodeName",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getNodeValue",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getNodeValue",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getNodeValue",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getChildNodes",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getChildNodes",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.jwt:java.lang.String(javax.servlet.http.HttpSession,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "Algorithm algorithmNone",
+          "typeFullName" : "com.auth0.jwt.algorithms.Algorithm",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "Algorithm.none",
+          "typeFullName" : "com.auth0.jwt.algorithms.Algorithm",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "com.auth0.jwt.algorithms.Algorithm",
+                "com.auth0.jwt.algorithms.Algorithm"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "sign",
+              "paramTypes" : [
+                "com.auth0.jwt.algorithms.Algorithm"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String username",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "withClaim",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "String token",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "JWT.create",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.addressValidation:java.lang.String(org.springframework.ui.Model,java.lang.String)" : [
+      {
+        "targetObj" : {
+          "name" : "byte[] data",
+          "typeFullName" : "byte[]",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "Base64.getDecoder",
+          "typeFullName" : "byte[]",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "byte[]",
+                "byte[]"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<init>",
+              "paramTypes" : [
+                "byte[]"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "ObjectInputStream ois",
+          "typeFullName" : "java.io.ObjectInputStream",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "new ObjectInputStream",
+          "typeFullName" : "java.io.ObjectInputStream",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "ByteArrayInputStream",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "readObject",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "close",
+            "paramTypes" : [
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "ByteArrayInputStream",
+              "paramTypes" : [
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "com.example.vulnspring.AddressDetails"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "AddressDetails addressDetails",
+          "typeFullName" : "com.example.vulnspring.AddressDetails",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "com.example.vulnspring.AddressDetails",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "com.example.vulnspring.AddressDetails",
+                "com.example.vulnspring.AddressDetails"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "com.example.vulnspring.AddressDetails"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "encodedString",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "encodedString",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "decode",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.support:java.lang.String(java.lang.String)" : [
+      {
+        "targetObj" : {
+          "name" : "desk",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "desk",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.transfer:java.lang.String(javax.servlet.http.HttpSession,java.lang.String,java.lang.Float,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "String fromAccount",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "float newBalance",
+          "typeFullName" : "float",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "fromAccountBalance - amount",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.lessThan",
+              "paramTypes" : [
+                "float",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "toAccount",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "toAccount",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "int fromAccStatus",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.update",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "valueOf",
+              "paramTypes" : [
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "amount",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "amount",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.lessThan",
+              "paramTypes" : [
+                "java.lang.Float",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "Map<String, Object> toAccountResultMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.queryForMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "get",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.util.Map",
+                "java.util.Map"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "float"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "Float toAccountBalance",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "int toAccStatus",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.update",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "valueOf",
+              "paramTypes" : [
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "Float fromAccountBalance",
+          "typeFullName" : "java.lang.Float",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "float",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.lang.Float",
+                "float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "valueOf",
+              "paramTypes" : [
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.subtraction",
+              "paramTypes" : [
+                "java.lang.Float",
+                "java.lang.Float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "Map<String, Object> fromResultMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.queryForMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "get",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "get",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.util.Map",
+                "java.util.Map"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.update:java.lang.String(javax.servlet.http.HttpSession,java.lang.String,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "int status",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.update",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "valueOf",
+              "paramTypes" : [
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.equals",
+              "paramTypes" : [
+                "int",
+                "int"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "newName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "newName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.Object"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "<operator>.addition",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "java.lang.String"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          },
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.support:java.lang.String(org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.transfer:java.lang.String(javax.servlet.http.HttpSession,org.springframework.ui.Model)" : [
+      {
+        "targetObj" : {
+          "name" : "Map<String, Object> balanceResultMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "jdbcTemplate.queryForMap",
+          "typeFullName" : "java.util.Map",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "get",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "java.util.Map",
+                "java.util.Map"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "float balance",
+          "typeFullName" : "float",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "",
+          "typeFullName" : "float",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.assignment",
+              "paramTypes" : [
+                "float",
+                "float"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ],
+          [
+            {
+              "callName" : "addAttribute",
+              "paramTypes" : [
+                "java.lang.String",
+                "float"
+              ],
+              "returnType" : "ANY"
+            },
+            2
+          ]
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "float"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ],
+    "com.example.vulnspring.VulnSpringApplication.main:void(java.lang.String[])" : [
+      {
+        "targetObj" : {
+          "name" : "args",
+          "typeFullName" : "java.lang.String[]",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "args",
+          "typeFullName" : "java.lang.String[]",
+          "literal" : false
+        },
+        "invokedCalls" : [
+        ],
+        "argToCalls" : [
+          [
+            {
+              "callName" : "<operator>.arrayInitializer",
+              "paramTypes" : [
+                "java.lang.String[]"
+              ],
+              "returnType" : "ANY"
+            },
+            1
+          ]
+        ]
+      }
+    ],
+    "com.example.vulnspring.WebController.home:java.lang.String(org.springframework.ui.Model,javax.servlet.http.HttpSession)" : [
+      {
+        "targetObj" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "model",
+          "typeFullName" : "org.springframework.ui.Model",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "addAttribute",
+            "paramTypes" : [
+              "java.lang.String",
+              "java.lang.Object"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      },
+      {
+        "targetObj" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "definedBy" : {
+          "name" : "session",
+          "typeFullName" : "javax.servlet.http.HttpSession",
+          "literal" : false
+        },
+        "invokedCalls" : [
+          {
+            "callName" : "getAttribute",
+            "paramTypes" : [
+              "java.lang.String"
+            ],
+            "returnType" : "ANY"
+          }
+        ],
+        "argToCalls" : [
+        ]
+      }
+    ]
+  },
+  "userDefinedTypes" : [
+    {
+      "name" : "com.example.vulnspring.VulnSpringApplication",
+      "fields" : [
+      ],
+      "procedures" : [
+        {
+          "callName" : "main",
+          "paramTypes" : [
+            "java.lang.String[]"
+          ],
+          "returnType" : "void"
+        },
+        {
+          "callName" : "<init>",
+          "paramTypes" : [
+            "com.example.vulnspring.VulnSpringApplication"
+          ],
+          "returnType" : "void"
+        }
+      ]
+    },
+    {
+      "name" : "com.example.vulnspring.WebController",
+      "fields" : [
+        {
+          "name" : "jdbcTemplate",
+          "typeFullName" : "org.springframework.jdbc.core.JdbcTemplate",
+          "literal" : false
+        },
+        {
+          "name" : "logger",
+          "typeFullName" : "org.slf4j.Logger",
+          "literal" : false
+        }
+      ],
+      "procedures" : [
+        {
+          "callName" : "home",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model",
+            "javax.servlet.http.HttpSession"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "login",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "login",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "java.lang.String",
+            "java.lang.String",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "loginSuccess",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "java.lang.String",
+            "java.lang.String"
+          ],
+          "returnType" : "boolean"
+        },
+        {
+          "callName" : "logout",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "update",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "update",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "java.lang.String",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "checkDB",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "java.lang.String",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "checkDB",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "transfer",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "transfer",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "java.lang.String",
+            "java.lang.Float",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "issue",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "issue",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model",
+            "java.lang.String"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "getNodeString",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.w3c.dom.Node",
+            "java.lang.StringBuffer"
+          ],
+          "returnType" : "java.lang.StringBuffer"
+        },
+        {
+          "callName" : "support",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "java.lang.String"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "support",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "jwt",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "javax.servlet.http.HttpSession",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "jwt",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model",
+            "java.lang.String",
+            "javax.servlet.http.HttpSession"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "addressValidation",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "addressValidation",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController",
+            "org.springframework.ui.Model",
+            "java.lang.String"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "<init>",
+          "paramTypes" : [
+            "com.example.vulnspring.WebController"
+          ],
+          "returnType" : "void"
+        },
+        {
+          "callName" : "<clinit>",
+          "paramTypes" : [
+          ],
+          "returnType" : "void"
+        }
+      ]
+    },
+    {
+      "name" : "com.example.vulnspring.AddressDetails",
+      "fields" : [
+        {
+          "name" : "streetNumber",
+          "typeFullName" : "int",
+          "literal" : false
+        },
+        {
+          "name" : "streetName",
+          "typeFullName" : "java.lang.String",
+          "literal" : false
+        }
+      ],
+      "procedures" : [
+        {
+          "callName" : "getStreetNumber",
+          "paramTypes" : [
+            "com.example.vulnspring.AddressDetails"
+          ],
+          "returnType" : "int"
+        },
+        {
+          "callName" : "getStreetName",
+          "paramTypes" : [
+            "com.example.vulnspring.AddressDetails"
+          ],
+          "returnType" : "java.lang.String"
+        },
+        {
+          "callName" : "<init>",
+          "paramTypes" : [
+            "com.example.vulnspring.AddressDetails",
+            "int",
+            "java.lang.String"
+          ],
+          "returnType" : "void"
+        },
+        {
+          "callName" : "toString",
+          "paramTypes" : [
+            "com.example.vulnspring.AddressDetails"
+          ],
+          "returnType" : "java.lang.String"
+        }
+      ]
+    },
+    {
+      "name" : "com.example.vulnspring.SessionFilter",
+      "fields" : [
+        {
+          "name" : "logger",
+          "typeFullName" : "org.slf4j.Logger",
+          "literal" : false
+        }
+      ],
+      "procedures" : [
+        {
+          "callName" : "doFilter",
+          "paramTypes" : [
+            "com.example.vulnspring.SessionFilter",
+            "javax.servlet.ServletRequest",
+            "javax.servlet.ServletResponse",
+            "javax.servlet.FilterChain"
+          ],
+          "returnType" : "void"
+        },
+        {
+          "callName" : "<init>",
+          "paramTypes" : [
+            "com.example.vulnspring.SessionFilter"
+          ],
+          "returnType" : "void"
+        },
+        {
+          "callName" : "<clinit>",
+          "paramTypes" : [
+          ],
+          "returnType" : "void"
+        }
+      ]
+    }
+  ]
+}
