@@ -110,6 +110,13 @@ docker pull ghcr.io/appthreat/cpggen:nightly
 # podman pull ghcr.io/appthreat/cpggen:nightly
 ```
 
+To use the container image with only open-source CPG frontends without any Qwiet.AI support.
+
+```
+docker pull ghcr.io/appthreat/cpggen-oss
+# podman pull ghcr.io/appthreat/cpggen-oss
+```
+
 ## Usage
 
 To auto detect the language from the current directory and generate CPG.

@@ -100,3 +100,24 @@ jobs:
           cache-to: type=gha,mode=max,scope=cpggen-alma8
           provenance: true
           sbom: true
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta3
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/appthreat/cpggen-oss
+
+      - name: Build and push Docker alma 8 images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile-oss
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta3.outputs.tags }}
+          labels: ${{ steps.meta3.outputs.labels }}
+          cache-from: type=gha,scope=cpggen-oss
+          cache-to: type=gha,mode=max,scope=cpggen-oss
+          provenance: true
+          sbom: true
