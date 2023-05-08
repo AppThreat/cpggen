@@ -178,11 +178,6 @@ build_tools_map = {
         "gradle": [get("GRADLE_CMD", "gradle"), "build"],
     },
     "scala": ["sbt", "stage"],
-    "nodejs": {
-        "npm": ["npm", "install", "--prefer-offline", "--no-audit", "--progress=false"],
-        "yarn": ["yarn", "install"],
-        "rush": ["rush", "install", "--bypass-policy", "--no-link"],
-    },
     "go": {
         "go": ["go", "build", "./..."],
         "make": ["make"],
