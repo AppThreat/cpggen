@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import signal
+import sys
 import tempfile
 from multiprocessing import Pool, freeze_support
 from pathlib import Path, PurePath
@@ -438,8 +439,18 @@ def main():
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
+    is_bundled_exe = False
+    try:
+        if getattr(sys, "_MEIPASS"):
+            is_bundled_exe = True
+    except Exception:
+        pass
     if joern_home and not os.path.exists(joern_home):
-        if utils.check_command("docker") or utils.check_command("podman"):
+        if (
+            not is_bundled_exe
+            and utils.check_command("docker")
+            or utils.check_command("podman")
+        ):
             use_container = True
         else:
             console.print(
