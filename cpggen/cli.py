@@ -445,12 +445,8 @@ def main():
             is_bundled_exe = True
     except Exception:
         pass
-    if joern_home and not os.path.exists(joern_home):
-        if (
-            not is_bundled_exe
-            and utils.check_command("docker")
-            or utils.check_command("podman")
-        ):
+    if joern_home and not os.path.exists(joern_home) and not is_bundled_exe:
+        if utils.check_command("docker") or utils.check_command("podman"):
             use_container = True
         else:
             console.print(
