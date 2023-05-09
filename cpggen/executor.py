@@ -58,16 +58,6 @@ if os.path.exists(local_bin_dir):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
                 zip_ref.extractall(local_bin_dir)
-                # Create symlinks only when the binary exists
-                if os.path.exists(
-                    os.path.join(local_bin_dir, "bin", "csharp2cpg")
-                ) and not os.path.exists(
-                    os.path.join(local_bin_dir, "joern-cli", "csharp2cpg")
-                ):
-                    os.symlink(
-                        os.path.join(local_bin_dir, "bin", "csharp2cpg"),
-                        os.path.join(local_bin_dir, "joern-cli", "csharp2cpg"),
-                    )
         except Exception as e:
             LOG.info(
                 "cpggen was prevented from extracting the csharp2cpg frontend.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
@@ -142,8 +132,8 @@ cpg_tools_map = {
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
     "php": "%(joern_home)sphp2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "python": "%(joern_home)spysrc2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "csharp": "%(joern_home)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
-    "dotnet": "%(joern_home)scsharp2cpg%(bin_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
+    "csharp": "%(joern_home)sbin%(os_path_sep)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
+    "dotnet": "%(joern_home)sbin%(os_path_sep)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
     "go": "%(joern_home)sgo2cpg%(exe_ext)s generate -o %(cpg_out)s ./...",
     "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
@@ -554,6 +544,7 @@ def exec_tool(
                     bin_ext=bin_ext,
                     exe_ext=exe_ext,
                     only_bat_ext=only_bat_ext,
+                    os_path_sep=os.path.sep,
                     **extra_args,
                 )
                 sbom_lang = tool_lang_simple
@@ -572,6 +563,7 @@ def exec_tool(
                     bin_ext=bin_ext,
                     exe_ext=exe_ext,
                     only_bat_ext=only_bat_ext,
+                    os_path_sep=os.path.sep,
                     cdxgen_args=f' {os.getenv("CDXGEN_ARGS", "").strip()}'
                     if os.getenv("CDXGEN_ARGS")
                     else "",

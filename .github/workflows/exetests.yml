@@ -48,6 +48,10 @@ jobs:
         with:
           repository: 'juice-shop/juicy-malware'
           path: 'repotests/juicy-malware'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: exetests
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
@@ -128,6 +132,10 @@ jobs:
         with:
           repository: 'juice-shop/juicy-malware'
           path: 'repotests/juicy-malware'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: exetests
         run: |
           Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
