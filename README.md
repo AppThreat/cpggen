@@ -162,10 +162,10 @@ Example to export `cpg14` graphs in `dot` format
 cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export
 ```
 
-To export `pdg` in `neo4jcsv` format
+To export `cpg` in `neo4jcsv` format
 
 ```bash
-cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export --export-repr pdg --export-format neo4jcsv
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export --export-repr cpg --export-format neo4jcsv
 ```
 
 ### Slicing graphs
