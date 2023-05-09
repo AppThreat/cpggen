@@ -153,6 +153,13 @@ def build_args():
         choices=["Usages", "DataFlow"],
         help="Mode used for CPG slicing",
     )
+    parser.add_argument(
+        "--use-parse",
+        dest="use_parse",
+        help="Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important",
+        action="store_true",
+        default=False,
+    )
     return parser.parse_args()
 
 
@@ -185,6 +192,7 @@ async def generate_cpg():
     skip_sbom = True
     export = False
     slice = False
+    use_parse = False
     slice_mode = "Usages"
     app_manifest_list = []
     errors_warnings = []
@@ -254,6 +262,7 @@ async def generate_cpg():
                 "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
             ),
             use_container=False,
+            use_parse=use_parse,
             auto_build=auto_build,
             extra_args={
                 "skip_sbom": skip_sbom,
@@ -280,6 +289,7 @@ async def generate_cpg():
                         "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
                     ),
                     use_container=False,
+                    use_parse=use_parse,
                     auto_build=False,
                     extra_args={
                         "slice_mode": slice_mode,
@@ -319,6 +329,7 @@ def cpg(
     languages,
     joern_home,
     use_container=False,
+    use_parse=False,
     auto_build=False,
     skip_sbom=False,
     export=False,
@@ -339,6 +350,7 @@ def cpg(
                             src,
                             joern_home,
                             use_container,
+                            use_parse,
                             auto_build,
                             {
                                 "skip_sbom": skip_sbom,
@@ -358,11 +370,22 @@ def collect_cpg_manifests(cpg_out_dir):
     return utils.find_files(cpg_out_dir, ".manifest.json")
 
 
+def fix_export_repr(export_repr, export_format):
+    if export_format == "neo4jcsv":
+        if export_repr != "cpg":
+            LOG.warn(
+                "cpg is the only supported export representation for neo4jcsv format"
+            )
+        return "cpg"
+    return export_repr
+
+
 def export_slice_cpg(
     src,
     cpg_out_dir,
     joern_home,
     use_container,
+    use_parse,
     export,
     export_repr,
     export_format,
@@ -417,9 +440,14 @@ def export_slice_cpg(
                                 cpg_out_dir,
                                 joern_home,
                                 use_container,
+                                use_parse,
                                 False,
                                 {
-                                    "export_repr": export_repr if export else None,
+                                    "export_repr": fix_export_repr(
+                                        export_repr, export_format
+                                    )
+                                    if export
+                                    else None,
                                     "export_format": export_format if export else None,
                                     "slice_mode": slice_mode if slice else None,
                                     "slice_out": manifest_obj.get("slice_out"),
@@ -459,6 +487,7 @@ def main():
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
+    use_parse = args.use_parse
     is_bundled_exe = False
     try:
         if getattr(sys, "_MEIPASS"):
@@ -503,6 +532,7 @@ def main():
         languages,
         joern_home=joern_home,
         use_container=use_container,
+        use_parse=use_parse,
         auto_build=args.auto_build,
         skip_sbom=args.skip_sbom,
         export=args.export,
@@ -515,6 +545,7 @@ def main():
             cpg_out_dir,
             joern_home=joern_home,
             use_container=use_container,
+            use_parse=use_parse,
             export=args.export,
             export_repr=args.export_repr,
             export_format=args.export_format,

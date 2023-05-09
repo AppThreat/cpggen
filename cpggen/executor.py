@@ -421,6 +421,7 @@ def exec_tool(
     cwd=None,
     joern_home=None,
     use_container=False,
+    use_parse=False,
     auto_build=False,
     extra_args={},
     env=os.environ.copy(),
@@ -469,8 +470,9 @@ def exec_tool(
             )
             cpg_cmd_lang = tool_lang
             # If the intention is to export or slice then use joern-parse
-            if extra_args and (
-                extra_args.get("for_export") or extra_args.get("for_slice")
+            if use_parse or (
+                extra_args
+                and (extra_args.get("for_export") or extra_args.get("for_slice"))
             ):
                 cpg_cmd_lang = "parse"
             cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
@@ -608,7 +610,11 @@ def exec_tool(
                 if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
                         LOG.warn(
-                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
+                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument."
+                        )
+                    elif not use_parse:
+                        LOG.warn(
+                            "Try running cpggen with --use-parse argument to use joern-parse command instead of language frontends."
                         )
                     else:
                         LOG.warn(
