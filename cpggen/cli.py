@@ -443,6 +443,9 @@ def main():
     try:
         if getattr(sys, "_MEIPASS"):
             is_bundled_exe = True
+            # Reset joern_home for bundled exe
+            if not os.path.exists(joern_home):
+                joern_home = ""
     except Exception:
         pass
     if joern_home and not os.path.exists(joern_home) and not is_bundled_exe:
