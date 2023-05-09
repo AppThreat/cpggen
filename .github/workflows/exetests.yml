@@ -137,15 +137,15 @@ jobs:
           Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
           .\oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
           .\cpggen.exe --help
-          .\cpggen.exe -i repotests\\shiftleft-java-example --export
-          .\cpggen.exe -i repotests\\shiftleft-ts-example
-          .\cpggen.exe -i repotests\\shiftleft-go-example --build
-          .\cpggen.exe -i repotests\\vulnerable_net_core --build
-          .\cpggen.exe -i repotests\\Goatly.NET --build
-          .\cpggen.exe -i repotests\\DjanGoat
-          .\cpggen.exe -i repotests\\Vulnerable-Web-Application
-          .\cpggen.exe -i repotests\\microservices-demo --build
-          .\cpggen.exe -i repotests\\juicy-malware\\juicy_malware_windows_64.exe
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example --export
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-go-example --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\vulnerable_net_core --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Goatly.NET --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Vulnerable-Web-Application
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\juicy-malware\\juicy_malware_windows_64.exe
         env:
           AT_DEBUG_MODE: debug
           CPGGEN_CONTAINER_MEMORY: 7g

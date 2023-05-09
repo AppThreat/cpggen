@@ -13,46 +13,6 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/checkout@v3
-      with:
-        repository: 'ShiftLeftSecurity/shiftleft-java-example'
-        path: 'repotests/shiftleft-java-example'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'ShiftLeftSecurity/shiftleft-ts-example'
-        path: 'repotests/shiftleft-ts-example'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'ShiftLeftSecurity/shiftleft-go-example'
-        path: 'repotests/shiftleft-go-example'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'prabhu/shiftleft-scala-example'
-        path: 'repotests/shiftleft-scala-example'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'HooliCorp/vulnerable_net_core'
-        path: 'repotests/vulnerable_net_core'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'HooliCorp/Goatly.NET'
-        path: 'repotests/Goatly.NET'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'HooliCorp/DjanGoat'
-        path: 'repotests/DjanGoat'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'prabhu/Vulnerable-Web-Application'
-        path: 'repotests/Vulnerable-Web-Application'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'GoogleCloudPlatform/microservices-demo'
-        path: 'repotests/microservices-demo'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'juice-shop/juicy-malware'
-        path: 'repotests/juicy-malware'
     - name: Checkout cpggen
       uses: actions/checkout@v3
       with:
@@ -97,15 +57,6 @@ jobs:
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="java2cpg.jar;local_bin" --add-binary="csharp2cpg.zip;local_bin\joern-cli" --add-binary="go2cpg;local_bin\joern-cli" --add-binary="joern-cli.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
         .\dist\cpggen.exe --help
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example --export
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-go-example --build
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\vulnerable_net_core --build
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Goatly.NET --build
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Vulnerable-Web-Application
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo --build
-        .\dist\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\juicy-malware\\juicy_malware_windows_64.exe
       env:
         PYTHONIOENCODING: utf-8
         LANG: en_US.utf-8
