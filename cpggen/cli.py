@@ -153,6 +153,13 @@ def build_args():
         choices=["Usages", "DataFlow"],
         help="Mode used for CPG slicing",
     )
+    parser.add_argument(
+        "--use-parse",
+        dest="use_parse",
+        help="Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important",
+        action="store_true",
+        default=False,
+    )
     return parser.parse_args()
 
 
@@ -183,7 +190,9 @@ async def generate_cpg():
     is_temp_dir = False
     auto_build = True
     skip_sbom = True
+    export = False
     slice = False
+    use_parse = False
     slice_mode = "Usages"
     app_manifest_list = []
     errors_warnings = []
@@ -197,6 +206,8 @@ async def generate_cpg():
         cpg_out_dir = q.get("out_dir")
     if q.get("lang"):
         languages = q.get("lang")
+    if q.get("export", "") in ("true", "1"):
+        export = True
     if q.get("slice", "") in ("true", "1"):
         slice = True
     if q.get("slice_mode"):
@@ -217,6 +228,8 @@ async def generate_cpg():
         auto_build = False
     if params.get("skip_sbom", "") in ("false", "0"):
         skip_sbom = False
+    if params.get("export", "") in ("true", "1"):
+        export = True
     if params.get("slice", "") in ("true", "1"):
         slice = True
     if params.get("slice_mode"):
@@ -249,8 +262,14 @@ async def generate_cpg():
                 "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
             ),
             use_container=False,
+            use_parse=use_parse,
             auto_build=auto_build,
-            extra_args={"skip_sbom": skip_sbom, "slice_mode": slice_mode},
+            extra_args={
+                "skip_sbom": skip_sbom,
+                "slice_mode": slice_mode,
+                "for_export": export,
+                "for_slice": slice,
+            },
         )
         if mlist:
             app_manifest_list += mlist
@@ -263,15 +282,19 @@ async def generate_cpg():
                     continue
                 executor.exec_tool(
                     "slice",
-                    src,
+                    ml.get("cpg"),
                     cpg_out_dir,
                     src,
                     joern_home=os.getenv(
                         "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
                     ),
                     use_container=False,
+                    use_parse=use_parse,
                     auto_build=False,
-                    extra_args={"slice_mode": slice_mode},
+                    extra_args={
+                        "slice_mode": slice_mode,
+                        "slice_out": ml.get("slice_out"),
+                    },
                 )
                 if not os.path.exists(ml.get("slice_out")):
                     errors_warnings.append(
@@ -306,8 +329,12 @@ def cpg(
     languages,
     joern_home,
     use_container=False,
+    use_parse=False,
     auto_build=False,
     skip_sbom=False,
+    export=False,
+    slice=False,
+    slice_mode=None,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
@@ -323,8 +350,14 @@ def cpg(
                             src,
                             joern_home,
                             use_container,
+                            use_parse,
                             auto_build,
-                            {"skip_sbom": skip_sbom},
+                            {
+                                "skip_sbom": skip_sbom,
+                                "slice_mode": slice_mode,
+                                "for_export": export,
+                                "for_slice": slice,
+                            },
                         ),
                     )
                 pool.close()
@@ -337,11 +370,22 @@ def collect_cpg_manifests(cpg_out_dir):
     return utils.find_files(cpg_out_dir, ".manifest.json")
 
 
+def fix_export_repr(export_repr, export_format):
+    if export_format == "neo4jcsv":
+        if export_repr != "cpg":
+            LOG.warn(
+                "cpg is the only supported export representation for neo4jcsv format"
+            )
+        return "cpg"
+    return export_repr
+
+
 def export_slice_cpg(
     src,
     cpg_out_dir,
     joern_home,
     use_container,
+    use_parse,
     export,
     export_repr,
     export_format,
@@ -391,16 +435,22 @@ def export_slice_cpg(
                             executor.exec_tool,
                             (
                                 "export" if export else "slice",
-                                cpg_path if export else src,
+                                cpg_path,
                                 app_export_out_dir,
                                 cpg_out_dir,
                                 joern_home,
                                 use_container,
+                                use_parse,
                                 False,
                                 {
-                                    "export_repr": export_repr if export else None,
+                                    "export_repr": fix_export_repr(
+                                        export_repr, export_format
+                                    )
+                                    if export
+                                    else None,
                                     "export_format": export_format if export else None,
                                     "slice_mode": slice_mode if slice else None,
+                                    "slice_out": manifest_obj.get("slice_out"),
                                 },
                             ),
                         )
@@ -437,6 +487,7 @@ def main():
     languages = args.language
     joern_home = args.joern_home
     use_container = args.use_container
+    use_parse = args.use_parse
     is_bundled_exe = False
     try:
         if getattr(sys, "_MEIPASS"):
@@ -481,8 +532,12 @@ def main():
         languages,
         joern_home=joern_home,
         use_container=use_container,
+        use_parse=use_parse,
         auto_build=args.auto_build,
         skip_sbom=args.skip_sbom,
+        export=args.export,
+        slice=args.slice,
+        slice_mode=args.slice_mode,
     )
     if args.export or args.slice:
         export_slice_cpg(
@@ -490,6 +545,7 @@ def main():
             cpg_out_dir,
             joern_home=joern_home,
             use_container=use_container,
+            use_parse=use_parse,
             export=args.export,
             export_repr=args.export_repr,
             export_format=args.export_format,

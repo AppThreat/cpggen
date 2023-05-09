@@ -31,7 +31,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.0.8/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.0.9/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -39,7 +39,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v1.0.8/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v1.0.9/cpggen.exe
 .\cpggen.exe --help
 ```
 
@@ -162,10 +162,10 @@ Example to export `cpg14` graphs in `dot` format
 cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export
 ```
 
-To export `pdg` in `neo4jcsv` format
+To export `cpg` in `neo4jcsv` format
 
 ```bash
-cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export --export-repr pdg --export-format neo4jcsv
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --build --export --export-out-dir ~/work/sandbox/crAPI/cpg_export --export-repr cpg --export-format neo4jcsv
 ```
 
 ### Slicing graphs
@@ -222,6 +222,46 @@ curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-
 | Go          | Yes            | High     |
 
 (\*) - Precision could be improved with dependencies
+
+## Full list of options
+
+```
+cpggen --help
+usage: cpggen [-h] [-i SRC] [-o CPG_OUT_DIR] [-l LANGUAGE] [--use-container] [--build] [--joern-home JOERN_HOME] [--server] [--server-host SERVER_HOST] [--server-port SERVER_PORT] [--export]
+              [--export-repr {ast,cfg,cdg,ddg,pdg,cpg,cpg14,all}] [--export-format {neo4jcsv,graphml,graphson,dot}] [--export-out-dir EXPORT_OUT_DIR] [--verbose] [--skip-sbom] [--slice] [--slice-mode {Usages,DataFlow}] [--use-parse]
+
+CPG Generator
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i SRC, --src SRC     Source directory or url
+  -o CPG_OUT_DIR, --out-dir CPG_OUT_DIR
+                        CPG output directory
+  -l LANGUAGE, --lang LANGUAGE
+                        Optional. CPG language frontend to use. Auto-detects by default.
+  --use-container       Use cpggen docker image
+  --build               Attempt to build the project automatically
+  --joern-home JOERN_HOME
+                        Joern installation directory
+  --server              Run cpggen as a server
+  --server-host SERVER_HOST
+                        cpggen server host
+  --server-port SERVER_PORT
+                        cpggen server port
+  --export              Export CPG as a graph
+  --export-repr {ast,cfg,cdg,ddg,pdg,cpg,cpg14,all}
+                        Graph representation to export
+  --export-format {neo4jcsv,graphml,graphson,dot}
+                        Export format
+  --export-out-dir EXPORT_OUT_DIR
+                        Export output directory
+  --verbose             Run cpggen in verbose mode
+  --skip-sbom           Do not generate SBoM
+  --slice               Extract intra-procedural slices from the CPG
+  --slice-mode {Usages,DataFlow}
+                        Mode used for CPG slicing
+  --use-parse           Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important
+```
 
 ## Environment variables
 

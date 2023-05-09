@@ -127,6 +127,8 @@ cpg_tools_map = {
     "binary": "%(joern_home)sghidra2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "ts": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "javascript": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
+    "typescript": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin-with-deps": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
@@ -141,8 +143,9 @@ cpg_tools_map = {
     "jsp": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "%(cdxgen_cmd)s%(exe_ext)s%(cdxgen_args)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
-    "export": "%(joern_home)sjoern-export%(only_bat_ext)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "slice": "%(joern_home)sjoern-slice%(only_bat_ext)s -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
+    "parse": "%(joern_home)sjoern-parse%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
+    "export": "%(joern_home)sjoern-export%(only_bat_ext)s -J-Xmx%(memory)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
+    "slice": "%(joern_home)sjoern-slice%(only_bat_ext)s -J-Xmx%(memory)s --dummy-types true --exclude-operators true -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
     "qwiet": "sl%(exe_ext)s analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
@@ -198,6 +201,25 @@ qwiet_lang_map = {
     "csharp": "csharp",
     "dotnet": "csharp",
     "cpp": "c",
+}
+
+joern_parse_lang_map = {
+    "jar": "javasrc",
+    "jsp": "javasrc",
+    "scala": "javasrc",
+    "java": "javasrc",
+    "python": "pythonsrc",
+    "js": "jssrc",
+    "ts": "jssrc",
+    "javascript": "jssrc",
+    "typescript": "jssrc",
+    "go": "golang",
+    "csharp": "csharp",
+    "dotnet": "csharp",
+    "cpp": "newc",
+    "c": "newc",
+    "binary": "ghidra",
+    "ruby": "rubysrc",
 }
 
 
@@ -399,6 +421,7 @@ def exec_tool(
     cwd=None,
     joern_home=None,
     use_container=False,
+    use_parse=False,
     auto_build=False,
     extra_args={},
     env=os.environ.copy(),
@@ -445,7 +468,14 @@ def exec_tool(
                 total=100,
                 start=False,
             )
-            cmd_with_args = cpg_tools_map.get(tool_lang)
+            cpg_cmd_lang = tool_lang
+            # If the intention is to export or slice then use joern-parse
+            if use_parse or (
+                extra_args
+                and (extra_args.get("for_export") or extra_args.get("for_slice"))
+            ):
+                cpg_cmd_lang = "parse"
+            cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
             if not cmd_with_args:
                 return
             # Perform build first
@@ -483,7 +513,7 @@ def exec_tool(
                 if go_mods:
                     modules = [os.path.dirname(gmod) for gmod in go_mods]
             for amodule in modules:
-                cmd_with_args = cpg_tools_map.get(tool_lang)
+                cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
                 if use_container:
                     # We need to make src an absolute path since relative paths wouldn't work in container mode
                     amodule = os.path.abspath(amodule)
@@ -496,24 +526,26 @@ def exec_tool(
                 sbom_cmd_with_args = cpg_tools_map.get("sbom")
                 sbom_out = ""
                 manifest_out = ""
-                slice_out = ""
+                slice_out = extra_args.get("slice_out", "")
+                cpg_out = (
+                    cpg_out_dir
+                    if cpg_out_dir.endswith(".bin.zip")
+                    or cpg_out_dir.endswith(".bin")
+                    or cpg_out_dir.endswith(".cpg")
+                    else os.path.abspath(
+                        os.path.join(
+                            cpg_out_dir,
+                            f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin.zip",
+                        )
+                    )
+                )
                 if tool_lang == "export":
                     cpg_out = os.path.abspath(cpg_out_dir)
                 elif tool_lang == "slice":
+                    if not slice_out:
+                        slice_out = cpg_out.replace(".bin.zip", ".slices")
                     cpg_out = src
                 else:
-                    cpg_out = (
-                        cpg_out_dir
-                        if cpg_out_dir.endswith(".bin.zip")
-                        or cpg_out_dir.endswith(".bin")
-                        or cpg_out_dir.endswith(".cpg")
-                        else os.path.abspath(
-                            os.path.join(
-                                cpg_out_dir,
-                                f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin.zip",
-                            )
-                        )
-                    )
                     sbom_out = (
                         cpg_out.replace(".bin.zip", ".bom.xml")
                         if cpg_out.endswith(".bin.zip")
@@ -525,10 +557,12 @@ def exec_tool(
                         else f"{cpg_out}.manifest.json"
                     )
                     LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
-                slice_out = cpg_out.replace(".bin.zip", ".slices")
-                slice_out = slice_out + (
-                    ".json" if extra_args.get("slice_mode") == "Usages" else ".cpg"
-                )
+                if not slice_out:
+                    slice_out = cpg_out.replace(".bin.zip", ".slices")
+                    slice_out = slice_out + (
+                        ".json" if extra_args.get("slice_mode") == "Usages" else ".cpg"
+                    )
+                    extra_args["slice_out"] = slice_out
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
                     cpg_out=cpg_out,
@@ -538,8 +572,8 @@ def exec_tool(
                     csharp_artifacts=csharp_artifacts,
                     memory=os.getenv("CPGGEN_MEMORY", max_memory),
                     tool_lang=tool_lang,
+                    parse_lang=joern_parse_lang_map.get(tool_lang, tool_lang),
                     sbom_out=sbom_out,
-                    slice_out=slice_out,
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     bin_ext=bin_ext,
                     exe_ext=exe_ext,
@@ -576,7 +610,11 @@ def exec_tool(
                 if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
                         LOG.warn(
-                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument"
+                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument."
+                        )
+                    elif not use_parse:
+                        LOG.warn(
+                            "Try running cpggen with --use-parse argument to use joern-parse command instead of language frontends."
                         )
                     else:
                         LOG.warn(
