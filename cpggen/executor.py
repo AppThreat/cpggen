@@ -424,6 +424,14 @@ def exec_tool(
         lang_build_crashes = {}
         app_manifest_list = []
         tool_lang_simple = tool_lang.split("-")[0]
+        # Set joern_home from environment variable
+        # This is required to handle bundled exe mode
+        if (
+            not joern_home
+            and os.getenv("JOERN_HOME")
+            and os.path.exists(os.getenv("JOERN_HOME"))
+        ):
+            joern_home = os.getenv("JOERN_HOME")
         if cwd:
             if os.path.isfile(cwd):
                 cwd = os.path.dirname(cwd)
