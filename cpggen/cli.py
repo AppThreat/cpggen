@@ -123,7 +123,7 @@ def build_args():
     parser.add_argument(
         "--export-out-dir",
         dest="export_out_dir",
-        help="Export output directoru",
+        help="Export output directory",
     )
     parser.add_argument(
         "--verbose",

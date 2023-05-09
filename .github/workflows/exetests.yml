@@ -83,9 +83,6 @@ jobs:
           ls -ltr /tmp/all_exports
         env:
           AT_DEBUG_MODE: debug
-          CPGGEN_CONTAINER_MEMORY: 7g
-          CPGGEN_MEMORY: 7G
-          AUTO_BUILD: true
 
   windows-exe-tests:
     runs-on: windows-latest
@@ -148,8 +145,5 @@ jobs:
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\juicy-malware\\juicy_malware_windows_64.exe
         env:
           AT_DEBUG_MODE: debug
-          CPGGEN_CONTAINER_MEMORY: 7g
-          CPGGEN_MEMORY: 7G
-          AUTO_BUILD: true
           PYTHONIOENCODING: utf-8
           PYTHONUTF8: 1
