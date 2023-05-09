@@ -263,7 +263,7 @@ async def generate_cpg():
                     continue
                 executor.exec_tool(
                     "slice",
-                    ml.get("cpg"),
+                    src,
                     cpg_out_dir,
                     src,
                     joern_home=os.getenv(
@@ -387,13 +387,11 @@ def export_slice_cpg(
                             LOG.debug(
                                 f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
                             )
-                        if slice:
-                            cpg_path = manifest_obj["cpg"]
                         pool.apply_async(
                             executor.exec_tool,
                             (
                                 "export" if export else "slice",
-                                cpg_path,
+                                cpg_path if export else src,
                                 app_export_out_dir,
                                 cpg_out_dir,
                                 joern_home,

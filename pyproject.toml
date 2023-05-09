@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cpggen"
-version = "1.0.7"
+version = "1.0.8"
 description = "Generate CPG for multiple languages for use with joern"
 authors = ["Team AppThreat <cloud@appthreat.com>"]
 license = "Apache-2.0"
