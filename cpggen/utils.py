@@ -318,6 +318,7 @@ def detect_project_type(src_dir):
     :param src_dir: Source directory
     :return List of detected types
     """
+    is_java_like = False
     home_dir = str(Path.home())
     maven_cache = os.path.join(home_dir, ".m2")
     gradle_cache = os.path.join(home_dir, ".gradle", "caches", "modules-2", "files-2.1")
@@ -344,6 +345,7 @@ def detect_project_type(src_dir):
         or find_files(src_dir, ".gradle", False, True)
         or find_files(src_dir, ".java", False, True)
     ):
+        is_java_like = True
         if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
             project_types.append("jar")
         else:
@@ -395,6 +397,12 @@ def detect_project_type(src_dir):
         project_types.append("llvm")
     if is_exe(src_dir):
         project_types.append("binary")
+    # Directory contains just a bunch of jar then try jimple
+    if not is_java_like and find_files(src_dir, ".jar", False, True):
+        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
+            project_types.append("jar")
+        else:
+            project_types.append("jimple")
     return project_types
 
 
