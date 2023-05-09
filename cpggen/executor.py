@@ -74,7 +74,7 @@ if os.path.exists(local_bin_dir):
             )
             LOG.error(e)
     if os.path.exists(joern_bundled) and not os.path.exists(
-        os.path.join(local_bin_dir, "joern-cli")
+        os.path.join(local_bin_dir, "joern-cli", "c2cpg.sh")
     ):
         try:
             with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
