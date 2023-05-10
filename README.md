@@ -31,7 +31,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.0.10/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.1.0/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -39,7 +39,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v1.0.10/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v1.1.0/cpggen.exe
 .\cpggen.exe --help
 ```
 
@@ -131,10 +131,14 @@ To specify input and output directory.
 cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
-You can even pass a git url as source
+You can even pass a git or a package url as source
 
 ```
 cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
+```
+
+```
+cpggen -i "pkg:maven/org.apache.commons/commons-io@1.3.2" -o /tmp/cpg
 ```
 
 To specify language type.
@@ -265,22 +269,24 @@ optional arguments:
 
 ## Environment variables
 
-| Name                    | Purpose                                                           |
-| ----------------------- | ----------------------------------------------------------------- |
-| JOERN_HOME              | Joern installation directory                                      |
-| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                             |
-| CPGGEN_PORT             | cpggen server port. Default 7072                                  |
-| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default computed    |
-| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed |
-| CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                |
-| AT_DEBUG_MODE           | Set to debug to enable debug logging                              |
-| CPG_EXPORT              | Set to true to export CPG graphs in dot format                    |
-| CPG_EXPORT_REPR         | Graph to export. Default all                                      |
-| CPG_EXPORT_FORMAT       | Export format. Default dot                                        |
-| CPG_SLICE               | Set to true to slice CPG                                          |
-| CPG_SLICE_MODE          | Slice mode. Default Usages                                        |
-| SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI      |
-| CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                 |
+| Name                    | Purpose                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| JOERN_HOME              | Joern installation directory                                               |
+| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                                      |
+| CPGGEN_PORT             | cpggen server port. Default 7072                                           |
+| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default computed             |
+| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed          |
+| CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                         |
+| AT_DEBUG_MODE           | Set to debug to enable debug logging                                       |
+| CPG_EXPORT              | Set to true to export CPG graphs in dot format                             |
+| CPG_EXPORT_REPR         | Graph to export. Default all                                               |
+| CPG_EXPORT_FORMAT       | Export format. Default dot                                                 |
+| CPG_SLICE               | Set to true to slice CPG                                                   |
+| CPG_SLICE_MODE          | Slice mode. Default Usages                                                 |
+| SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI               |
+| CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                          |
+| ENABLE_SBOM             | Enable SBoM generation using cdxgen                                        |
+| JIMPLE_ANDROID_JAR      | Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
 
 ## GitHub actions
 

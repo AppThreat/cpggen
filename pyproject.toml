@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cpggen"
-version = "1.0.10"
+version = "1.1.0"
 description = "Generate CPG for multiple languages for use with joern"
 authors = ["Team AppThreat <cloud@appthreat.com>"]
 license = "Apache-2.0"
@@ -32,6 +32,8 @@ rich = "^13.3.5"
 gitpython = "^3.1.31"
 quart = "^0.18.4"
 psutil = "^5.9.5"
+packageurl-python = "^0.11.1"
+httpx = "^0.24.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"

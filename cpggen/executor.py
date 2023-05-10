@@ -579,7 +579,9 @@ def exec_tool(
                     bin_ext=bin_ext,
                     exe_ext=exe_ext,
                     only_bat_ext=only_bat_ext,
-                    android_jar=os.getenv("JIMPLE_ANDROID_JAR", ""),
+                    android_jar=f' {os.getenv("JIMPLE_ANDROID_JAR", "").strip()}'
+                    if os.getenv("JIMPLE_ANDROID_JAR")
+                    else "",
                     os_path_sep=os.path.sep,
                     **extra_args,
                 )

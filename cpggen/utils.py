@@ -6,6 +6,12 @@ import zipfile
 from pathlib import Path
 from sys import platform
 
+import httpx
+import rich.progress
+from packageurl import PackageURL
+from packageurl.contrib import purl2url
+from rich.progress import Progress
+
 GIT_AVAILABLE = False
 try:
     import git
@@ -398,10 +404,19 @@ def detect_project_type(src_dir):
     if is_exe(src_dir):
         project_types.append("binary")
     # Directory contains just a bunch of jar then try jimple
-    if not is_java_like and find_files(src_dir, ".jar", False, True):
-        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
-            project_types.append("jar")
-        else:
+    if not is_java_like:
+        if find_files(src_dir, ".jar", False, True):
+            if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
+                project_types.append("jar")
+            else:
+                project_types.append("jimple")
+        elif (
+            find_files(src_dir, ".apk", False, True)
+            or find_files(src_dir, ".zip", False, True)
+            or find_files(src_dir, ".dex", False, True)
+            or find_files(src_dir, ".class", False, True)
+            or find_files(src_dir, ".jimple", False, True)
+        ):
             project_types.append("jimple")
     return project_types
 
@@ -411,3 +426,55 @@ def clone_repo(repo_url, clone_dir, depth=1):
         return None
     git.Repo.clone_from(repo_url, clone_dir, depth=depth)
     return clone_dir
+
+
+def build_maven_download_url(purl):
+    """
+    Return a maven download URL from the `purl` string.
+    """
+    MAVEN_CENTRAL_URL = "https://repo1.maven.org/maven2/"
+    ANDROID_MAVEN = "https://maven.google.com/"
+    url_prefix = MAVEN_CENTRAL_URL
+
+    purl_data = PackageURL.from_string(purl)
+    group = purl_data.namespace.replace(".", "/")
+    name = purl_data.name
+    version = purl_data.version
+
+    if "android" in group:
+        url_prefix = ANDROID_MAVEN
+
+    if name and version:
+        return f"{url_prefix}{group}/{name}/{version}/{name}-{version}.jar"
+
+
+def get_download_url(purl_str):
+    if purl_str.startswith("pkg:maven"):
+        return build_maven_download_url(purl_str)
+    return purl2url.get_download_url(purl_str)
+
+
+def download_package(purl_str, download_dir):
+    if not purl_str:
+        return
+    durl = get_download_url(purl_str)
+    if not durl:
+        return
+    with open(
+        os.path.join(download_dir, os.path.basename(durl)), mode="wb"
+    ) as download_file:
+        with httpx.stream("GET", durl) as response:
+            total = int(response.headers["Content-Length"])
+            with Progress(
+                "[progress.percentage]{task.percentage:>3.0f}%",
+                rich.progress.BarColumn(bar_width=None),
+                rich.progress.DownloadColumn(),
+                rich.progress.TransferSpeedColumn(),
+            ) as progress:
+                download_task = progress.add_task("Download", total=total)
+                for chunk in response.iter_bytes():
+                    download_file.write(chunk)
+                    progress.update(
+                        download_task, completed=response.num_bytes_downloaded
+                    )
+                return download_file.name
