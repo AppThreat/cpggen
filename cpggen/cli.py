@@ -135,7 +135,9 @@ def build_args():
     parser.add_argument(
         "--skip-sbom",
         action="store_true",
-        default=True if not os.getenv("SHIFTLEFT_ACCESS_TOKEN") else False,
+        default=True
+        if not os.getenv("SHIFTLEFT_ACCESS_TOKEN") and not os.getenv("ENABLE_SBOM")
+        else False,
         dest="skip_sbom",
         help="Do not generate SBoM",
     )
@@ -239,9 +241,14 @@ async def generate_cpg():
     # If src contains url, then reassign
     if not url and (src.startswith("http") or src.startswith("git")):
         url = src
-    if url.startswith("http") or url.startswith("git"):
+    if url.startswith("http") or url.startswith("git") or url.startswith("pkg:"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
-        src = utils.clone_repo(url, clone_dir)
+        if src.startswith("pkg:"):
+            download_file = utils.download_package(src, clone_dir)
+            if download_file and os.path.exists(download_file):
+                src = clone_dir
+        else:
+            src = utils.clone_repo(url, clone_dir)
         is_temp_dir = True
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
@@ -511,9 +518,14 @@ def main():
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
         joern_home = ""
     is_temp_dir = False
-    if src.startswith("http") or src.startswith("git://"):
+    if src.startswith("http") or src.startswith("git://") or src.startswith("pkg:"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
-        src = utils.clone_repo(src, clone_dir)
+        if src.startswith("pkg:"):
+            download_file = utils.download_package(src, clone_dir)
+            if download_file and os.path.exists(download_file):
+                src = clone_dir
+        else:
+            src = utils.clone_repo(src, clone_dir)
         is_temp_dir = True
         if not cpg_out_dir:
             cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
