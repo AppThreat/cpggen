@@ -239,9 +239,11 @@ async def generate_cpg():
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
     # If src contains url, then reassign
-    if not url and (src.startswith("http") or src.startswith("git")):
+    if not url and (
+        src.startswith("http") or src.startswith("git://") or src.startswith("pkg:")
+    ):
         url = src
-    if url.startswith("http") or url.startswith("git") or url.startswith("pkg:"):
+    if url.startswith("http") or url.startswith("git://") or url.startswith("pkg:"):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
         if src.startswith("pkg:"):
             download_file = utils.download_package(src, clone_dir)

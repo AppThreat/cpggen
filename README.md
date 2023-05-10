@@ -31,7 +31,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.1.0/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.1.1/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -39,7 +39,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v1.1.0/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/download/v1.1.1/cpggen.exe
 .\cpggen.exe --help
 ```
 
