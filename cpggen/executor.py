@@ -143,6 +143,7 @@ cpg_tools_map = {
     "jsp-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "sbom": "%(cdxgen_cmd)s%(exe_ext)s%(cdxgen_args)s -r -t %(tool_lang)s -o %(sbom_out)s %(src)s",
     "parse": "%(joern_home)sjoern-parse%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
+    "vectors": "%(joern_home)sjoern-vectors%(only_bat_ext)s -J-Xmx%(memory)s --out %(cpg_out)s %(src)s",
     "export": "%(joern_home)sjoern-export%(only_bat_ext)s -J-Xmx%(memory)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "slice": "%(joern_home)sjoern-slice%(only_bat_ext)s -J-Xmx%(memory)s --dummy-types true --exclude-operators true -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
     "qwiet": "sl%(exe_ext)s analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
@@ -228,6 +229,7 @@ joern_parse_lang_map = {
     "c": "newc",
     "binary": "ghidra",
     "ruby": "rubysrc",
+    "jimple": "java",
 }
 
 
@@ -471,6 +473,8 @@ def exec_tool(
                 tool_verb = "Exporting CPG with joern-export"
             elif tool_lang == "slice":
                 tool_verb = "Slicing CPG with joern-slice"
+            elif tool_lang == "vectors":
+                tool_verb = "Generating CPG vectors with joern-vectors"
             task = progress.add_task(
                 "[green]" + tool_verb,
                 total=100,
@@ -547,7 +551,7 @@ def exec_tool(
                         )
                     )
                 )
-                if tool_lang == "export":
+                if tool_lang in ("export", "vectors"):
                     cpg_out = os.path.abspath(cpg_out_dir)
                 elif tool_lang == "slice":
                     if not slice_out:
@@ -633,7 +637,7 @@ def exec_tool(
                         )
                     return
                 # Is this an Export or Slice task?
-                if tool_lang in ("export", "slice"):
+                if tool_lang in ("export", "slice", "vectors"):
                     try:
                         progress.update(
                             task,
@@ -651,6 +655,13 @@ def exec_tool(
                             shell=use_shell,
                             encoding="utf-8",
                         )
+                        # Bug. joern-vectors doesn't create json
+                        if tool_lang == "vectors" and cp and cp.stdout:
+                            os.makedirs(cpg_out_dir, exist_ok=True)
+                            with open(
+                                os.path.join(cpg_out_dir, "vectors.json"), mode="w"
+                            ) as fp:
+                                fp.write(cp.stdout)
                         if cp and cp.returncode and cp.stderr:
                             LOG.warn(
                                 f"{tool_lang.capitalize()} operation has failed for {src}"
@@ -670,12 +681,23 @@ def exec_tool(
                                 )
                         else:
                             check_dir = (
-                                cpg_out_dir if tool_lang == "export" else slice_out
+                                cpg_out_dir
+                                if tool_lang in ("export")
+                                else (
+                                    os.path.join(cpg_out_dir, "vectors.json")
+                                    if tool_lang == "vectors"
+                                    else slice_out
+                                )
                             )
                             if os.path.exists(check_dir):
-                                LOG.info(
-                                    f"CPG {src} successfully {tool_lang + ('d' if tool_lang.endswith('e') else 'ed')} to {check_dir}"
-                                )
+                                if tool_lang == "vectors":
+                                    LOG.info(
+                                        f"CPG {src} successfully vectorized to {check_dir}"
+                                    )
+                                else:
+                                    LOG.info(
+                                        f"CPG {src} successfully {tool_lang + ('d' if tool_lang.endswith('e') else 'ed')} to {check_dir}"
+                                    )
                                 # Convert dot files to png
                                 if tool_lang == "export":
                                     progress.update(

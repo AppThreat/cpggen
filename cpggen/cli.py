@@ -162,6 +162,13 @@ def build_args():
         action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "--vectors",
+        action="store_true",
+        default=True if os.getenv("CPG_VECTORS") in ("true", "1") else False,
+        dest="vectors",
+        help="Extract vector representations of code from CPG",
+    )
     return parser.parse_args()
 
 
@@ -199,6 +206,7 @@ async def generate_cpg():
     slice_mode = "Usages"
     app_manifest_list = []
     errors_warnings = []
+    vectors = False
     if not params:
         params = {}
     if q.get("url"):
@@ -213,6 +221,8 @@ async def generate_cpg():
         export = True
     if q.get("slice", "") in ("true", "1"):
         slice = True
+    if q.get("vectors", "") in ("true", "1"):
+        vectors = True
     if q.get("slice_mode"):
         slice_mode = q.get("slice_mode")
     if q.get("auto_build", "") in ("false", "0"):
@@ -235,6 +245,8 @@ async def generate_cpg():
         export = True
     if params.get("slice", "") in ("true", "1"):
         slice = True
+    if params.get("vectors", "") in ("true", "1"):
+        vectors = True
     if params.get("slice_mode"):
         slice_mode = params.get("slice_mode")
     if not src and not url:
@@ -283,6 +295,7 @@ async def generate_cpg():
                 "slice_mode": slice_mode,
                 "for_export": export,
                 "for_slice": slice,
+                "for_vectors": vectors,
                 "url": url,
             },
         )
@@ -351,6 +364,7 @@ def cpg(
     slice=False,
     slice_mode=None,
     url=None,
+    vectors=False,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
@@ -373,6 +387,7 @@ def cpg(
                                 "slice_mode": slice_mode,
                                 "for_export": export,
                                 "for_slice": slice,
+                                "for_vectors": vectors,
                                 "url": url,
                             },
                         ),
@@ -409,10 +424,16 @@ def export_slice_cpg(
     export_out_dir,
     slice,
     slice_mode,
+    vectors,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
+                export_tool = "export"
+                if slice:
+                    export_tool = "slice"
+                elif vectors:
+                    export_tool = "vectors"
                 cpg_manifests = collect_cpg_manifests(cpg_out_dir)
                 for amanifest in cpg_manifests:
                     with open(amanifest) as mfp:
@@ -451,7 +472,7 @@ def export_slice_cpg(
                         pool.apply_async(
                             executor.exec_tool,
                             (
-                                "export" if export else "slice",
+                                export_tool,
                                 cpg_path,
                                 app_export_out_dir,
                                 cpg_out_dir,
@@ -566,8 +587,9 @@ def main():
         slice=args.slice,
         slice_mode=args.slice_mode,
         url=url,
+        vectors=args.vectors,
     )
-    if args.export or args.slice:
+    if args.export or args.slice or args.vectors:
         export_slice_cpg(
             src,
             cpg_out_dir,
@@ -580,6 +602,7 @@ def main():
             export_out_dir=export_out_dir,
             slice=args.slice,
             slice_mode=args.slice_mode,
+            vectors=args.vectors,
         )
     if is_temp_dir:
         try:
