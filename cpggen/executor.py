@@ -22,6 +22,7 @@ from cpggen.utils import (
     find_makefiles,
     find_pom_files,
     find_sbt_files,
+    to_friendly_name,
 )
 
 runtimeValues = {}
@@ -789,10 +790,17 @@ def exec_tool(
                             app_base_name = os.getenv("GITHUB_REPOSITORY").split("/")[
                                 -1
                             ]
+                        full_app_name = extra_args.get(
+                            "full_app_name", f"{app_base_name}-{language}"
+                        )
+                        if extra_args.get("url") and extra_args.get("url").startswith(
+                            "pkg:"
+                        ):
+                            full_app_name = to_friendly_name(extra_args.get("url"))
                         app_manifest = {
                             "src": amodule,
                             "group": app_base_name,
-                            "app": f"{app_base_name}-{language}",
+                            "app": full_app_name,
                             "cpg": cpg_out,
                             "sbom": sbom_out,
                             "slice_out": slice_out,

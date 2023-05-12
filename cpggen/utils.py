@@ -483,3 +483,11 @@ def download_package(purl_str, download_dir):
                         download_task, completed=response.num_bytes_downloaded
                     )
                 return download_file.name
+
+
+def to_friendly_name(purl_str):
+    """Convert package url to a friendly name"""
+    purl_data = PackageURL.from_string(purl_str)
+    name = purl_data.name
+    version = purl_data.version
+    return f"{name}-{version}"

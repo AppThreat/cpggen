@@ -278,6 +278,7 @@ async def generate_cpg():
                 "slice_mode": slice_mode,
                 "for_export": export,
                 "for_slice": slice,
+                "url": url,
             },
         )
         if mlist:
@@ -344,6 +345,7 @@ def cpg(
     export=False,
     slice=False,
     slice_mode=None,
+    url=None,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
@@ -366,6 +368,7 @@ def cpg(
                                 "slice_mode": slice_mode,
                                 "for_export": export,
                                 "for_slice": slice,
+                                "url": url,
                             },
                         ),
                     )
@@ -520,7 +523,9 @@ def main():
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
         joern_home = ""
     is_temp_dir = False
+    url = ""
     if src.startswith("http") or src.startswith("git://") or src.startswith("pkg:"):
+        url = src
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
         if src.startswith("pkg:"):
             download_file = utils.download_package(src, clone_dir)
@@ -552,6 +557,7 @@ def main():
         export=args.export,
         slice=args.slice,
         slice_mode=args.slice_mode,
+        url=url,
     )
     if args.export or args.slice:
         export_slice_cpg(
