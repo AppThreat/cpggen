@@ -189,6 +189,7 @@ async def generate_cpg():
     src = ""
     languages = ""
     cpg_out_dir = None
+    export_out_dir = None
     is_temp_dir = False
     auto_build = True
     skip_sbom = True
@@ -243,15 +244,19 @@ async def generate_cpg():
         src.startswith("http") or src.startswith("git://") or src.startswith("pkg:")
     ):
         url = src
-    if url.startswith("http") or url.startswith("git://") or url.startswith("pkg:"):
+    if url:
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
-        if src.startswith("pkg:"):
-            download_file = utils.download_package(src, clone_dir)
+        if url.startswith("pkg:"):
+            download_file = utils.download_package(url, clone_dir)
             if download_file and os.path.exists(download_file):
                 src = clone_dir
         else:
             src = utils.clone_repo(url, clone_dir)
         is_temp_dir = True
+    if not cpg_out_dir:
+        cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
+    if not export_out_dir:
+        export_out_dir = tempfile.mkdtemp(prefix="cpggen_export_out")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
     if not languages or languages == "autodetect":
@@ -483,7 +488,11 @@ def main():
     src = args.src
     cpg_out_dir = args.cpg_out_dir
     export_out_dir = args.export_out_dir
-    if not src.startswith("http") and not src.startswith("git://"):
+    if (
+        not src.startswith("http")
+        and not src.startswith("git://")
+        and not src.startswith("pkg:")
+    ):
         src = str(PurePath(args.src))
         if not cpg_out_dir and src:
             if os.path.isfile(src):
@@ -544,7 +553,6 @@ def main():
         languages = languages.split(",")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
-
     cpg(
         src,
         cpg_out_dir,
