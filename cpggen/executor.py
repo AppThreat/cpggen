@@ -283,6 +283,11 @@ def qwiet_analysis(app_manifest, src, cwd, env):
 def dot_convert(export_out_dir, env):
     if check_command("dot"):
         dot_files = find_files(export_out_dir, ".dot", False, False)
+        if len(dot_files) > 5:
+            LOG.info(
+                f"{len(dot_files)} dot files generated after export. Skipping dot2png conversion ..."
+            )
+            return
         for df in dot_files:
             convert_cmd_with_args = cpg_tools_map["dot2png"] % dict(
                 dot_file=df, png_out=df.replace(".dot", ".png")
