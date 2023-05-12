@@ -180,6 +180,14 @@ Pass `--slice` argument to extract intra-procedural slices from the CPG. By defa
 cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --slice
 ```
 
+### Creating vectors
+
+Pass `--vectors` argument to extract vector representations of code from CPG in json format.
+
+```bash
+cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --vectors
+```
+
 ### Artifacts produced
 
 Upon successful completion, cpggen would produce the following artifacts in the directory specified under `out_dir`
@@ -207,8 +215,10 @@ curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app
 curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
 ```
 
+Package url with slicing.
+
 ```
-curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.2&out_dir=/tmp/cpg_out"
+curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.2&out_dir=/tmp/cpg_out&slice=true"
 ```
 
 ## Languages supported
@@ -269,6 +279,7 @@ optional arguments:
   --slice-mode {Usages,DataFlow}
                         Mode used for CPG slicing
   --use-parse           Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important
+  --vectors             Extract vector representations of code from CPG
 ```
 
 ## Environment variables

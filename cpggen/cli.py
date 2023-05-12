@@ -217,17 +217,17 @@ async def generate_cpg():
         cpg_out_dir = q.get("out_dir")
     if q.get("lang"):
         languages = q.get("lang")
-    if q.get("export", "") in ("true", "1"):
+    if q.get("export", "") in ("True", "true", "1"):
         export = True
-    if q.get("slice", "") in ("true", "1"):
+    if q.get("slice", "") in ("True", "true", "1"):
         slice = True
-    if q.get("vectors", "") in ("true", "1"):
+    if q.get("vectors", "") in ("True", "true", "1"):
         vectors = True
     if q.get("slice_mode"):
         slice_mode = q.get("slice_mode")
-    if q.get("auto_build", "") in ("false", "0"):
+    if q.get("auto_build", "") in ("False", "false", "0"):
         auto_build = False
-    if q.get("skip_sbom", "") in ("false", "0"):
+    if q.get("skip_sbom", "") in ("False", "false", "0"):
         skip_sbom = False
     if not url and params.get("url"):
         url = params.get("url")
@@ -237,15 +237,15 @@ async def generate_cpg():
         languages = params.get("lang")
     if not cpg_out_dir and params.get("out_dir"):
         cpg_out_dir = params.get("out_dir")
-    if params.get("auto_build", "") in ("false", "0"):
+    if params.get("auto_build", "") in ("False", "false", "0"):
         auto_build = False
-    if params.get("skip_sbom", "") in ("false", "0"):
+    if params.get("skip_sbom", "") in ("False", "false", "0"):
         skip_sbom = False
-    if params.get("export", "") in ("true", "1"):
+    if params.get("export", "") in ("True", "true", "1"):
         export = True
-    if params.get("slice", "") in ("true", "1"):
+    if params.get("slice", "") in ("True", "true", "1"):
         slice = True
-    if params.get("vectors", "") in ("true", "1"):
+    if params.get("vectors", "") in ("True", "true", "1"):
         vectors = True
     if params.get("slice_mode"):
         slice_mode = params.get("slice_mode")
