@@ -5,6 +5,9 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.theme import Theme
 
+for _ in ("httpx",):
+    logging.getLogger(_).disabled = True
+
 custom_theme = Theme({"info": "cyan", "warning": "purple4", "danger": "bold red"})
 console = Console(
     log_time=False,
