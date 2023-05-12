@@ -331,6 +331,11 @@ def detect_project_type(src_dir):
     maven_cache_exists = os.path.exists(maven_cache)
     gradle_cache_exists = os.path.exists(gradle_cache)
     project_types = []
+    # Is this a package url
+    if src_dir.startswith("pkg:"):
+        purl_data = PackageURL.from_string(src_dir)
+        if purl_data and purl_data.type:
+            return [purl_data.type]
     if find_python_reqfiles(src_dir) or find_files(src_dir, ".py", False, True):
         project_types.append("python")
     if find_files(src_dir, "composer.json", False, True) or find_files(

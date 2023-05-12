@@ -127,9 +127,6 @@ cpg_tools_map = {
     "jimple": "%(joern_home)sjimple2cpg%(only_bat_ext)s%(android_jar)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "binary": "%(joern_home)sghidra2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "js": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "ts": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "javascript": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "typescript": "%(joern_home)sjssrc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "kotlin-with-deps": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --download-dependencies",
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
@@ -150,6 +147,15 @@ cpg_tools_map = {
     "qwiet": "sl%(exe_ext)s analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
+
+cpg_tools_map["npm"] = cpg_tools_map["js"]
+cpg_tools_map["ts"] = cpg_tools_map["js"]
+cpg_tools_map["javascript"] = cpg_tools_map["js"]
+cpg_tools_map["typescript"] = cpg_tools_map["js"]
+cpg_tools_map["maven"] = cpg_tools_map["jimple"]
+cpg_tools_map["pypi"] = cpg_tools_map["python"]
+cpg_tools_map["nuget"] = cpg_tools_map["csharp"]
+cpg_tools_map["golang"] = cpg_tools_map["go"]
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
@@ -480,17 +486,17 @@ def exec_tool(
             if not cmd_with_args:
                 return
             # Perform build first
-            if auto_build or build_tools_map.get(tool_lang):
+            if build_tools_map.get(tool_lang):
                 if os.getenv("CI"):
-                    LOG.info(
+                    LOG.debug(
                         f"Automatically building {src} for {tool_lang}. To speed up this step, cache the build dependencies using the CI cache settings."
                     )
                 elif use_container:
-                    LOG.info(
+                    LOG.debug(
                         f"Attempting to build {src} for {tool_lang} using the bundled build tools from the container image."
                     )
                 else:
-                    LOG.info(
+                    LOG.debug(
                         f"Attempting to build {src} for {tool_lang} using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution."
                     )
                 lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)

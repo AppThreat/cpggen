@@ -197,7 +197,7 @@ cpggen can run in server mode.
 cpggen --server
 ```
 
-You can invoke the endpoint `/cpg` to generate CPG.
+You can invoke the endpoint `/cpg` to generate CPG from a path, http or package url. Parameters can be passed using GET or POST request.
 
 ```
 curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
@@ -205,6 +205,10 @@ curl "http://127.0.0.1:7072/cpg?src=/Volumes/Work/sandbox/vulnerable-aws-koa-app
 
 ```
 curl "http://127.0.0.1:7072/cpg?url=https://github.com/HooliCorp/vulnerable-aws-koa-app&out_dir=/tmp/cpg_out&lang=js"
+```
+
+```
+curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.2&out_dir=/tmp/cpg_out"
 ```
 
 ## Languages supported
