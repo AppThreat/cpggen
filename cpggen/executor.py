@@ -589,7 +589,9 @@ def exec_tool(
                     csharp_artifacts=csharp_artifacts,
                     memory=os.getenv("CPGGEN_MEMORY", max_memory),
                     tool_lang=tool_lang,
-                    parse_lang=joern_parse_lang_map.get(tool_lang, tool_lang),
+                    parse_lang=joern_parse_lang_map.get(
+                        tool_lang_simple, tool_lang_simple
+                    ),
                     sbom_out=sbom_out,
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     bin_ext=bin_ext,
@@ -721,7 +723,7 @@ def exec_tool(
                         LOG.error(e)
                     progress.update(task, completed=100, total=100)
                     continue
-                LOG.info(
+                LOG.debug(
                     '⚡︎ Generating CPG for the {} app "{}" - "{}"'.format(
                         tool_lang,
                         os.path.basename(amodule),
@@ -764,7 +766,10 @@ def exec_tool(
                         # Ignore SBoM errors
                         pass
                 progress.update(
-                    task, description="Generating CPG", completed=20, total=100
+                    task,
+                    description=f"Generating {tool_lang_simple} CPG",
+                    completed=20,
+                    total=100,
                 )
                 cp = subprocess.run(
                     cmd_list_with_args,
