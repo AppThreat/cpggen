@@ -59,7 +59,6 @@ jobs:
         rm linux_czkawka_cli results.txt joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-macos-arm joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-macos joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-win.exe
         zip -r joern-cli.zip joern-cli
         rm -rf joern-cli
-        sha256sum ./joern-cli.zip > ./dist/joern-cli.zip.sha256
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
@@ -69,6 +68,7 @@ jobs:
           --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
+        sha256sum ./joern-cli.zip > ./dist/joern-cli.zip.sha256
         ./dist/cpggen-linux-amd64 --help
     - name: BLint
       run: |
