@@ -43,7 +43,7 @@ jobs:
       run: |
         sudo npm install -g pkg
         cd cdxgen
-        npm install
+        npm install --omit=dev
         pkg -t node18-linux --public package.json --out-path dist
         chmod +x dist/cdxgen
         ./dist/cdxgen --version
