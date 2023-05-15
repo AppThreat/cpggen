@@ -50,7 +50,15 @@ jobs:
     - name: Binary amd64 build
       run: |
         cd cpggen
-        curl -LO https://github.com/joernio/joern/releases/download/v1.1.1712/joern-cli.zip
+        curl -LO https://github.com/joernio/joern/releases/download/v1.1.1715/joern-cli.zip
+        unzip joern-cli.zip
+        rm joern-cli.zip
+        curl -LO https://github.com/qarmin/czkawka/releases/download/5.1.0/linux_czkawka_cli
+        chmod +x linux_czkawka_cli
+        ./linux_czkawka_cli dup -e $(pwd)/joern-cli/lib --directories $(pwd)/joern-cli/frontends -x jar -L -s hash -f results.txt -D AEO
+        rm linux_czkawka_cli results.txt joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-macos-arm joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-macos joern-cli/frontends/jssrc2cpg/bin/astgen/astgen-win.exe
+        zip -r joern-cli.zip joern-cli
+        rm -rf joern-cli
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
@@ -60,6 +68,7 @@ jobs:
           --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
+        sha256sum ./joern-cli.zip > ./dist/joern-cli.zip.sha256
         ./dist/cpggen-linux-amd64 --help
     - name: BLint
       run: |
@@ -91,3 +100,4 @@ jobs:
         files: |
           cpggen/dist/cpggen-linux-amd64
           cpggen/dist/cpggen-linux-amd64.sha256
+          cpggen/dist/joern-cli.zip.sha256
