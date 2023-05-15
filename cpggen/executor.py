@@ -54,13 +54,13 @@ if os.path.exists(local_bin_dir):
     )
     joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
     if os.path.exists(csharp2cpg_bundled) and not os.path.exists(
-        os.path.join(local_bin_dir, "bin", "csharp2cpg")
+        os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
     ):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
-                zip_ref.extractall(local_bin_dir)
+                zip_ref.extractall(os.path.join(local_bin_dir, "joern-cli"))
                 LOG.debug(f"Extracted {csharp2cpg_bundled}")
-                if not os.path.exists(os.path.join(local_bin_dir, "bin", "csharp2cpg")):
+                if not os.path.exists(os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")):
                     LOG.debug("csharp2cpg could not be found after extraction")
         except Exception as e:
             LOG.info(
