@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - fix/*
     tags:
     - 'v*'
   schedule:
@@ -25,6 +26,14 @@ jobs:
       with:
         repository: CycloneDX/cdxgen
         path: cdxgen
+    - uses: actions/checkout@v3
+      with:
+        repository: 'HooliCorp/vulnerable_net_core'
+        path: 'repotests/vulnerable_net_core'
+    - uses: actions/checkout@v3
+      with:
+        repository: 'HooliCorp/Goatly.NET'
+        path: 'repotests/Goatly.NET'
     - uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -49,6 +58,7 @@ jobs:
         ./dist/cdxgen --version
     - name: Binary amd64 build
       run: |
+        mkdir /tmp/all_cpgs /tmp/all_exports
         cd cpggen
         curl -LO https://github.com/joernio/joern/releases/download/v1.1.1715/joern-cli.zip
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
@@ -59,9 +69,13 @@ jobs:
           --add-binary="java2cpg.jar:local_bin" \
           --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
+        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         sha256sum ./joern-cli.zip > ./dist/joern-cli.zip.sha256
         ./dist/cpggen-linux-amd64 --help
+      env:
+        AT_DEBUG_MODE: debug
     - name: BLint
       run: |
         pip3 install blint
