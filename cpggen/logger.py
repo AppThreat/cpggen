@@ -24,7 +24,7 @@ logging.basicConfig(
     datefmt="[%X]",
     handlers=[
         RichHandler(
-            console=console, markup=True, show_path=False, enable_link_path=False
+            console=console, markup=False, show_path=False, enable_link_path=False
         )
     ],
 )

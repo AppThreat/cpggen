@@ -54,11 +54,16 @@ if os.path.exists(local_bin_dir):
     )
     joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
     if os.path.exists(csharp2cpg_bundled) and not os.path.exists(
-        os.path.join(local_bin_dir, "bin", "csharp2cpg")
+        os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
     ):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
-                zip_ref.extractall(local_bin_dir)
+                zip_ref.extractall(os.path.join(local_bin_dir, "joern-cli"))
+                LOG.debug(f"Extracted {csharp2cpg_bundled}")
+                if not os.path.exists(
+                    os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
+                ):
+                    LOG.debug("csharp2cpg could not be found after extraction")
         except Exception as e:
             LOG.info(
                 "cpggen was prevented from extracting the csharp2cpg frontend.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
@@ -866,5 +871,5 @@ def exec_tool(
                 LOG.info(
                     "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                 )
-            LOG.error(e)
+            LOG.warn(e)
     return app_manifest_list
