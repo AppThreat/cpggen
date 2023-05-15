@@ -559,8 +559,6 @@ def exec_tool(
                 if tool_lang in ("export", "vectors"):
                     cpg_out = os.path.abspath(cpg_out_dir)
                 elif tool_lang == "slice":
-                    if not slice_out:
-                        slice_out = cpg_out.replace(".bin.zip", ".slices")
                     cpg_out = src
                 else:
                     sbom_out = (

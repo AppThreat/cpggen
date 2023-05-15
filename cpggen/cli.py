@@ -369,37 +369,55 @@ def cpg(
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
+                ret = []
+                exec_results = []
                 for lang in languages:
                     LOG.debug(f"Generating CPG for the language {lang} at {src}")
-                    pool.apply_async(
-                        executor.exec_tool,
-                        (
-                            lang,
-                            src,
-                            cpg_out_dir,
-                            src,
-                            joern_home,
-                            use_container,
-                            use_parse,
-                            auto_build,
-                            {
-                                "skip_sbom": skip_sbom,
-                                "slice_mode": slice_mode,
-                                "for_export": export,
-                                "for_slice": slice,
-                                "for_vectors": vectors,
-                                "url": url,
-                            },
-                        ),
+                    exec_results.append(
+                        pool.apply_async(
+                            executor.exec_tool,
+                            (
+                                lang,
+                                src,
+                                cpg_out_dir,
+                                src,
+                                joern_home,
+                                use_container,
+                                use_parse,
+                                auto_build,
+                                {
+                                    "skip_sbom": skip_sbom,
+                                    "slice_mode": slice_mode,
+                                    "for_export": export,
+                                    "for_slice": slice,
+                                    "for_vectors": vectors,
+                                    "url": url,
+                                },
+                            ),
+                        )
                     )
+                for res in exec_results:
+                    manifests_list = res.get()
+                    if manifests_list:
+                        ret += manifests_list
                 pool.close()
+                return ret
             except KeyboardInterrupt:
                 pool.terminate()
             pool.join()
+    return None
 
 
 def collect_cpg_manifests(cpg_out_dir):
-    return utils.find_files(cpg_out_dir, ".manifest.json")
+    cpg_manifests = []
+    if os.path.isfile(cpg_out_dir):
+        cpg_out_dir = os.path.dirname(cpg_out_dir)
+    mfiles = utils.find_files(cpg_out_dir, ".manifest.json") if cpg_out_dir else []
+    for amanifest in mfiles:
+        with open(amanifest) as mfp:
+            manifest_obj = json.load(mfp)
+            cpg_manifests.append(manifest_obj)
+    return cpg_manifests
 
 
 def fix_export_repr(export_repr, export_format):
@@ -425,6 +443,7 @@ def export_slice_cpg(
     slice,
     slice_mode,
     vectors,
+    cpg_manifests=None,
 ):
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
@@ -434,64 +453,63 @@ def export_slice_cpg(
                     export_tool = "slice"
                 elif vectors:
                     export_tool = "vectors"
-                cpg_manifests = collect_cpg_manifests(cpg_out_dir)
-                for amanifest in cpg_manifests:
-                    with open(amanifest) as mfp:
-                        manifest_obj = json.load(mfp)
-                        if not manifest_obj or not manifest_obj.get("cpg"):
-                            continue
-                        app_export_out_dir = os.path.join(
-                            export_out_dir, manifest_obj["app"]
+                # Collect the CPG manifests if none was provided.
+                # This could result in duplicate executions
+                if not cpg_manifests:
+                    cpg_manifests = collect_cpg_manifests(cpg_out_dir)
+                for manifest_obj in cpg_manifests:
+                    if not manifest_obj or not manifest_obj.get("cpg"):
+                        continue
+                    app_export_out_dir = os.path.join(
+                        export_out_dir, manifest_obj["app"]
+                    )
+                    try:
+                        # joern-export annoyingly will not overwrite directories
+                        # but would expect first level directories to exist
+                        if os.path.exists(app_export_out_dir):
+                            try:
+                                shutil.rmtree(app_export_out_dir)
+                            except Exception:
+                                # Ignore remove errors
+                                pass
+                        os.makedirs(export_out_dir, exist_ok=True)
+                    except Exception:
+                        # Ignore errors
+                        pass
+                    cpg_path = manifest_obj["cpg"]
+                    # In case of GitHub action we need to fix the cpg_path to prefix GITHUB_WORKSPACE
+                    # since the manifest would only have relative path
+                    if os.getenv("GITHUB_WORKSPACE") and not cpg_path.startswith(
+                        os.getenv("GITHUB_WORKSPACE")
+                    ):
+                        cpg_path = os.path.join(os.getenv("GITHUB_WORKSPACE"), cpg_path)
+                    if export:
+                        LOG.debug(
+                            f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
                         )
-                        try:
-                            # joern-export annoyingly will not overwrite directories
-                            # but would expect first level directories to exist
-                            if os.path.exists(app_export_out_dir):
-                                try:
-                                    shutil.rmtree(app_export_out_dir)
-                                except Exception:
-                                    # Ignore remove errors
-                                    pass
-                            os.makedirs(export_out_dir, exist_ok=True)
-                        except Exception:
-                            # Ignore errors
-                            pass
-                        cpg_path = manifest_obj["cpg"]
-                        # In case of GitHub action we need to fix the cpg_path to prefix GITHUB_WORKSPACE
-                        # since the manifest would only have relative path
-                        if os.getenv("GITHUB_WORKSPACE") and not cpg_path.startswith(
-                            os.getenv("GITHUB_WORKSPACE")
-                        ):
-                            cpg_path = os.path.join(
-                                os.getenv("GITHUB_WORKSPACE"), cpg_path
-                            )
-                        if export:
-                            LOG.debug(
-                                f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
-                            )
-                        pool.apply_async(
-                            executor.exec_tool,
-                            (
-                                export_tool,
-                                cpg_path,
-                                app_export_out_dir,
-                                cpg_out_dir,
-                                joern_home,
-                                use_container,
-                                use_parse,
-                                False,
-                                {
-                                    "export_repr": fix_export_repr(
-                                        export_repr, export_format
-                                    )
-                                    if export
-                                    else None,
-                                    "export_format": export_format if export else None,
-                                    "slice_mode": slice_mode if slice else None,
-                                    "slice_out": manifest_obj.get("slice_out"),
-                                },
-                            ),
-                        )
+                    pool.apply_async(
+                        executor.exec_tool,
+                        (
+                            export_tool,
+                            cpg_path,
+                            app_export_out_dir,
+                            cpg_out_dir,
+                            joern_home,
+                            use_container,
+                            use_parse,
+                            False,
+                            {
+                                "export_repr": fix_export_repr(
+                                    export_repr, export_format
+                                )
+                                if export
+                                else None,
+                                "export_format": export_format if export else None,
+                                "slice_mode": slice_mode if slice else None,
+                                "slice_out": manifest_obj.get("slice_out"),
+                            },
+                        ),
+                    )
                 pool.close()
             except KeyboardInterrupt:
                 pool.terminate()
@@ -574,7 +592,7 @@ def main():
         languages = languages.split(",")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
-    cpg(
+    cpg_manifests = cpg(
         src,
         cpg_out_dir,
         languages,
@@ -603,6 +621,7 @@ def main():
             slice=args.slice,
             slice_mode=args.slice_mode,
             vectors=args.vectors,
+            cpg_manifests=cpg_manifests,
         )
     if is_temp_dir:
         try:
