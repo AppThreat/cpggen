@@ -1,7 +1,9 @@
+import json
 import os
 import re
 import shutil
 import tempfile
+import tarfile
 import zipfile
 from pathlib import Path
 from sys import platform
@@ -12,13 +14,18 @@ from packageurl import PackageURL
 from packageurl.contrib import purl2url
 from rich.progress import Progress
 
+from cpggen.source import ghsa
+
 GIT_AVAILABLE = False
 try:
     import git
 
     GIT_AVAILABLE = True
-except Exception:
+except ImportError:
     pass
+
+MAVEN_CENTRAL_URL = "https://repo1.maven.org/maven2/"
+ANDROID_MAVEN = "https://maven.google.com/"
 
 # Default ignore list
 ignore_directories = [
@@ -163,6 +170,7 @@ def find_files(src, src_ext_name, use_start=False, quick=False):
     :param src: Source directory
     :param src_ext_name: Extension
     :param use_start: Boolean to check for file prefix
+    :param quick: Quick search mode to return after a single hit
     :return: List of files with full path
     """
     result = []
@@ -184,7 +192,7 @@ def find_files(src, src_ext_name, use_start=False, quick=False):
 def find_java_artifacts(search_dir):
     """
     Method to find java artifacts in the given directory
-    :param src: Directory to search
+    :param search_dir: Directory to search
     :return: List of war or ear or jar files
     """
     jlist = []
@@ -211,8 +219,8 @@ def find_java_artifacts(search_dir):
 def find_csharp_artifacts(search_dir):
     """
     Method to find .Net solution and csproj files in the given directory
-    :param src: Directory to search
-    :return: List of war or ear or jar files
+    :param search_dir: Directory to search
+    :return: List of .sln or .csharp files
     """
     result = [p.as_posix() for p in Path(search_dir).absolute().rglob("*.sln")]
     if not result:
@@ -245,11 +253,8 @@ def check_command(cmd):
     Method to check if command is available
     :return True if command is available in PATH. False otherwise
     """
-    try:
-        cpath = shutil.which(cmd, mode=os.F_OK | os.X_OK)
-        return cpath is not None
-    except Exception:
-        return False
+    cpath = shutil.which(cmd, mode=os.F_OK | os.X_OK)
+    return cpath is not None
 
 
 def is_binary_string(content):
@@ -268,7 +273,7 @@ def is_exe(src):
     if os.path.isfile(src):
         try:
             return is_binary_string(open(src, "rb").read(1024))
-        except Exception:
+        except OSError:
             return False
     return False
 
@@ -283,9 +288,9 @@ def find_exe_files(src):
         for file in files:
             if is_ignored_file(file):
                 continue
-            fullPath = os.path.join(root, file)
-            if is_exe(fullPath):
-                result.append(fullPath)
+            full_path = os.path.join(root, file)
+            if is_exe(full_path):
+                result.append(full_path)
     return result
 
 
@@ -427,6 +432,7 @@ def detect_project_type(src_dir):
 
 
 def clone_repo(repo_url, clone_dir, depth=1):
+    """Method to clone a git repo"""
     if not GIT_AVAILABLE:
         return None
     git.Repo.clone_from(repo_url, clone_dir, depth=depth)
@@ -437,8 +443,6 @@ def build_maven_download_url(purl):
     """
     Return a maven download URL from the `purl` string.
     """
-    MAVEN_CENTRAL_URL = "https://repo1.maven.org/maven2/"
-    ANDROID_MAVEN = "https://maven.google.com/"
     url_prefix = MAVEN_CENTRAL_URL
 
     purl_data = PackageURL.from_string(purl)
@@ -453,41 +457,133 @@ def build_maven_download_url(purl):
         return f"{url_prefix}{group}/{name}/{version}/{name}-{version}.jar"
 
 
+def build_pypi_download_url(purl):
+    """
+    Return a PyPI download URL from the `purl` string.
+    """
+    url_prefix = "https://pypi.io/packages/source/"
+    purl_data = PackageURL.from_string(purl)
+    name = purl_data.name
+    version = purl_data.version
+    if name and version:
+        return f"{url_prefix}{name[0]}/{name}/{name}-{version}.tar.gz"
+
+
+def build_golang_download_url(purl):
+    """
+    Return a golang download URL from the `purl` string.
+    """
+    purl_data = PackageURL.from_string(purl)
+    namespace = purl_data.namespace
+    name = purl_data.name
+    version = purl_data.version
+    qualifiers = purl_data.qualifiers
+    download_url = qualifiers.get("download_url")
+    if download_url:
+        return download_url
+    if not (namespace and name and version):
+        return
+    version_prefix = qualifiers.get("version_prefix", "v")
+    version = f"{version_prefix}{version}"
+    return f"https://{namespace}/{name}/archive/refs/tags/{version}.zip"
+
+
+def build_ghsa_download_url(cve_or_ghsa):
+    """Method to get download urls for the packages belonging to the CVE"""
+    return ghsa.get_download_urls(cve_or_ghsa=cve_or_ghsa)
+
+
 def get_download_url(purl_str):
+    """Build download urls from a purl or CVE or GHSA id"""
+    if purl_str.startswith("GHSA") or purl_str.startswith("CVE"):
+        return build_ghsa_download_url(purl_str)
     if purl_str.startswith("pkg:maven"):
         return build_maven_download_url(purl_str)
+    if purl_str.startswith("pkg:pypi"):
+        return build_pypi_download_url(purl_str)
+    if purl_str.startswith("pkg:golang"):
+        return build_golang_download_url(purl_str)
     return purl2url.get_download_url(purl_str)
 
 
-def download_package(purl_str, download_dir):
+def unzip_unsafe(zf, to_dir):
+    """Method to unzip the file in an unsafe manne"""
+    with zipfile.ZipFile(zf, "r") as zip_ref:
+        zip_ref.extractall(to_dir)
+    shutil.rmtree(zf, ignore_errors=True)
+
+
+def untar_unsafe(tf, to_dir):
+    """Method to untar .tar or .tar.gz files in an unsafe manner"""
+    if tf.endswith("tar.gz") or tf.endswith(".tgz"):
+        tar = tarfile.open(tf, "r:gz")
+        tar.extractall(to_dir)
+        tar.close()
+    elif tf.endswith(".tar"):
+        tar = tarfile.open(tf, "r:")
+        tar.extractall(to_dir)
+        tar.close()
+    shutil.rmtree(tf, ignore_errors=True)
+
+
+def download_package_unsafe(purl_str, download_dir, expand_archive=True):
+    """Method to download the package from the given purl or CVE id"""
     if not purl_str:
         return
     durl = get_download_url(purl_str)
     if not durl:
         return
-    with open(
-        os.path.join(download_dir, os.path.basename(durl)), mode="wb"
-    ) as download_file:
-        with httpx.stream("GET", durl) as response:
-            total = int(response.headers["Content-Length"])
-            with Progress(
-                "[progress.percentage]{task.percentage:>3.0f}%",
-                rich.progress.BarColumn(bar_width=None),
-                rich.progress.DownloadColumn(),
-                rich.progress.TransferSpeedColumn(),
-            ) as progress:
-                download_task = progress.add_task("Download", total=total)
-                for chunk in response.iter_bytes():
-                    download_file.write(chunk)
-                    progress.update(
-                        download_task, completed=response.num_bytes_downloaded
-                    )
-                return download_file.name
+    if isinstance(durl, str):
+        durl = [durl]
+    for aurl in durl:
+        if isinstance(aurl, dict) and aurl.get("purl"):
+            aurl = get_download_url(aurl.get("purl"))
+        with open(
+            os.path.join(download_dir, os.path.basename(aurl)), mode="wb"
+        ) as download_file:
+            with httpx.stream("GET", aurl, follow_redirects=True) as response:
+                total = int(response.headers["Content-Length"])
+                with Progress(
+                    "[progress.percentage]{task.percentage:>3.0f}%",
+                    rich.progress.BarColumn(bar_width=None),
+                    rich.progress.DownloadColumn(),
+                    rich.progress.TransferSpeedColumn(),
+                ) as progress:
+                    download_task = progress.add_task("Download", total=total)
+                    for chunk in response.iter_bytes():
+                        download_file.write(chunk)
+                        progress.update(
+                            download_task, completed=response.num_bytes_downloaded
+                        )
+            download_file.close()
+            if expand_archive:
+                if download_file.name.endswith(".zip"):
+                    unzip_unsafe(download_file.name, download_dir)
+                elif (
+                    download_file.name.endswith(".tar")
+                    or download_file.name.endswith(".tar.gz")
+                    or download_file.name.endswith(".tgz")
+                ):
+                    untar_unsafe(download_file.name, download_dir)
+    return download_dir
 
 
-def to_friendly_name(purl_str):
+def purl_to_friendly_name(purl_str):
     """Convert package url to a friendly name"""
     purl_data = PackageURL.from_string(purl_str)
     name = purl_data.name
     version = purl_data.version
     return f"{name}-{version}"
+
+
+def collect_cpg_manifests(cpg_out_dir):
+    """Utility method to collect all the CPG manifests created in a directory"""
+    cpg_manifests = []
+    if os.path.isfile(cpg_out_dir):
+        cpg_out_dir = os.path.dirname(cpg_out_dir)
+    mfiles = find_files(cpg_out_dir, ".manifest.json") if cpg_out_dir else []
+    for amanifest in mfiles:
+        with open(amanifest, encoding="utf-8") as mfp:
+            manifest_obj = json.load(mfp)
+            cpg_manifests.append(manifest_obj)
+    return cpg_manifests

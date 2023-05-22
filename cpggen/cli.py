@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import json
 import os
 import shutil
 import signal
@@ -16,13 +15,10 @@ from quart import Quart, request
 from cpggen import executor, utils
 from cpggen.logger import LOG, console, enable_debug
 
-try:
-    os.environ["PYTHONIOENCODING"] = "utf-8"
-    os.environ["PYTHONUTF8"] = 1
-except Exception:
-    pass
+os.environ["PYTHONIOENCODING"] = "utf-8"
+os.environ["PYTHONUTF8"] = "1"
 
-product_logo = """
+PRODUCT_LOGO = """
  ██████╗██████╗  ██████╗
 ██╔════╝██╔══██╗██╔════╝
 ██║     ██████╔╝██║  ███╗
@@ -158,7 +154,8 @@ def build_args():
     parser.add_argument(
         "--use-parse",
         dest="use_parse",
-        help="Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important",
+        help="Use joern-parse command instead of invoking the language frontends. Useful when default overlays are "
+        "important",
         action="store_true",
         default=False,
     )
@@ -174,11 +171,13 @@ def build_args():
 
 @app.get("/")
 async def index():
+    """Index route"""
     return {}
 
 
 def run_server(args):
-    console.print(product_logo, style="info")
+    """Run cpggen as a server"""
+    console.print(PRODUCT_LOGO, style="info")
     console.print(f"cpggen server running on {args.server_host}:{args.server_port}")
     app.run(
         host=args.server_host,
@@ -190,18 +189,18 @@ def run_server(args):
 
 @app.route("/cpg", methods=["GET", "POST"])
 async def generate_cpg():
+    """Method to generate CPG via the http route"""
     q = request.args
     params = await request.get_json()
     url = ""
     src = ""
     languages = ""
     cpg_out_dir = None
-    export_out_dir = None
     is_temp_dir = False
     auto_build = True
     skip_sbom = True
     export = False
-    slice = False
+    should_slice = False
     use_parse = False
     slice_mode = "Usages"
     app_manifest_list = []
@@ -220,7 +219,7 @@ async def generate_cpg():
     if q.get("export", "") in ("True", "true", "1"):
         export = True
     if q.get("slice", "") in ("True", "true", "1"):
-        slice = True
+        should_slice = True
     if q.get("vectors", "") in ("True", "true", "1"):
         vectors = True
     if q.get("slice_mode"):
@@ -244,7 +243,7 @@ async def generate_cpg():
     if params.get("export", "") in ("True", "true", "1"):
         export = True
     if params.get("slice", "") in ("True", "true", "1"):
-        slice = True
+        should_slice = True
     if params.get("vectors", "") in ("True", "true", "1"):
         vectors = True
     if params.get("slice_mode"):
@@ -252,23 +251,17 @@ async def generate_cpg():
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
     # If src contains url, then reassign
-    if not url and (
-        src.startswith("http") or src.startswith("git://") or src.startswith("pkg:")
-    ):
+    if not os.path.isdir(src) and not os.path.isfile(src):
         url = src
-    if url:
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
-        if url.startswith("pkg:"):
-            download_file = utils.download_package(url, clone_dir)
-            if download_file and os.path.exists(download_file):
-                src = clone_dir
+        if src.startswith("http") or src.startswith("git://"):
+            utils.clone_repo(url, clone_dir)
         else:
-            src = utils.clone_repo(url, clone_dir)
+            utils.download_package_unsafe(url, clone_dir)
+        src = clone_dir
         is_temp_dir = True
     if not cpg_out_dir:
         cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
-    if not export_out_dir:
-        export_out_dir = tempfile.mkdtemp(prefix="cpggen_export_out")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
         os.makedirs(cpg_out_dir, exist_ok=True)
     if not languages or languages == "autodetect":
@@ -294,14 +287,14 @@ async def generate_cpg():
                 "skip_sbom": skip_sbom,
                 "slice_mode": slice_mode,
                 "for_export": export,
-                "for_slice": slice,
+                "for_slice": should_slice,
                 "for_vectors": vectors,
                 "url": url,
             },
         )
         if mlist:
             app_manifest_list += mlist
-        if slice and mlist:
+        if should_slice and mlist:
             for ml in mlist:
                 if not os.path.exists(ml.get("cpg")):
                     errors_warnings.append(
@@ -328,12 +321,8 @@ async def generate_cpg():
                     errors_warnings.append(
                         f"""CPG slice file was not found at {ml.get("slice_out")}"""
                     )
-    if is_temp_dir:
-        try:
-            os.remove(src)
-        except Exception:
-            # Ignore cleanup errors
-            pass
+    if is_temp_dir and src.startswith(tempfile.gettempdir()):
+        shutil.rmtree(src, ignore_errors=True)
     return {
         "success": False if errors_warnings else True,
         "message": "\n".join(errors_warnings)
@@ -351,6 +340,33 @@ def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
+def get_output_dir(src, cpg_out_dir=None, export_out_dir=None):
+    """Method to determine and create the cpg and export output directories"""
+    if not src:
+        return None, None, False
+    is_temp_dir = False
+    # purl, http url or CVE id
+    if not os.path.isdir(src) and not os.path.isfile(src):
+        if not cpg_out_dir:
+            cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
+            is_temp_dir = True
+        if not export_out_dir:
+            export_out_dir = tempfile.mkdtemp(prefix="cpggen_export_out")
+            is_temp_dir = True
+    if not cpg_out_dir:
+        if os.path.isfile(src):
+            cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
+        else:
+            cpg_out_dir = os.path.join(src, "cpg_out")
+    if not export_out_dir:
+        export_out_dir = os.path.join(src, "cpg_export")
+    cpg_out_dir = str(PurePath(cpg_out_dir))
+    export_out_dir = str(PurePath(export_out_dir))
+    if cpg_out_dir and not os.path.exists(cpg_out_dir):
+        os.makedirs(cpg_out_dir, exist_ok=True)
+    return cpg_out_dir, export_out_dir, is_temp_dir
+
+
 def cpg(
     src,
     cpg_out_dir,
@@ -361,18 +377,32 @@ def cpg(
     auto_build=False,
     skip_sbom=False,
     export=False,
-    slice=False,
+    should_slice=False,
     slice_mode=None,
-    url=None,
     vectors=False,
 ):
+    """Method to generate cpg using multiple processes"""
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
                 ret = []
                 exec_results = []
+                url = ""
+                # Where the source is a url or a CVE id download it
+                if not os.path.isdir(src) and not os.path.isfile(src):
+                    url = src
+                    clone_dir = tempfile.mkdtemp(prefix="cpggen")
+                    if src.startswith("http") or src.startswith("git://"):
+                        utils.clone_repo(src, clone_dir)
+                    else:
+                        utils.download_package_unsafe(src, clone_dir)
+                    src = clone_dir
+                    if not languages or languages == "autodetect":
+                        languages = utils.detect_project_type(src)
+                    else:
+                        languages = languages.split(",")
                 for lang in languages:
-                    LOG.debug(f"Generating CPG for the language {lang} at {src}")
+                    LOG.debug("Generating CPG for the language %s at %s", lang, src)
                     exec_results.append(
                         pool.apply_async(
                             executor.exec_tool,
@@ -389,7 +419,7 @@ def cpg(
                                     "skip_sbom": skip_sbom,
                                     "slice_mode": slice_mode,
                                     "for_export": export,
-                                    "for_slice": slice,
+                                    "for_slice": should_slice,
                                     "for_vectors": vectors,
                                     "url": url,
                                 },
@@ -408,22 +438,11 @@ def cpg(
     return None
 
 
-def collect_cpg_manifests(cpg_out_dir):
-    cpg_manifests = []
-    if os.path.isfile(cpg_out_dir):
-        cpg_out_dir = os.path.dirname(cpg_out_dir)
-    mfiles = utils.find_files(cpg_out_dir, ".manifest.json") if cpg_out_dir else []
-    for amanifest in mfiles:
-        with open(amanifest) as mfp:
-            manifest_obj = json.load(mfp)
-            cpg_manifests.append(manifest_obj)
-    return cpg_manifests
-
-
 def fix_export_repr(export_repr, export_format):
+    """Method to validate and fix the export representation based on the format"""
     if export_format == "neo4jcsv":
         if export_repr != "cpg":
-            LOG.warn(
+            LOG.warning(
                 "cpg is the only supported export representation for neo4jcsv format"
             )
         return "cpg"
@@ -431,7 +450,6 @@ def fix_export_repr(export_repr, export_format):
 
 
 def export_slice_cpg(
-    src,
     cpg_out_dir,
     joern_home,
     use_container,
@@ -440,42 +458,35 @@ def export_slice_cpg(
     export_repr,
     export_format,
     export_out_dir,
-    slice,
-    slice_mode,
-    vectors,
+    should_slice=False,
+    slice_mode=None,
+    vectors=False,
     cpg_manifests=None,
 ):
+    """Method to export or slice cpg"""
     if __name__ in ("__main__", "cpggen.cli"):
         with Pool(processes=os.cpu_count(), initializer=init_worker) as pool:
             try:
                 export_tool = "export"
-                if slice:
+                if should_slice:
                     export_tool = "slice"
                 elif vectors:
                     export_tool = "vectors"
                 # Collect the CPG manifests if none was provided.
                 # This could result in duplicate executions
                 if not cpg_manifests:
-                    cpg_manifests = collect_cpg_manifests(cpg_out_dir)
+                    cpg_manifests = utils.collect_cpg_manifests(cpg_out_dir)
                 for manifest_obj in cpg_manifests:
                     if not manifest_obj or not manifest_obj.get("cpg"):
                         continue
                     app_export_out_dir = os.path.join(
                         export_out_dir, manifest_obj["app"]
                     )
-                    try:
-                        # joern-export annoyingly will not overwrite directories
-                        # but would expect first level directories to exist
-                        if os.path.exists(app_export_out_dir):
-                            try:
-                                shutil.rmtree(app_export_out_dir)
-                            except Exception:
-                                # Ignore remove errors
-                                pass
-                        os.makedirs(export_out_dir, exist_ok=True)
-                    except Exception:
-                        # Ignore errors
-                        pass
+                    # joern-export annoyingly will not overwrite directories
+                    # but would expect first level directories to exist
+                    if os.path.exists(app_export_out_dir):
+                        shutil.rmtree(app_export_out_dir, ignore_errors=True)
+                    os.makedirs(export_out_dir, exist_ok=True)
                     cpg_path = manifest_obj["cpg"]
                     # In case of GitHub action we need to fix the cpg_path to prefix GITHUB_WORKSPACE
                     # since the manifest would only have relative path
@@ -485,7 +496,10 @@ def export_slice_cpg(
                         cpg_path = os.path.join(os.getenv("GITHUB_WORKSPACE"), cpg_path)
                     if export:
                         LOG.debug(
-                            f"""Exporting CPG for the app {manifest_obj["app"]} from {cpg_path} to {app_export_out_dir}"""
+                            """Exporting CPG for the app %s from %s to %s""",
+                            manifest_obj["app"],
+                            cpg_path,
+                            app_export_out_dir,
                         )
                     pool.apply_async(
                         executor.exec_tool,
@@ -505,7 +519,7 @@ def export_slice_cpg(
                                 if export
                                 else None,
                                 "export_format": export_format if export else None,
-                                "slice_mode": slice_mode if slice else None,
+                                "slice_mode": slice_mode if should_slice else None,
                                 "slice_out": manifest_obj.get("slice_out"),
                             },
                         ),
@@ -517,7 +531,8 @@ def export_slice_cpg(
 
 
 def main():
-    print(product_logo)
+    """Main method"""
+    print(PRODUCT_LOGO)
     args = build_args()
     # Turn on verbose mode
     if args.verbose_mode:
@@ -525,26 +540,11 @@ def main():
     if args.server_mode:
         return run_server(args)
     src = args.src
-    cpg_out_dir = args.cpg_out_dir
-    export_out_dir = args.export_out_dir
-    if (
-        not src.startswith("http")
-        and not src.startswith("git://")
-        and not src.startswith("pkg:")
-    ):
-        src = str(PurePath(args.src))
-        if not cpg_out_dir and src:
-            if os.path.isfile(src):
-                cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
-            else:
-                cpg_out_dir = os.path.join(src, "cpg_out")
-        if not export_out_dir and src:
-            export_out_dir = os.path.join(src, "cpg_export")
-    if cpg_out_dir:
-        cpg_out_dir = str(PurePath(cpg_out_dir))
-    if export_out_dir:
-        export_out_dir = str(PurePath(export_out_dir))
-    languages = args.language
+    cpg_out_dir, export_out_dir, is_temp_dir = get_output_dir(
+        src, args.cpg_out_dir, args.export_out_dir
+    )
+    if os.path.exists(src):
+        src = str(PurePath(src))
     joern_home = args.joern_home
     use_container = args.use_container
     use_parse = args.use_parse
@@ -555,14 +555,15 @@ def main():
             # Reset joern_home for bundled exe
             if not os.path.exists(joern_home):
                 joern_home = ""
-    except Exception:
+    except AttributeError:
         pass
     if joern_home and not os.path.exists(joern_home) and not is_bundled_exe:
         if utils.check_command("docker") or utils.check_command("podman"):
             use_container = True
         else:
             console.print(
-                "Joern installation was not found. Please install joern by following the instructions at https://joern.io and set the environment variable JOERN_HOME to the directory containing the cli tools"
+                "Joern installation was not found. Please install joern by following the instructions at "
+                "https://joern.io and set the environment variable JOERN_HOME to the directory containing the cli tools"
             )
             console.print(
                 "Alternatively, ensure docker or podman is available to use cpggen container image"
@@ -570,46 +571,22 @@ def main():
     # GitHub action is very weird
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
         joern_home = ""
-    is_temp_dir = False
-    url = ""
-    if src.startswith("http") or src.startswith("git://") or src.startswith("pkg:"):
-        url = src
-        clone_dir = tempfile.mkdtemp(prefix="cpggen")
-        if src.startswith("pkg:"):
-            download_file = utils.download_package(src, clone_dir)
-            if download_file and os.path.exists(download_file):
-                src = clone_dir
-        else:
-            src = utils.clone_repo(src, clone_dir)
-        is_temp_dir = True
-        if not cpg_out_dir:
-            cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
-        if not export_out_dir:
-            export_out_dir = tempfile.mkdtemp(prefix="cpggen_export_out")
-    if not languages or languages == "autodetect":
-        languages = utils.detect_project_type(src)
-    else:
-        languages = languages.split(",")
-    if cpg_out_dir and not os.path.exists(cpg_out_dir):
-        os.makedirs(cpg_out_dir, exist_ok=True)
     cpg_manifests = cpg(
         src,
         cpg_out_dir,
-        languages,
+        args.language,
         joern_home=joern_home,
         use_container=use_container,
         use_parse=use_parse,
         auto_build=args.auto_build,
         skip_sbom=args.skip_sbom,
         export=args.export,
-        slice=args.slice,
+        should_slice=args.slice,
         slice_mode=args.slice_mode,
-        url=url,
         vectors=args.vectors,
     )
     if args.export or args.slice or args.vectors:
         export_slice_cpg(
-            src,
             cpg_out_dir,
             joern_home=joern_home,
             use_container=use_container,
@@ -618,17 +595,15 @@ def main():
             export_repr=args.export_repr,
             export_format=args.export_format,
             export_out_dir=export_out_dir,
-            slice=args.slice,
+            should_slice=args.slice,
             slice_mode=args.slice_mode,
             vectors=args.vectors,
             cpg_manifests=cpg_manifests,
         )
-    if is_temp_dir:
-        try:
-            shutil.rmtree(src)
-        except Exception:
-            # Ignore cleanup errors
-            pass
+    # We can remove the src but not the cpg_out and cpg_export which might get used
+    # by downstream tools
+    if is_temp_dir and src.startswith(tempfile.gettempdir()):
+        shutil.rmtree(src, ignore_errors=True)
 
 
 if __name__ == "__main__":
