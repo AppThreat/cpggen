@@ -84,8 +84,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=cpggen
           cache-to: type=gha,mode=max,scope=cpggen
-          provenance: true
-          sbom: true
   alma8-container:
     runs-on: ubuntu-latest
     permissions:
@@ -122,8 +120,6 @@ jobs:
           labels: ${{ steps.meta2.outputs.labels }}
           cache-from: type=gha,scope=cpggen-alma8
           cache-to: type=gha,mode=max,scope=cpggen-alma8
-          provenance: true
-          sbom: true
   oss-container:
     runs-on: ubuntu-latest
     permissions:
@@ -148,7 +144,6 @@ jobs:
         with:
           images: |
             ghcr.io/appthreat/cpggen-oss
-
       - name: Build and push Docker OSS images
         uses: docker/build-push-action@v4
         with:
@@ -160,5 +155,3 @@ jobs:
           labels: ${{ steps.meta3.outputs.labels }}
           cache-from: type=gha,scope=cpggen-oss
           cache-to: type=gha,mode=max,scope=cpggen-oss
-          provenance: true
-          sbom: true
