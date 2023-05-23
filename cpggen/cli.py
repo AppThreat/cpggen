@@ -37,7 +37,7 @@ def build_args():
     """
     parser = argparse.ArgumentParser(description="CPG Generator")
     parser.add_argument(
-        "-i", "--src", dest="src", help="Source directory or url", default=os.getcwd()
+        "-i", "--src", dest="src", help="Source directory or url or CVE or GHSA id", default=os.getcwd()
     )
     parser.add_argument(
         "-o", "--out-dir", dest="cpg_out_dir", help="CPG output directory"

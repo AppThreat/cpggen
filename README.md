@@ -135,7 +135,7 @@ To specify input and output directory.
 cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
-You can even pass a git or a package url as source
+You can even pass a git or a package url or CVE id as source
 
 ```
 cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
@@ -143,6 +143,13 @@ cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
 
 ```
 cpggen -i "pkg:maven/org.apache.commons/commons-io@1.3.2" -o /tmp/cpg
+```
+
+```
+export GITHUB_TOKEN=<token with read:packages scope>
+cpggen -i CVE-2023-32681 -o /tmp/cpg
+
+cpggen -i GHSA-j8r2-6x86-q33q -o /tmp/cpg
 ```
 
 To specify language type.
@@ -256,7 +263,7 @@ CPG Generator
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i SRC, --src SRC     Source directory or url
+  -i SRC, --src SRC     Source directory or url or CVE or GHSA id
   -o CPG_OUT_DIR, --out-dir CPG_OUT_DIR
                         CPG output directory
   -l LANGUAGE, --lang LANGUAGE
@@ -307,6 +314,7 @@ optional arguments:
 | CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                          |
 | ENABLE_SBOM             | Enable SBoM generation using cdxgen                                        |
 | JIMPLE_ANDROID_JAR      | Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
+| GITHUB_TOKEN            | Token with read:packages scope to analyze CVE or GitHub Advisory           |
 
 ## GitHub actions
 
