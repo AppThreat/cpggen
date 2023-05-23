@@ -37,7 +37,11 @@ def build_args():
     """
     parser = argparse.ArgumentParser(description="CPG Generator")
     parser.add_argument(
-        "-i", "--src", dest="src", help="Source directory or url or CVE or GHSA id", default=os.getcwd()
+        "-i",
+        "--src",
+        dest="src",
+        help="Source directory or url or CVE or GHSA id",
+        default=os.getcwd(),
     )
     parser.add_argument(
         "-o", "--out-dir", dest="cpg_out_dir", help="CPG output directory"
@@ -196,7 +200,6 @@ async def generate_cpg():
     src = ""
     languages = ""
     cpg_out_dir = None
-    is_temp_dir = False
     auto_build = True
     skip_sbom = True
     export = False
@@ -251,15 +254,15 @@ async def generate_cpg():
     if not src and not url:
         return {"error": "true", "message": "path or url is required"}, 500
     # If src contains url, then reassign
-    if not os.path.isdir(src) and not os.path.isfile(src):
-        url = src
+    if not src and url:
+        src = url
+    if not os.path.exists(src):
         clone_dir = tempfile.mkdtemp(prefix="cpggen")
         if src.startswith("http") or src.startswith("git://"):
             utils.clone_repo(url, clone_dir)
         else:
             utils.download_package_unsafe(url, clone_dir)
         src = clone_dir
-        is_temp_dir = True
     if not cpg_out_dir:
         cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
     if cpg_out_dir and not os.path.exists(cpg_out_dir):
@@ -321,8 +324,6 @@ async def generate_cpg():
                     errors_warnings.append(
                         f"""CPG slice file was not found at {ml.get("slice_out")}"""
                     )
-    if is_temp_dir and src.startswith(tempfile.gettempdir()):
-        shutil.rmtree(src, ignore_errors=True)
     return {
         "success": False if errors_warnings else True,
         "message": "\n".join(errors_warnings)
@@ -346,7 +347,7 @@ def get_output_dir(src, cpg_out_dir=None, export_out_dir=None):
         return None, None, False
     is_temp_dir = False
     # purl, http url or CVE id
-    if not os.path.isdir(src) and not os.path.isfile(src):
+    if not os.path.exists(src):
         if not cpg_out_dir:
             cpg_out_dir = tempfile.mkdtemp(prefix="cpggen_cpg_out")
             is_temp_dir = True
