@@ -11,6 +11,10 @@
 
 CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io) for multiple languages. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to [Qwiet.AI](https://docs.shiftleft.io/home) for analysis.
 
+[![release](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml)
+[![GitHub All Releases](https://img.shields.io/github/downloads/appthreat/cpggen/total.svg)](https://github.com/appthreat/cpggen/releases/)
+[![Discord](https://img.shields.io/badge/-Discord-lime?style=for-the-badge&logo=discord&logoColor=white&color=black)](https://discord.gg/tmmtjCEHNV)
+
 ## Pre-requisites
 
 - JDK 11 or above
@@ -31,7 +35,7 @@ Download the executable binary for your operating system from the [releases page
 - cdxgen with Node.js 18 - Generates SBoM
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/download/v1.1.5/cpggen-linux-amd64
+curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
@@ -39,7 +43,7 @@ chmod +x cpggen-linux-amd64
 On Windows,
 
 ```powershell
-curl -LO https://github.com/appthreat/cpggen/releases/download/v1.1.5/cpggen.exe
+curl -LO https://github.com/appthreat/cpggen/releases/latest/download/cpggen.exe
 .\cpggen.exe --help
 ```
 
@@ -131,7 +135,7 @@ To specify input and output directory.
 cpggen -i <src directory> -o <CPG directory or file name>
 ```
 
-You can even pass a git or a package url as source
+You can even pass a git or a package url or CVE id as source
 
 ```
 cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
@@ -139,6 +143,13 @@ cpggen -i https://github.com/HooliCorp/vulnerable-aws-koa-app -o /tmp/cpg
 
 ```
 cpggen -i "pkg:maven/org.apache.commons/commons-io@1.3.2" -o /tmp/cpg
+```
+
+```
+export GITHUB_TOKEN=<token with read:packages scope>
+cpggen -i CVE-2023-32681 -o /tmp/cpg
+
+cpggen -i GHSA-j8r2-6x86-q33q -o /tmp/cpg
 ```
 
 To specify language type.
@@ -252,7 +263,7 @@ CPG Generator
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i SRC, --src SRC     Source directory or url
+  -i SRC, --src SRC     Source directory or url or CVE or GHSA id
   -o CPG_OUT_DIR, --out-dir CPG_OUT_DIR
                         CPG output directory
   -l LANGUAGE, --lang LANGUAGE
@@ -303,6 +314,7 @@ optional arguments:
 | CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                          |
 | ENABLE_SBOM             | Enable SBoM generation using cdxgen                                        |
 | JIMPLE_ANDROID_JAR      | Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
+| GITHUB_TOKEN            | Token with read:packages scope to analyze CVE or GitHub Advisory           |
 
 ## GitHub actions
 

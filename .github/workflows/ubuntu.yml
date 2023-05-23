@@ -60,7 +60,7 @@ jobs:
       run: |
         mkdir /tmp/all_cpgs /tmp/all_exports
         cd cpggen
-        curl -LO https://github.com/joernio/joern/releases/download/v1.1.1715/joern-cli.zip
+        curl -LO https://github.com/joernio/joern/releases/latest/download/joern-cli.zip
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip

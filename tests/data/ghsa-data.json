@@ -1,0 +1,840 @@
+{
+    "data": {
+      "securityAdvisories": {
+        "nodes": [
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLTlqeHctY2ZyaC1qeHE2",
+            "ghsaId": "GHSA-9jxw-cfrh-jxq6",
+            "summary": "Cachet vulnerable to new line injection during configuration edition",
+            "description": "### Impact\n\nAuthenticated users, regardless of their privileges (_User_ or _Admin_), can exploit a new line injection in the configuration edition feature (e.g. mail settings) and gain arbitrary code execution on the server.\n\n### Patches\n\nThis issue was addressed by improving `UpdateConfigCommandHandler` and preventing the use of new lines characters in new configuration values.\n\n### Workarounds\n\nOnly allow trusted source IP addresses to access to the administration dashboard.\n\n### References\n\n- https://blog.sonarsource.com/cachet-code-execution-via-laravel-configuration-injection\n\n### For more information\n\nIf you have any questions or comments about this advisory, you can contact:\n- The original reporters, by sending an email to vulnerability.research [at] sonarsource.com;\n- The maintainers, by opening an issue on this repository.\n",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-9jxw-cfrh-jxq6"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2021-39172"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2021-08-30T16:11:24Z",
+            "updatedAt": "2023-05-22T16:23:34Z",
+            "references": [
+              {
+                "url": "https://github.com/fiveai/Cachet/security/advisories/GHSA-9jxw-cfrh-jxq6"
+              },
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-39172"
+              },
+              {
+                "url": "https://github.com/fiveai/Cachet/releases/tag/v2.5.1"
+              },
+              {
+                "url": "https://blog.sonarsource.com/cachet-code-execution-via-laravel-configuration-injection/"
+              },
+              {
+                "url": "https://github.com/fiveai/Cachet/commit/6442976c25930cb370c65a22784b9caee7ed1de2"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-9jxw-cfrh-jxq6"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "2.5.1"
+                  },
+                  "package": {
+                    "ecosystem": "COMPOSER",
+                    "name": "cachethq/cachet"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2021-08-27T23:35:17Z",
+                  "vulnerableVersionRange": "< 2.5.1"
+                }
+              ]
+            }
+          },
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLWY4NjUtbTZjcS1qOXZ4",
+            "ghsaId": "GHSA-f865-m6cq-j9vx",
+            "summary": "ReDOS in Mpmath",
+            "description": "A Regular Expression Denial of Service (ReDOS) vulnerability was discovered in Mpmath v1.0.0 when the mpmathify function is called.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-f865-m6cq-j9vx"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2021-29063"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2021-08-09T20:44:51Z",
+            "updatedAt": "2023-05-22T16:13:54Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-29063"
+              },
+              {
+                "url": "https://github.com/npm/hosted-git-info/pull/76"
+              },
+              {
+                "url": "https://github.com/fredrik-johansson/mpmath/commit/c811b37c65a4372a7ce613111d2a508c204f9833"
+              },
+              {
+                "url": "https://github.com/yetingli/PoCs/blob/main/CVE-2021-29063/Mpmath.md"
+              },
+              {
+                "url": "https://github.com/yetingli/SaveResults/blob/main/js/hosted-git-info.js"
+              },
+              {
+                "url": "https://www.npmjs.com/package/hosted-git-info"
+              },
+              {
+                "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/3M5O55E7VUDMXCPQR6MQTOIFDKHP36AA/"
+              },
+              {
+                "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/MS2U6GLXQSRZJE2HVUAUMVFR2DWQLCZG/"
+              },
+              {
+                "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/EIUX3XWY2K3MSO7QXMZXQQYAURARSPC5/"
+              },
+              {
+                "url": "https://github.com/fredrik-johansson/mpmath/issues/548"
+              },
+              {
+                "url": "https://github.com/fredrik-johansson/mpmath/commit/46d44c3c8f3244017fe1eb102d564eb4ab8ef750"
+              },
+              {
+                "url": "https://github.com/mpmath/mpmath/pull/570"
+              },
+              {
+                "url": "https://github.com/mpmath/mpmath/commit/c811b37c65a4372a7ce613111d2a508c204f9833"
+              },
+              {
+                "url": "https://github.com/mpmath/mpmath/releases/tag/1.3.0"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-f865-m6cq-j9vx"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "1.3.0"
+                  },
+                  "package": {
+                    "ecosystem": "PIP",
+                    "name": "mpmath"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2023-05-22T16:13:54Z",
+                  "vulnerableVersionRange": "< 1.3.0"
+                }
+              ]
+            }
+          },
+          {
+            "id": "GSA_kwCzR0hTQS0yYzd2LXFjanAtNG1nMs4AAwWz",
+            "ghsaId": "GHSA-2c7v-qcjp-4mg2",
+            "summary": ".NET Remote Code Execution Vulnerability",
+            "description": "# Microsoft Security Advisory CVE-2022-41089: .NET Remote Code Execution Vulnerability\n\n## <a name=\"executive-summary\"></a>Executive summary\n\nMicrosoft is releasing this security advisory to provide information about a vulnerability in .NET Core 3.1, .NET 6.0., and .NET 7.0. This advisory also provides guidance on what developers can do to update their applications to remove this vulnerability.\n\nA remote code execution vulnerability exists in .NET Core 3.1, .NET 6.0, and .NET 7.0, where a malicious actor could cause a user to run arbitrary code as a result of parsing maliciously crafted xps files.\n\n## Announcement\n\nAnnouncement for this issue can be found at https://github.com/dotnet/announcements/issues/242\n\n### <a name=\"mitigation-factors\"></a>Mitigation factors\n\nMicrosoft has not identified any mitigating factors for this vulnerability.\n\n## <a name=\"affected-software\"></a>Affected software\n\n* Any .NET 7.0 WinForms or WPF application running on .NET 7.0.0 or earlier.\n* Any .NET 6.0 WinForms or WPF application running on .NET 6.0.11 or earlier.\n* Any .NET Core 3.1 WinForms or WPF application running on .NET 3.1.31 or earlier.\n\nIf the application does not utilize WinForms or WPF, it is not affected by this vulnerability.\n\nApplications targeting Mac, Linux, Android, iOS, and other non-Windows platforms are not affected by this vulnerability.\n\nIf your application uses the following package versions, ensure you update to the latest version of .NET.\n\n### <a name=\".NET Core 3.1\"></a>.NET Core 3.1\n\nPackage name | Affected version | Patched version\n------------ | ---------------- | -------------------------\n[Microsoft.WindowsDesktop.App.Runtime.win-x64](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x64)|>= 3.1.0, <= 3.1.31|3.1.32\n[Microsoft.WindowsDesktop.App.Runtime.win-x86](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x86)|>= 3.1.0, <= 3.1.31|3.1.32\n\n### <a name=\".NET 6\"></a>.NET 6\n\nPackage name | Affected version | Patched version\n------------ | ---------------- | -------------------------\n[Microsoft.WindowsDesktop.App.Runtime.win-arm64](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-arm64)|>= 6.0.0, <= 6.0.11|6.0.12\n[Microsoft.WindowsDesktop.App.Runtime.win-x64](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x64)|>= 6.0.0, <= 6.0.11|6.0.12\n[Microsoft.WindowsDesktop.App.Runtime.win-x86](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x86)|>= 6.0.0, <= 6.0.11|6.0.12\n\n### <a name=\".NET 7\"></a>.NET 7\n\nPackage name | Affected version | Patched version\n------------ | ---------------- | -------------------------\n[Microsoft.WindowsDesktop.App.Runtime.win-arm64](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-arm64)|>= 7.0.0, <= 7.0.0|7.0.1\n[Microsoft.WindowsDesktop.App.Runtime.win-x64](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x64)|>= 7.0.0, <= 7.0.0|7.0.1\n[Microsoft.WindowsDesktop.App.Runtime.win-x86](https://www.nuget.org/packages/Microsoft.WindowsDesktop.App.Runtime.win-x86)|>= 7.0.0, <= 7.0.0|7.0.1\n\n## Advisory FAQ\n\n### <a name=\"how-affected\"></a>How do I know if I am affected?\n\nIf you have a runtime or SDK with a version listed, or an affected package listed in [affected software](#affected-software), you're exposed to the vulnerability.\n\n### <a name=\"how-fix\"></a>How do I fix the issue?\n\n* To fix the issue please install the latest version of .NET 7.0, .NET 6.0 or .NET Core 3.1. If you have installed one or more .NET SDKs through Visual Studio, Visual Studio will prompt you to update Visual Studio, which will also update your .NET  SDKs.\n* If you have .NET Core 3.1 or greater installed, you can list the versions you have installed by running the `dotnet --info` command. You will see output like the following;\n* If you are using one of the affected packages, please update to the patched version listed above. \n\n```\n.NET Core SDK (reflecting any global.json):\n\n Version:   6.0.300\n Commit:    8473146e7d\n\nRuntime Environment:\n\n OS Name:     Windows\n OS Version:  10.0.18363\n OS Platform: Windows\n RID:         win10-x64\n Base Path:   C:\\Program Files\\dotnet\\sdk\\6.0.300\\\n\nHost (useful for support):\n\n  Version: 6.0.5\n  Commit:  8473146e7d\n\n.NET Core SDKs installed:\n\n  6.0.300 [C:\\Program Files\\dotnet\\sdk]\n\n.NET Core runtimes installed:\n\n  Microsoft.AspNetCore.App 6.0.5 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 6.0.5 [C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App]\n  Microsoft.WindowsDesktop.App 6.0.5 [C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App]\n\nTo install additional .NET Core runtimes or SDKs:\n  https://aka.ms/dotnet-download\n```\n\n* If you're using .NET 7.0, you should download and install Runtime 7.0.1 or SDK 7.0.101 (for Visual Studio 2022 v17.4) from https://dotnet.microsoft.com/download/dotnet-core/7.0.\n* If you're using .NET 6.0, you should download and install Runtime 6.0.12 or SDK 6.0.112 (for Visual Studio 2022 v17.1) from https://dotnet.microsoft.com/download/dotnet-core/6.0.\n* If you're using .NET Core 3.1, you should download and install Runtime 3.1.32 (for Visual Studio 2019 v16.9) from https://dotnet.microsoft.com/download/dotnet-core/3.1.\n\n.NET 7.0, .NET 6.0 and .NET Core 3.1 updates are also available from Microsoft Update. To access this either type \"Check for updates\" in your Windows search, or open Settings, choose Update & Security and then click Check for Updates.\n\nOnce you have installed the updated runtime or SDK, restart your apps for the update to take effect.\n\nAdditionally, if you've deployed [self-contained applications](https://docs.microsoft.com/dotnet/core/deploying/#self-contained-deployments-scd) targeting any of the impacted versions, these applications are also vulnerable and must be recompiled and redeployed.\n\n## Other Information\n\n### Acknowledgements\n\n[Eleftherios Panos](https://twitter.com/lefterispan) with [Nettitude](https://www.nettitude.com/)\n[Nick Landers](https://twitter.com/monoxgas) with NetSPI\n\n### Reporting Security Issues\n\nIf you have found a potential security issue in .NET 7.0, .NET 6.0 or .NET Core 3.1, please email details to secure@microsoft.com. Reports may qualify for the Microsoft .NET Core & .NET 5 Bounty. Details of the Microsoft .NET Bounty Program including terms and conditions are at <https://aka.ms/corebounty>.\n\n### Support\n\nYou can ask questions about this issue on GitHub in the .NET GitHub organization. The main repos are located at https://github.com/dotnet/runtime and https://github.com/dotnet/wpf/. The Announcements repo (https://github.com/dotnet/Announcements) will contain this bulletin as an issue and will include a link to a discussion issue. You can ask questions in the linked discussion issue.\n\n### Disclaimer\n\nThe information provided in this advisory is provided \"as is\" without warranty of any kind. Microsoft disclaims all warranties, either express or implied, including the warranties of merchantability and fitness for a particular purpose. In no event shall Microsoft Corporation or its suppliers be liable for any damages whatsoever including direct, indirect, incidental, consequential, loss of business profits or special damages, even if Microsoft Corporation or its suppliers have been advised of the possibility of such damages. Some states do not allow the exclusion or limitation of liability for consequential or incidental damages so the foregoing limitation may not apply.\n\n### External Links\n\n[CVE-2022-41089]( https://www.cve.org/CVERecord?id=CVE-2022-41089)\n\n",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-2c7v-qcjp-4mg2"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2022-41089"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2022-12-14T21:42:00Z",
+            "updatedAt": "2023-05-22T16:09:16Z",
+            "references": [
+              {
+                "url": "https://github.com/dotnet/wpf/security/advisories/GHSA-2c7v-qcjp-4mg2"
+              },
+              {
+                "url": "https://github.com/dotnet/announcements/issues/242"
+              },
+              {
+                "url": "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2022-41089"
+              },
+              {
+                "url": "https://github.com/dotnet/wpf/commit/5f4c0f7763a06b024c8a517616e0fc0194e997a4"
+              },
+              {
+                "url": "https://github.com/dotnet/wpf/commit/7b0be4d41c33ce8525d8160bf8869cac10f8a8cd"
+              },
+              {
+                "url": "https://github.com/dotnet/wpf/commit/c08825a9889e6c798fe95ed5ec1f6a9f517ab5a0"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-2c7v-qcjp-4mg2"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "7.0.1"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": "= 7.0.0"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "7.0.1"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": "= 7.0.0"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "7.0.1"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": "= 7.0.0"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "6.0.12"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": ">= 6.0.0, <= 6.0.11"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "6.0.12"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": ">= 6.0.0, <= 6.0.11"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "6.0.12"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": ">= 6.0.0, <= 6.0.11"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "3.1.32"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": ">= 3.1.0, <= 3.1.31"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "3.1.32"
+                  },
+                  "package": {
+                    "ecosystem": "NUGET",
+                    "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2022-12-14T21:42:01Z",
+                  "vulnerableVersionRange": ">= 3.1.0, <= 3.1.31"
+                }
+              ]
+            }
+          },
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLTdtdnItNXgyZy13ZmM4",
+            "ghsaId": "GHSA-7mvr-5x2g-wfc8",
+            "summary": "Bootstrap Cross-site Scripting vulnerability",
+            "description": "In Bootstrap before 4.1.2, XSS is possible in the data-container property of tooltip.  This is similar to CVE-2018-14041.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-7mvr-5x2g-wfc8"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2018-14042"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2018-09-13T15:50:32Z",
+            "updatedAt": "2023-05-22T16:07:37Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2018-14042"
+              },
+              {
+                "url": "https://github.com/twbs/bootstrap/issues/26423"
+              },
+              {
+                "url": "https://github.com/twbs/bootstrap/issues/26628"
+              },
+              {
+                "url": "https://github.com/twbs/bootstrap/pull/26630"
+              },
+              {
+                "url": "https://blog.getbootstrap.com/2018/07/12/bootstrap-4-1-2/"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/519eb0fd45642dcecd9ff74cb3e71c20a4753f7d82e2f07864b5108f@%3Cdev.drill.apache.org%3E"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/52e0e6b5df827ee7f1e68f7cc3babe61af3b2160f5d74a85469b7b0e@%3Cdev.superset.apache.org%3E"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/b0656d359c7d40ec9f39c8cc61bca66802ef9a2a12ee199f5b0c1442@%3Cdev.drill.apache.org%3E"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/f9bc3e55f4e28d1dcd1a69aae6d53e609a758e34d2869b4d798e13cc@%3Cissues.drill.apache.org%3E"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/r3dc0cac8d856bca02bd6997355d7ff83027dcfc82f8646a29b89b714@%3Cissues.hbase.apache.org%3E"
+              },
+              {
+                "url": "https://lists.apache.org/thread.html/rd0e44e8ef71eeaaa3cf3d1b8b41eb25894372e2995ec908ce7624d26@%3Ccommits.pulsar.apache.org%3E"
+              },
+              {
+                "url": "https://seclists.org/bugtraq/2019/May/18"
+              },
+              {
+                "url": "https://www.oracle.com/security-alerts/cpuApr2021.html"
+              },
+              {
+                "url": "http://packetstormsecurity.com/files/156743/OctoberCMS-Insecure-Dependencies.html"
+              },
+              {
+                "url": "http://seclists.org/fulldisclosure/2019/May/10"
+              },
+              {
+                "url": "http://seclists.org/fulldisclosure/2019/May/11"
+              },
+              {
+                "url": "http://seclists.org/fulldisclosure/2019/May/13"
+              },
+              {
+                "url": "https://github.com/twbs/bootstrap/issues/26428"
+              },
+              {
+                "url": "https://github.com/twbs/bootstrap/commit/2d90d369bbc2bd2647620246c55cec8c4705e3d0"
+              },
+              {
+                "url": "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/bootstrap/CVE-2018-14042.yml"
+              },
+              {
+                "url": "https://www.tenable.com/security/tns-2021-14"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-7mvr-5x2g-wfc8"
+              }
+            ],
+            "severity": "MODERATE",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "4.1.2"
+                  },
+                  "package": {
+                    "ecosystem": "RUBYGEMS",
+                    "name": "bootstrap"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2018-09-13T15:49:45Z",
+                  "vulnerableVersionRange": "< 4.1.2"
+                }
+              ]
+            }
+          },
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLXc5dnYtcTk4Ni12ajd4",
+            "ghsaId": "GHSA-w9vv-q986-vj7x",
+            "summary": "Out of bounds read in uu_od",
+            "description": "An issue was discovered in PartialReader in the uu_od crate before 0.0.4 for Rust. Attackers can read the contents of uninitialized memory locations via a user-provided Read operation.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-w9vv-q986-vj7x"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2021-29934"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2021-08-25T20:54:24Z",
+            "updatedAt": "2023-05-22T16:06:49Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-29934"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/issues/1729"
+              },
+              {
+                "url": "https://rustsec.org/advisories/RUSTSEC-2021-0043.html"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/pull/1730"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/pull/1738"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/pull/1739"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/commit/39d62c6c1f809022c903180471c10fde6ecd12d1"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/commit/5935876f38498b0c1f657d031171eb17028def6f"
+              },
+              {
+                "url": "https://github.com/uutils/coreutils/commit/7341a1a033aa5980ac59bc9d4df978b396de4fad"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-w9vv-q986-vj7x"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "0.0.4"
+                  },
+                  "package": {
+                    "ecosystem": "RUST",
+                    "name": "uu_od"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2021-08-19T17:09:13Z",
+                  "vulnerableVersionRange": "< 0.0.4"
+                }
+              ]
+            }
+          },
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLXZ3amMtcTlweC1yOXZx",
+            "ghsaId": "GHSA-vwjc-q9px-r9vq",
+            "summary": "Denial of Service in ecstatic",
+            "description": "Versions of `ecstatic` prior to 1.4.0 are affected by a denial of service vulnerability when certain input strings are sent via the `Last-Modified` or `If-Modified-Since` headers.\n\nParsing certain inputs with `new Date()` or `Date.parse()` cases v8 to crash. As ecstatic passes the value of the affected headers into one of these functions, sending certain inputs via one of the headers will cause the server to crash.\n\n\n\n## Recommendation\n\nUpdate to version 1.4.0 or later.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-vwjc-q9px-r9vq"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2015-9242"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2018-06-07T19:43:11Z",
+            "updatedAt": "2023-05-22T15:35:12Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2015-9242"
+              },
+              {
+                "url": "https://github.com/jfhbrook/node-ecstatic/pull/179"
+              },
+              {
+                "url": "https://bugs.chromium.org/p/v8/issues/detail?id=4640"
+              },
+              {
+                "url": "https://github.com/jfhbrook/node-ecstatic/commit/0d0a2779ac5e5843d3745920212dfac9b69440e2"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-vwjc-q9px-r9vq"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "1.4.0"
+                  },
+                  "package": {
+                    "ecosystem": "NPM",
+                    "name": "ecstatic"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2018-11-30T19:54:13Z",
+                  "vulnerableVersionRange": "< 1.4.0"
+                }
+              ]
+            }
+          },
+          {
+            "id": "GSA_kwCzR0hTQS1mNjgzLTM1dzktMjhnNc4AAwWi",
+            "ghsaId": "GHSA-f683-35w9-28g5",
+            "summary": "Multiple vulnerabilities in extension \"Newsletter subscriber management\" (fp_newsletter)",
+            "description": "The CAPTCHA of the extension can be bypassed which may result in automated creation of various newsletter subscribers. It is possible to provide arbitrary subscription UIDs to the `deleteAction` of the extension resulting in all newsletter subscribers to be unsubscribed. Insufficient access checks in the `createAction` and `unsubscribeAction` can be used to obtain data of existing newsletter subscribers.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-f683-35w9-28g5"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2022-47408"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2022-12-14T21:30:16Z",
+            "updatedAt": "2023-05-22T15:30:27Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-47408"
+              },
+              {
+                "url": "https://typo3.org/security/advisory/typo3-ext-sa-2022-017"
+              },
+              {
+                "url": "https://github.com/FriendsOfPHP/security-advisories/blob/master/fixpunkt/fp-newsletter/CVE-2022-47408.yaml"
+              },
+              {
+                "url": "https://github.com/bihor/fp_newsletter/commit/bc673cd9ab04f3fdd1225303f2ccb378b11a3747"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-f683-35w9-28g5"
+              }
+            ],
+            "severity": "CRITICAL",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "1.1.1"
+                  },
+                  "package": {
+                    "ecosystem": "COMPOSER",
+                    "name": "fixpunkt/fp-newsletter"
+                  },
+                  "severity": "CRITICAL",
+                  "updatedAt": "2023-02-08T00:23:48Z",
+                  "vulnerableVersionRange": "< 1.1.1"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "2.1.2"
+                  },
+                  "package": {
+                    "ecosystem": "COMPOSER",
+                    "name": "fixpunkt/fp-newsletter"
+                  },
+                  "severity": "CRITICAL",
+                  "updatedAt": "2023-02-08T00:23:48Z",
+                  "vulnerableVersionRange": ">= 2.0.0, < 2.1.2"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "3.2.6"
+                  },
+                  "package": {
+                    "ecosystem": "COMPOSER",
+                    "name": "fixpunkt/fp-newsletter"
+                  },
+                  "severity": "CRITICAL",
+                  "updatedAt": "2023-02-08T00:23:48Z",
+                  "vulnerableVersionRange": ">= 2.2.0, < 3.2.6"
+                }
+              ]
+            }
+          },
+          {
+            "id": "GSA_kwCzR0hTQS05OGc3LXJ4bWYtcnJ4bc4AAtZz",
+            "ghsaId": "GHSA-98g7-rxmf-rrxm",
+            "summary": "fabric8 kubernetes-client vulnerable ",
+            "description": "fabric8 Kubernetes client had an arbitrary code execution flaw in versions 5.0.0-beta-1 and higher. Attackers could potentially insert malicious YAMLs due to misconfigured YAML parsing.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-98g7-rxmf-rrxm"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2021-4178"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2022-07-15T05:17:35Z",
+            "updatedAt": "2023-05-22T15:25:13Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-4178"
+              },
+              {
+                "url": "https://github.com/fabric8io/kubernetes-client/issues/3653"
+              },
+              {
+                "url": "https://access.redhat.com/security/cve/cve-2021-4178"
+              },
+              {
+                "url": "https://www.mend.io/vulnerability-database/CVE-2021-4178"
+              },
+              {
+                "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2034388"
+              },
+              {
+                "url": "https://github.com/fabric8io/kubernetes-client/commit/445103004d1ed3153d5abb272473451d05891e39"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-98g7-rxmf-rrxm"
+              }
+            ],
+            "severity": "MODERATE",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.11.2"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-11-02T23:10:34Z",
+                  "vulnerableVersionRange": ">= 5.11.0, < 5.11.2"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.10.2"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-11-02T23:10:34Z",
+                  "vulnerableVersionRange": ">= 5.9.0, < 5.10.2"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.8.1"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-07-15T05:17:35Z",
+                  "vulnerableVersionRange": ">= 5.8.0, < 5.8.1"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.7.4"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-07-15T05:17:35Z",
+                  "vulnerableVersionRange": ">= 5.5.0, < 5.7.4"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.3.2"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-07-15T05:17:35Z",
+                  "vulnerableVersionRange": ">= 5.2.0, < 5.3.2"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.1.2"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-07-15T05:17:35Z",
+                  "vulnerableVersionRange": ">= 5.1.0, < 5.1.2"
+                },
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "5.0.3"
+                  },
+                  "package": {
+                    "ecosystem": "MAVEN",
+                    "name": "io.fabric8:kubernetes-client"
+                  },
+                  "severity": "MODERATE",
+                  "updatedAt": "2022-07-15T05:17:35Z",
+                  "vulnerableVersionRange": ">= 5.0.0-beta-1, < 5.0.3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "MDE2OlNlY3VyaXR5QWR2aXNvcnlHSFNBLXY5ajQtY3A2My1xdjYy",
+            "ghsaId": "GHSA-v9j4-cp63-qv62",
+            "summary": "Tarslip in go-unarr",
+            "description": "unarr.go in go-unarr (aka Go bindings for unarr) 0.1.1 allows Directory Traversal via ../ in a pathname within a TAR archive.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-v9j4-cp63-qv62"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2021-38197"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2021-09-01T18:32:02Z",
+            "updatedAt": "2023-05-22T15:19:59Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-38197"
+              },
+              {
+                "url": "https://github.com/gen2brain/go-unarr/issues/21"
+              },
+              {
+                "url": "https://github.com/gen2brain/go-unarr/commit/239ec404d348280b50bbf671327709e8857fc5f4"
+              },
+              {
+                "url": "https://github.com/gen2brain/go-unarr/releases/tag/v0.1.4"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-v9j4-cp63-qv62"
+              }
+            ],
+            "severity": "CRITICAL",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": {
+                    "identifier": "0.1.4"
+                  },
+                  "package": {
+                    "ecosystem": "GO",
+                    "name": "github.com/gen2brain/go-unarr"
+                  },
+                  "severity": "CRITICAL",
+                  "updatedAt": "2023-05-22T15:19:58Z",
+                  "vulnerableVersionRange": "< 0.1.4"
+                }
+              ]
+            }
+          },
+          {
+            "id": "GSA_kwCzR0hTQS1oN3dtLXBoNDMtYzM5cM4AAZaj",
+            "ghsaId": "GHSA-h7wm-ph43-c39p",
+            "summary": "Scrapy denial of service vulnerability",
+            "description": "Scrapy 1.4 allows remote attackers to cause a denial of service (memory consumption) via large files because arbitrarily many files are read into memory, which is especially problematic if the files are then individually written in a separate thread to a slow storage resource, as demonstrated by interaction between dataReceived (in core/downloader/handlers/http11.py) and S3FilesStore.",
+            "identifiers": [
+              {
+                "type": "GHSA",
+                "value": "GHSA-h7wm-ph43-c39p"
+              },
+              {
+                "type": "CVE",
+                "value": "CVE-2017-14158"
+              }
+            ],
+            "origin": "UNSPECIFIED",
+            "publishedAt": "2022-05-17T01:16:31Z",
+            "updatedAt": "2023-05-22T14:53:42Z",
+            "references": [
+              {
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-14158"
+              },
+              {
+                "url": "https://github.com/scrapy/scrapy/issues/482"
+              },
+              {
+                "url": "http://blog.csdn.net/wangtua/article/details/75228728"
+              },
+              {
+                "url": "https://github.com/pypa/advisory-database/blob/8b7a4d62a95e8f605e5dfb4e0b4f299e6403dc12/vulns/scrapy/PYSEC-2017-83.yaml"
+              },
+              {
+                "url": "https://github.com/advisories/GHSA-h7wm-ph43-c39p"
+              },
+              {
+                "url": "https://github.com/pypa/advisory-database/tree/main/vulns/scrapy/PYSEC-2017-83.yaml"
+              }
+            ],
+            "severity": "HIGH",
+            "withdrawnAt": null,
+            "vulnerabilities": {
+              "nodes": [
+                {
+                  "firstPatchedVersion": null,
+                  "package": {
+                    "ecosystem": "PIP",
+                    "name": "scrapy"
+                  },
+                  "severity": "HIGH",
+                  "updatedAt": "2023-05-22T14:53:42Z",
+                  "vulnerableVersionRange": ">= 0.7, <= 2.9.0"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }

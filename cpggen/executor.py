@@ -22,18 +22,18 @@ from cpggen.utils import (
     find_makefiles,
     find_pom_files,
     find_sbt_files,
-    to_friendly_name,
+    purl_to_friendly_name,
 )
 
 runtimeValues = {}
 svmem = psutil.virtual_memory()
 max_memory = bytes2human(getattr(svmem, "available"), format="%(value).0f%(symbol)s")
-cpu_count = str(psutil.cpu_count())
+CPU_COUNT = str(psutil.cpu_count())
 
 only_bat_ext = ".bat" if sys.platform == "win32" else ""
 bin_ext = ".bat" if sys.platform == "win32" else ".sh"
 exe_ext = ".exe" if sys.platform == "win32" else ""
-use_shell = True if sys.platform == "win32" else False
+USE_SHELL = True if sys.platform == "win32" else False
 
 
 def resource_path(relative_path):
@@ -59,7 +59,7 @@ if os.path.exists(local_bin_dir):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
                 zip_ref.extractall(os.path.join(local_bin_dir, "joern-cli"))
-                LOG.debug(f"Extracted {csharp2cpg_bundled}")
+                LOG.debug("Extracted %s", csharp2cpg_bundled)
                 if not os.path.exists(
                     os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
                 ):
@@ -84,7 +84,7 @@ if os.path.exists(local_bin_dir):
                             or "joern-" in filename
                         ):
                             os.chmod(os.path.join(dirname, filename), 0o755)
-                LOG.debug(f"Extracted {joern_bundled}")
+                LOG.debug("Extracted %s", joern_bundled)
                 os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
                 os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
                 os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
@@ -105,21 +105,18 @@ if os.path.exists(local_bin_dir):
             os.environ["CDXGEN_PLUGINS_DIR"] = local_bin_dir
 
 
-def get(configName, default_value=None):
+def get(config_name, default_value=None):
     """Method to retrieve a config given a name. This method lazy loads configuration
     values and helps with overriding using a local config
-    :param configName: Name of the config
+    :param config_name: Name of the config
     :return Config value
     """
-    try:
-        value = runtimeValues.get(configName)
-        if value is None:
-            value = os.environ.get(configName.replace("-", "_").upper())
-        if value is None:
-            value = default_value
-        return value
-    except Exception:
-        return default_value
+    value = runtimeValues.get(config_name)
+    if value is None:
+        value = os.environ.get(config_name.replace("-", "_").upper())
+    if value is None:
+        value = default_value
+    return value
 
 
 cpg_tools_map = {
@@ -239,12 +236,13 @@ joern_parse_lang_map = {
 
 
 def qwiet_analysis(app_manifest, src, cwd, env):
+    """Method to submit the cpg to Qwiet.AI"""
     try:
         relative_path = os.path.relpath(cwd, src)
         if relative_path and not relative_path.startswith(".."):
             os.environ["SL_VCS_RELATIVE_PATH"] = relative_path
             env["SL_VCS_RELATIVE_PATH"] = relative_path
-        LOG.info(f"Submitting {app_manifest['app']} for Qwiet.AI analysis")
+        LOG.info("Submitting %s for Qwiet.AI analysis", app_manifest["app"])
         build_args = cpg_tools_map["qwiet"]
         policy = ""
         vcs_correction = ""
@@ -263,7 +261,7 @@ def qwiet_analysis(app_manifest, src, cwd, env):
         build_args = build_args % dict(
             **app_manifest, policy=policy, vcs_correction=vcs_correction
         )
-        LOG.debug(f"Executing {build_args}")
+        LOG.debug("Executing %s", build_args)
         cp = subprocess.run(
             build_args.split(" "),
             stdout=subprocess.PIPE,
@@ -271,17 +269,17 @@ def qwiet_analysis(app_manifest, src, cwd, env):
             cwd=cwd,
             env=env,
             check=False,
-            shell=use_shell,
+            shell=USE_SHELL,
             encoding="utf-8",
         )
         if cp:
             if cp.stdout:
                 LOG.info(cp.stdout)
             if cp.returncode and cp.stderr:
-                LOG.warn(cp.stderr)
+                LOG.warning(cp.stderr)
             else:
-                LOG.info(f"{app_manifest['app']} uploaded successfully")
-    except Exception as e:
+                LOG.info("%s uploaded successfully", app_manifest["app"])
+    except subprocess.SubprocessError as e:
         LOG.error(e)
 
 
@@ -290,7 +288,8 @@ def dot_convert(export_out_dir, env):
         dot_files = find_files(export_out_dir, ".dot", False, False)
         if len(dot_files) > 5:
             LOG.info(
-                f"{len(dot_files)} dot files generated after export. Skipping dot2png conversion ..."
+                "%d dot files generated after export. Skipping dot2png conversion ...",
+                len(dot_files),
             )
             return
         for df in dot_files:
@@ -305,7 +304,7 @@ def dot_convert(export_out_dir, env):
                     cwd=export_out_dir,
                     env=env,
                     check=False,
-                    shell=use_shell,
+                    shell=USE_SHELL,
                     encoding="utf-8",
                 )
             except Exception as e:
@@ -317,6 +316,7 @@ def dot_convert(export_out_dir, env):
 
 
 def do_x_build(src, env, build_artefacts, tool_lang):
+    """Method to guess and build applications"""
     tool_lang = tool_lang.split("-")[0]
     build_crashes = {}
     for k, v in build_artefacts.items():
@@ -329,7 +329,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
             build_args = build_sets
         if len(v) > 5:
             LOG.debug(
-                f"This project has {len(v)} modules. Build might take a while ..."
+                "This project has %d modules. Build might take a while ...", len(v)
             )
         for afile in v:
             base_dir = os.path.dirname(afile)
@@ -355,7 +355,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     gradle_cmd=gradle_cmd, maven_cmd=maven_cmd
                 )
             try:
-                LOG.debug(f"Executing build command: {build_args_str} in {base_dir}")
+                LOG.debug("Executing build command: %s in %s", build_args_str, base_dir)
                 cp = subprocess.run(
                     build_args_str.split(" "),
                     stdout=subprocess.PIPE,
@@ -363,7 +363,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     cwd=base_dir,
                     env=env,
                     check=False,
-                    shell=use_shell,
+                    shell=USE_SHELL,
                     encoding="utf-8",
                 )
                 if cp:
@@ -376,8 +376,8 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     elif LOG.isEnabledFor(DEBUG) and cp.returncode and cp.stderr:
                         LOG.debug(cp.stderr)
                     failed_modules = failed_modules + 1
-            except Exception as e:
-                LOG.info(e)
+            except subprocess.SubprocessError:
+                LOG.info(exc_info=True)
                 crashed_modules = crashed_modules + 1
         build_crashes[k] = {
             "failed_modules": failed_modules,
@@ -387,6 +387,7 @@ def do_x_build(src, env, build_artefacts, tool_lang):
 
 
 def do_jar_build(tool_lang, src, env):
+    """Method to build java apps"""
     build_artefacts = {
         "gradle": find_gradle_files(src),
         "maven": find_pom_files(src),
@@ -405,6 +406,7 @@ def do_jar_build(tool_lang, src, env):
 
 
 def do_go_build(src, env):
+    """Method to build go apps"""
     build_artefacts = {
         "mage": find_files(src, "magefile.go", False, False),
         "go": find_go_mods(src),
@@ -414,6 +416,7 @@ def do_go_build(src, env):
 
 
 def do_build(tool_lang, src, cwd, env):
+    """Method to build various apps"""
     if tool_lang in ("csharp",):
         if os.path.exists(os.path.join(src, "global.json")):
             LOG.debug(
@@ -431,6 +434,7 @@ def do_build(tool_lang, src, cwd, env):
 
 
 def troubleshoot_app(lang_build_crashes, tool_lang):
+    """Not implemented yet"""
     pass
 
 
@@ -443,10 +447,15 @@ def exec_tool(
     use_container=False,
     use_parse=False,
     auto_build=False,
-    extra_args={},
-    env=os.environ.copy(),
+    extra_args=None,
+    env=None,
     stdout=subprocess.DEVNULL,
 ):
+    """Method to execute tools to generate cpg or perform exports"""
+    if env is None:
+        env = os.environ.copy()
+    if extra_args is None:
+        extra_args = {}
     with Progress(
         console=console,
         transient=True,
@@ -504,15 +513,21 @@ def exec_tool(
             if build_tools_map.get(tool_lang):
                 if os.getenv("CI"):
                     LOG.debug(
-                        f"Automatically building {src} for {tool_lang}. To speed up this step, cache the build dependencies using the CI cache settings."
+                        "Automatically building %s for %s. To speed up this step, cache the build dependencies using the CI cache settings.",
+                        src,
+                        tool_lang,
                     )
                 elif use_container:
                     LOG.debug(
-                        f"Attempting to build {src} for {tool_lang} using the bundled build tools from the container image."
+                        "Attempting to build %s for %s using the bundled build tools from the container image.",
+                        src,
+                        tool_lang,
                     )
                 else:
                     LOG.debug(
-                        f"Attempting to build {src} for {tool_lang} using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution."
+                        "Attempting to build %s for %s using the locally available build tools.\nFor better results, please ensure the correct version of these tools are installed for your application.\nAlternatively, use container image based execution.",
+                        src,
+                        tool_lang,
                     )
                 lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)
             uber_jar = ""
@@ -521,7 +536,7 @@ def exec_tool(
             if "uber_jar" in cmd_with_args:
                 stdout = subprocess.PIPE
                 java_artifacts = find_java_artifacts(src)
-                if len(java_artifacts):
+                if len(java_artifacts) > 0:
                     uber_jar = java_artifacts[0]
             if "csharp_artifacts" in cmd_with_args:
                 stdout = subprocess.PIPE
@@ -576,7 +591,7 @@ def exec_tool(
                         if cpg_out.endswith(".bin.zip")
                         else f"{cpg_out}.manifest.json"
                     )
-                    LOG.debug(f"CPG file for {tool_lang} is {cpg_out}")
+                    LOG.debug("CPG file for %s is %s", tool_lang, cpg_out)
                 if not slice_out:
                     slice_out = cpg_out.replace(".bin.zip", ".slices")
                     slice_out = slice_out + (
@@ -634,16 +649,18 @@ def exec_tool(
                 lang_cmd = cmd_list_with_args[0]
                 if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
-                        LOG.warn(
-                            f"{lang_cmd} is not found. Try running cpggen with --use-container argument."
+                        LOG.warning(
+                            "%s is not found. Try running cpggen with --use-container argument.",
+                            lang_cmd,
                         )
                     elif not use_parse:
-                        LOG.warn(
+                        LOG.warning(
                             "Try running cpggen with --use-parse argument to use joern-parse command instead of language frontends."
                         )
                     else:
-                        LOG.warn(
-                            f"{lang_cmd} is not found. Ensure the PATH variable in your container image is set to the bin directory of Joern."
+                        LOG.warning(
+                            "%s is not found. Ensure the PATH variable in your container image is set to the bin directory of Joern.",
+                            lang_cmd,
                         )
                     return
                 # Is this an Export or Slice task?
@@ -662,19 +679,23 @@ def exec_tool(
                             cwd=cwd,
                             env=env,
                             check=False,
-                            shell=use_shell,
+                            shell=USE_SHELL,
                             encoding="utf-8",
                         )
                         # Bug. joern-vectors doesn't create json
                         if tool_lang == "vectors" and cp and cp.stdout:
                             os.makedirs(cpg_out_dir, exist_ok=True)
                             with open(
-                                os.path.join(cpg_out_dir, "vectors.json"), mode="w"
+                                os.path.join(cpg_out_dir, "vectors.json"),
+                                mode="w",
+                                encoding="utf-8",
                             ) as fp:
                                 fp.write(cp.stdout)
                         if cp and cp.returncode and cp.stderr:
-                            LOG.warn(
-                                f"{tool_lang.capitalize()} operation has failed for {src}"
+                            LOG.warning(
+                                "%s operation has failed for %s",
+                                tool_lang.capitalize(),
+                                src,
                             )
                             if not os.getenv("AT_DEBUG_MODE"):
                                 LOG.info(
@@ -687,12 +708,13 @@ def exec_tool(
                                 LOG.info(cp.stderr)
                                 LOG.info("------------------------------")
                                 LOG.info(
-                                    f"Command used {' '.join(cmd_list_with_args)}\nPlease report the above error to https://github.com/joernio/joern/issues"
+                                    "Command used %s\nPlease report the above error to https://github.com/joernio/joern/issues",
+                                    " ".join(cmd_list_with_args),
                                 )
                         else:
                             check_dir = (
                                 cpg_out_dir
-                                if tool_lang in ("export")
+                                if tool_lang == "export"
                                 else (
                                     os.path.join(cpg_out_dir, "vectors.json")
                                     if tool_lang == "vectors"
@@ -702,11 +724,16 @@ def exec_tool(
                             if os.path.exists(check_dir):
                                 if tool_lang == "vectors":
                                     LOG.info(
-                                        f"CPG {src} successfully vectorized to {check_dir}"
+                                        "CPG %s successfully vectorized to %s",
+                                        src,
+                                        check_dir,
                                     )
                                 else:
                                     LOG.info(
-                                        f"CPG {src} successfully {tool_lang + ('d' if tool_lang.endswith('e') else 'ed')} to {check_dir}"
+                                        "CPG %s successfully %s to {check_dir}",
+                                        src,
+                                        tool_lang
+                                        + ("d" if tool_lang.endswith("e") else "ed"),
                                     )
                                 # Convert dot files to png
                                 if tool_lang == "export":
@@ -718,12 +745,22 @@ def exec_tool(
                                     )
                                     dot_convert(cpg_out_dir, env)
                             else:
-                                LOG.warn(
-                                    f"Unable to {tool_lang} {src} to {check_dir}. Try running joern-{tool_lang} manually using the command {' '.join(cmd_list_with_args)}"
+                                LOG.warning(
+                                    "Unable to %s %s to %s. Try running joern-%s manually using the command %s",
+                                    tool_lang,
+                                    src,
+                                    check_dir,
+                                    tool_lang,
+                                    " ".join(cmd_list_with_args),
                                 )
                     except Exception as e:
-                        LOG.warn(f"Unable to {tool_lang} {src} to {cpg_out_dir}")
-                        LOG.error(e)
+                        LOG.warning(
+                            "Unable to %s %s to %s",
+                            tool_lang,
+                            src,
+                            cpg_out_dir,
+                            exc_info=True,
+                        )
                     progress.update(task, completed=100, total=100)
                     continue
                 LOG.debug(
@@ -748,7 +785,7 @@ def exec_tool(
                         # Enable debug for sbom tool
                         if LOG.isEnabledFor(DEBUG):
                             env["SCAN_DEBUG_MODE"] = "debug"
-                        LOG.debug(f"Executing {' '.join(sbom_cmd_list_with_args)}")
+                        LOG.debug("Executing %s", " ".join(sbom_cmd_list_with_args))
 
                         cp = subprocess.run(
                             sbom_cmd_list_with_args,
@@ -757,7 +794,7 @@ def exec_tool(
                             cwd=cwd,
                             env=env,
                             check=False,
-                            shell=use_shell,
+                            shell=USE_SHELL,
                             encoding="utf-8",
                         )
                         if cp and LOG.isEnabledFor(DEBUG):
@@ -765,7 +802,7 @@ def exec_tool(
                                 LOG.debug(cp.stdout)
                             if cp.stderr:
                                 LOG.debug(cp.stderr)
-                    except Exception:
+                    except subprocess.SubprocessError:
                         # Ignore SBoM errors
                         pass
                 progress.update(
@@ -781,7 +818,7 @@ def exec_tool(
                     cwd=cwd,
                     env=env,
                     check=False,
-                    shell=use_shell,
+                    shell=USE_SHELL,
                     encoding="utf-8",
                 )
                 if cp and stdout == subprocess.PIPE:
@@ -796,18 +833,23 @@ def exec_tool(
                     # go2cpg seems to produce a cpg without read permissions
                     try:
                         os.chmod(cpg_out, 0o644)
-                    except Exception:
+                    except OSError:
                         # Ignore errors
                         pass
                     if os.getenv("CI"):
                         LOG.info(
-                            f"""CPG {cpg_out} generated successfully for {tool_lang}."""
+                            """CPG %s generated successfully for %s.""",
+                            cpg_out,
+                            tool_lang,
                         )
                     else:
                         LOG.info(
-                            f"""CPG for {tool_lang} is {cpg_out}. You can import this in joern using importCpg("{cpg_out}")"""
+                            """CPG for %s is %s. You can import this in joern using importCpg("%s")""",
+                            tool_lang,
+                            cpg_out,
+                            cpg_out,
                         )
-                    with open(manifest_out, mode="w") as mfp:
+                    with open(manifest_out, mode="w", encoding="utf-8") as mfp:
                         # In case of github action, we need to convert this to relative path
                         if os.getenv("GITHUB_PATH"):
                             cpg_out = cpg_out.replace("/github/workspace/", "")
@@ -831,7 +873,7 @@ def exec_tool(
                         if extra_args.get("url") and extra_args.get("url").startswith(
                             "pkg:"
                         ):
-                            full_app_name = to_friendly_name(extra_args.get("url"))
+                            full_app_name = purl_to_friendly_name(extra_args.get("url"))
                         app_manifest = {
                             "src": amodule,
                             "group": app_base_name,
@@ -855,7 +897,7 @@ def exec_tool(
                             qwiet_analysis(app_manifest, src, cwd, env)
                         json.dump(app_manifest, mfp)
                 else:
-                    LOG.info(f"CPG {cpg_out} was not generated for {tool_lang}")
+                    LOG.info("CPG %s was not generated for %s", cpg_out, tool_lang)
                     if not os.getenv("AT_DEBUG_MODE"):
                         LOG.info(
                             "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
@@ -871,5 +913,5 @@ def exec_tool(
                 LOG.info(
                     "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                 )
-            LOG.warn(e)
+            LOG.warning(e)
     return app_manifest_list
