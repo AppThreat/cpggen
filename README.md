@@ -12,7 +12,7 @@
 CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io) for multiple languages. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to [Qwiet.AI](https://docs.shiftleft.io/home) for analysis.
 
 [![release](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml)
-[![GitHub All Releases](https://img.shields.io/github/downloads/appthreat/cpggen/total.svg)](https://github.com/appthreat/cpggen/releases/)
+[![Downloads](https://static.pepy.tech/badge/cpggen)](https://pepy.tech/project/cpggen)
 [![Discord](https://img.shields.io/badge/-Discord-lime?style=for-the-badge&logo=discord&logoColor=white&color=black)](https://discord.gg/tmmtjCEHNV)
 
 ## Pre-requisites
