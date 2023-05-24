@@ -47,18 +47,22 @@ try:
 except ImportError:
     HAVE_RESOURCE_READER = False
 
+atom_dir = None
+atom_exploded = None
 if HAVE_RESOURCE_READER:
-    atom_dir = importlib.resources.contents("cpggen.atom")
-    zfiles = [rf for rf in atom_dir if rf == "atom.zip"]
+    res_atom_dir = importlib.resources.contents("cpggen.atom")
+    zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
     if zfiles:
         atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
 else:
     atom_dir = (Path(__file__).parent / "atom").absolute()
-atom_bundled = os.path.join(atom_dir, "atom.zip")
-atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
+
+if atom_dir:
+    atom_bundled = os.path.join(atom_dir, "atom.zip")
+    atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
 
 # Extract bundled atom
-if not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
     try:
         with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
             zip_ref.extractall(atom_dir)
@@ -67,7 +71,7 @@ if not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
     except Exception as e:
         LOG.error(e)
 
-if os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
     os.environ["ATOM_HOME"] = atom_exploded
     os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
     os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
