@@ -50,10 +50,13 @@ except ImportError:
 atom_dir = None
 atom_exploded = None
 if HAVE_RESOURCE_READER:
-    res_atom_dir = importlib.resources.contents("cpggen.atom")
-    zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
-    if zfiles:
-        atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
+    try:
+        res_atom_dir = importlib.resources.contents("cpggen.atom")
+        zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
+        if zfiles:
+            atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
+    except Exception:
+        pass
 else:
     atom_dir = (Path(__file__).parent / "atom").absolute()
 
