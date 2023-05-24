@@ -1,0 +1,4 @@
+tests/
+contrib/
+ci/
+bin-build/

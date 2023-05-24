@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - main
-    - fix/*
+    - feature/*
     tags:
     - 'v*'
   schedule:
@@ -26,6 +26,14 @@ jobs:
       with:
         repository: CycloneDX/cdxgen
         path: cdxgen
+    - uses: actions/checkout@v3
+      with:
+        repository: 'ShiftLeftSecurity/shiftleft-java-example'
+        path: 'repotests/shiftleft-java-example'
+    - uses: actions/checkout@v3
+      with:
+        repository: 'ShiftLeftSecurity/shiftleft-ts-example'
+        path: 'repotests/shiftleft-ts-example'
     - uses: actions/checkout@v3
       with:
         repository: 'HooliCorp/vulnerable_net_core'
@@ -56,23 +64,40 @@ jobs:
         pkg -t node18-linux --public package.json --out-path dist
         chmod +x dist/cdxgen
         ./dist/cdxgen --version
+    - name: Binary amd64 oss build
+      run: |
+        mkdir -p /tmp/all_cpgs /tmp/all_exports
+        cd $GITHUB_WORKSPACE/cpggen
+        curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-oss-linux-amd64 \
+          --add-binary="atom.zip:local_bin" \
+          --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        ./dist/cpggen-oss-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+        ./dist/cpggen-oss-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+        sha256sum ./dist/cpggen-oss-linux-amd64 > ./dist/cpggen-oss-linux-amd64.sha256
+        ./dist/cpggen-oss-linux-amd64 --help
+      env:
+        AT_DEBUG_MODE: debug
+    - uses: actions/upload-artifact@v1
+      if: startsWith(github.ref, 'refs/tags/') != true
+      with:
+        path: ./cpggen/dist
+        name: cpggen-oss-linux-amd64
     - name: Binary amd64 build
       run: |
-        mkdir /tmp/all_cpgs /tmp/all_exports
-        cd cpggen
-        curl -LO https://github.com/joernio/joern/releases/latest/download/joern-cli.zip
+        cd $GITHUB_WORKSPACE/cpggen
+        curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
         curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o java2cpg.jar
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 \
           --add-binary="java2cpg.jar:local_bin" \
-          --add-binary="csharp2cpg.zip:local_bin/joern-cli" --add-binary="go2cpg:local_bin/joern-cli" --add-binary="joern-cli.zip:local_bin" \
+          --add-binary="csharp2cpg.zip:local_bin/atom-1.0.0" --add-binary="go2cpg:local_bin/atom-1.0.0" --add-binary="atom.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
-        sha256sum ./joern-cli.zip > ./dist/joern-cli.zip.sha256
         ./dist/cpggen-linux-amd64 --help
       env:
         AT_DEBUG_MODE: debug
@@ -87,6 +112,10 @@ jobs:
       run: |
         cd ./cpggen/dist
         echo $GITHUB_TOKEN | oras login ghcr.io -u $GITHUB_USERNAME --password-stdin
+        oras push ghcr.io/appthreat/cpggen-oss-bin:v1 \
+          --config ../../bin-build/config.json:application/vnd.oras.config.v1+json \
+          --annotation-file ../../bin-build/annotations.json \
+          ./cpggen-oss-linux-amd64:application/vnd.appthreat.cpggen.layer.v1+tar
         oras push ghcr.io/appthreat/cpggen-bin:v1 \
           --config ../../bin-build/config.json:application/vnd.oras.config.v1+json \
           --annotation-file ../../bin-build/annotations.json \
@@ -104,6 +133,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
+          cpggen/dist/cpggen-oss-linux-amd64
+          cpggen/dist/cpggen-oss-linux-amd64.sha256
           cpggen/dist/cpggen-linux-amd64
           cpggen/dist/cpggen-linux-amd64.sha256
-          cpggen/dist/joern-cli.zip.sha256

@@ -54,13 +54,28 @@ jobs:
           oras pull ghcr.io/appthreat/cpggen-bin:v1
           chmod +x cpggen-linux-amd64
           ./cpggen-linux-amd64 --help
+          oras pull ghcr.io/appthreat/cpggen-oss-bin:v1
+          chmod +x cpggen-oss-linux-amd64
+          ./cpggen-oss-linux-amd64 --help
           ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
+          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
+            echo "Java direct test was successful"
+          else
+            echo "Java direct test was not successful"
+          fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
+            echo "JS direct test was successful"
+          else
+            echo "JS direct test was not successful"
+          fi
+          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
             echo "JS direct test was successful"
           else
@@ -76,6 +91,7 @@ jobs:
           ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
           ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          ./cpggen-oss-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
           ./cpggen-linux-amd64 -i repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
           ls -ltr /tmp/all_cpgs

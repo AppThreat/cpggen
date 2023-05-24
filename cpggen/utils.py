@@ -2,8 +2,8 @@ import json
 import os
 import re
 import shutil
-import tempfile
 import tarfile
+import tempfile
 import zipfile
 from pathlib import Path
 from sys import platform

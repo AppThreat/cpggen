@@ -1,4 +1,5 @@
 import os
+
 import httpx
 
 # GitHub advisory feed url
