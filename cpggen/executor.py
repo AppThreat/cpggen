@@ -638,7 +638,7 @@ def exec_tool(
                     else os.path.abspath(
                         os.path.join(
                             cpg_out_dir,
-                            f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin",
+                            f"{os.path.basename(amodule)}-{tool_lang_simple}.cpg.bin",
                         )
                     )
                 )

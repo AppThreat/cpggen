@@ -39,13 +39,13 @@ jobs:
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
           cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
           cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
@@ -106,31 +106,31 @@ jobs:
           chmod +x cpggen-oss-linux-amd64
           ./cpggen-oss-linux-amd64 --help
           ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
           ./cpggen-oss-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
           fi
           ./cpggen-oss-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
-          if [ -e "/tmp/all_cpgs/shiftleft-go-example/shiftleft-go-example-go-cpg.bin" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-go-example/shiftleft-go-example-go.cpg.bin" ]; then
             echo "go direct test was successful"
           else
             echo "go direct test was not successful"
