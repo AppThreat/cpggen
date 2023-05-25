@@ -38,7 +38,7 @@ jobs:
       - name: bundle_tests
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
-          cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin" ]; then
             echo "Java direct test was successful"
           else
@@ -51,6 +51,7 @@ jobs:
             echo "JS direct test was not successful"
           fi
           cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          ls -lh /tmp/all_cpgs
   linux-exe-tests:
     runs-on: ubuntu-latest
     if: "! contains(github.event.head_commit.message, '[ci skip]')"
