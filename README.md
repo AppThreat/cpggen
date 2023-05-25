@@ -95,7 +95,7 @@ oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
 
 ### PyPI package
 
-This would install just the python cli tool without any CPG language frontends. Joern must be installed separately to make the cli work.
+This would install just the python cli tool without any CPG language frontends. Atom or Joern must be installed separately to make the cli work.
 
 ```
 pip install cpggen
@@ -127,6 +127,13 @@ To use the container image with only open-source CPG frontends without any Qwiet
 ```
 docker pull ghcr.io/appthreat/cpggen-oss
 # podman pull ghcr.io/appthreat/cpggen-oss
+```
+
+Finally, a slimmer image based on atom distribution.
+
+```
+docker pull ghcr.io/appthreat/cpggen-slim
+# podman pull ghcr.io/appthreat/cpggen-slim
 ```
 
 ## Usage
