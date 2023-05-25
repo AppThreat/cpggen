@@ -4,6 +4,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  atom-bundled-tests:
+    runs-on: ubuntu-latest
+    if: "! contains(github.event.head_commit.message, '[ci skip]')"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-java-example'
+          path: 'repotests/shiftleft-java-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'ShiftLeftSecurity/shiftleft-ts-example'
+          path: 'repotests/shiftleft-ts-example'
+      - uses: actions/checkout@v3
+        with:
+          repository: 'HooliCorp/DjanGoat'
+          path: 'repotests/DjanGoat'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cpggen
+      - name: bundle_tests
+        run: |
+          mkdir /tmp/all_cpgs /tmp/all_exports
+          cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
+            echo "Java direct test was successful"
+          else
+            echo "Java direct test was not successful"
+          fi
+          cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
+            echo "JS direct test was successful"
+          else
+            echo "JS direct test was not successful"
+          fi
+          cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
   linux-exe-tests:
     runs-on: ubuntu-latest
     if: "! contains(github.event.head_commit.message, '[ci skip]')"
@@ -54,13 +94,28 @@ jobs:
           oras pull ghcr.io/appthreat/cpggen-bin:v1
           chmod +x cpggen-linux-amd64
           ./cpggen-linux-amd64 --help
+          oras pull ghcr.io/appthreat/cpggen-oss-bin:v1
+          chmod +x cpggen-oss-linux-amd64
+          ./cpggen-oss-linux-amd64 --help
           ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
           fi
+          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java-cpg.bin.zip" ]; then
+            echo "Java direct test was successful"
+          else
+            echo "Java direct test was not successful"
+          fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
+            echo "JS direct test was successful"
+          else
+            echo "JS direct test was not successful"
+          fi
+          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js-cpg.bin.zip" ]; then
             echo "JS direct test was successful"
           else
@@ -76,6 +131,7 @@ jobs:
           ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
           ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          ./cpggen-oss-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
           ./cpggen-linux-amd64 -i repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
           ls -ltr /tmp/all_cpgs

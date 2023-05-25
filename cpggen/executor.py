@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import shutil
@@ -35,11 +36,55 @@ bin_ext = ".bat" if sys.platform == "win32" else ".sh"
 exe_ext = ".exe" if sys.platform == "win32" else ""
 USE_SHELL = True if sys.platform == "win32" else False
 
+ATOM_VERSION = "1.0.0"
+
+try:
+    import importlib.resources
+
+    # Defeat lazy module importers.
+    importlib.resources.open_text
+    HAVE_RESOURCE_READER = True
+except ImportError:
+    HAVE_RESOURCE_READER = False
+
+atom_dir = None
+atom_exploded = None
+if HAVE_RESOURCE_READER:
+    try:
+        res_atom_dir = importlib.resources.contents("cpggen.atom")
+        zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
+        if zfiles:
+            atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
+    except Exception:
+        pass
+else:
+    atom_dir = (Path(__file__).parent / "atom").absolute()
+
+if atom_dir:
+    atom_bundled = os.path.join(atom_dir, "atom.zip")
+    atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
+
+# Extract bundled atom
+if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+    try:
+        with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
+            zip_ref.extractall(atom_dir)
+            os.chmod(os.path.join(atom_exploded, "bin", "atom"), 0o755)
+            LOG.debug("Extracted %s", atom_bundled)
+    except Exception as e:
+        LOG.error(e)
+
+if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+    os.environ["ATOM_HOME"] = atom_exploded
+    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
+    os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
+
 
 def resource_path(relative_path):
+    """Function to construct the path to resources in a bundled exe"""
     try:
-        base_path = sys._MEIPASS
-    except Exception:
+        base_path = getattr(sys, "_MEIPASS")
+    except AttributeError:
         base_path = os.path.dirname(__file__)
     return os.path.join(base_path, relative_path)
 
@@ -50,18 +95,20 @@ cdxgen_cmd = os.environ.get("CDXGEN_CMD", "cdxgen")
 local_bin_dir = resource_path("local_bin")
 if os.path.exists(local_bin_dir):
     csharp2cpg_bundled = resource_path(
-        os.path.join("local_bin", "joern-cli", "csharp2cpg.zip")
+        os.path.join("local_bin", f"atom-{ATOM_VERSION}", "csharp2cpg.zip")
     )
-    joern_bundled = resource_path(os.path.join("local_bin", "joern-cli.zip"))
+    atom_bundled = resource_path(os.path.join("local_bin", "atom.zip"))
     if os.path.exists(csharp2cpg_bundled) and not os.path.exists(
-        os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
+        os.path.join(local_bin_dir, f"atom-{ATOM_VERSION}", "bin", "csharp2cpg")
     ):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
-                zip_ref.extractall(os.path.join(local_bin_dir, "joern-cli"))
+                zip_ref.extractall(os.path.join(local_bin_dir, f"atom-{ATOM_VERSION}"))
                 LOG.debug("Extracted %s", csharp2cpg_bundled)
                 if not os.path.exists(
-                    os.path.join(local_bin_dir, "joern-cli", "bin", "csharp2cpg")
+                    os.path.join(
+                        local_bin_dir, f"atom-{ATOM_VERSION}", "bin", "csharp2cpg"
+                    )
                 ):
                     LOG.debug("csharp2cpg could not be found after extraction")
         except Exception as e:
@@ -69,11 +116,11 @@ if os.path.exists(local_bin_dir):
                 "cpggen was prevented from extracting the csharp2cpg frontend.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
             )
             LOG.error(e)
-    if os.path.exists(joern_bundled) and not os.path.exists(
-        os.path.join(local_bin_dir, "joern-cli", "c2cpg.sh")
+    if os.path.exists(atom_bundled) and not os.path.exists(
+        os.path.join(local_bin_dir, f"atom-{ATOM_VERSION}", "bin", "atom")
     ):
         try:
-            with zipfile.ZipFile(joern_bundled, "r") as zip_ref:
+            with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
                 zip_ref.extractall(local_bin_dir)
                 # Add execute permissions
                 for dirname, subdirs, files in os.walk(local_bin_dir):
@@ -82,12 +129,18 @@ if os.path.exists(local_bin_dir):
                             filename.endswith("%(bin_ext)s")
                             or "2cpg" in filename
                             or "joern-" in filename
+                            or "atom" in filename
                         ):
                             os.chmod(os.path.join(dirname, filename), 0o755)
-                LOG.debug("Extracted %s", joern_bundled)
-                os.environ["JOERN_HOME"] = os.path.join(local_bin_dir, "joern-cli")
+                LOG.debug("Extracted %s", atom_bundled)
+                os.environ["ATOM_HOME"] = os.path.join(
+                    local_bin_dir, f"atom-{ATOM_VERSION}"
+                )
+                os.environ["ATOM_BIN_DIR"] = os.path.join(
+                    local_bin_dir, f"atom-{ATOM_VERSION}", "bin", ""
+                )
                 os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
-                os.environ["PATH"] += os.sep + os.environ["JOERN_HOME"] + os.sep
+                os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
         except Exception as e:
             LOG.info(
                 "cpggen was prevented from extracting the joern library.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
@@ -120,6 +173,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
+    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -307,7 +361,7 @@ def dot_convert(export_out_dir, env):
                     shell=USE_SHELL,
                     encoding="utf-8",
                 )
-            except Exception as e:
+            except subprocess.SubprocessError as e:
                 LOG.debug(e)
     else:
         LOG.debug(
@@ -341,14 +395,14 @@ def do_x_build(src, env, build_artefacts, tool_lang):
                     gradle_cmd = "gradlew"
                     try:
                         os.chmod(os.path.join(base_dir, "gradlew"), 0o755)
-                    except Exception:
+                    except OSError:
                         # Ignore errors
                         pass
                 if os.path.exists(os.path.join(base_dir, "mvnw")):
                     maven_cmd = "mvnw"
                     try:
                         os.chmod(os.path.join(base_dir, "mvnw"), 0o755)
-                    except Exception:
+                    except OSError:
                         # Ignore errors
                         pass
                 build_args_str = build_args_str % dict(
@@ -445,7 +499,7 @@ def exec_tool(
     cwd=None,
     joern_home=None,
     use_container=False,
-    use_parse=False,
+    use_atom=False,
     auto_build=False,
     extra_args=None,
     env=None,
@@ -467,6 +521,13 @@ def exec_tool(
         lang_build_crashes = {}
         app_manifest_list = []
         tool_lang_simple = tool_lang.split("-")[0]
+        atom_home = os.getenv("ATOM_HOME", "")
+        atom_bin_dir = os.getenv("ATOM_BIN_DIR")
+        if not atom_bin_dir:
+            if atom_home:
+                atom_bin_dir = os.path.join(atom_home, "bin", "")
+            else:
+                atom_bin_dir = "/usr/local/bin/"
         # Set joern_home from environment variable
         # This is required to handle bundled exe mode
         if (
@@ -482,6 +543,11 @@ def exec_tool(
                 cwd = os.path.abspath(cwd)
         if joern_home and not joern_home.endswith(os.path.sep):
             joern_home = f"{joern_home}{os.path.sep}"
+        if atom_home and not atom_home.endswith(os.path.sep):
+            atom_home = f"{atom_home}{os.path.sep}"
+            # Use atom for supported languages if available
+            if tool_lang_simple in ("java", "c", "cpp", "js", "jimple", "ts", "python"):
+                use_atom = True
         try:
             stderr = subprocess.DEVNULL
             if LOG.isEnabledFor(DEBUG):
@@ -501,11 +567,11 @@ def exec_tool(
             )
             cpg_cmd_lang = tool_lang
             # If the intention is to export or slice then use joern-parse
-            if use_parse or (
+            if use_atom or (
                 extra_args
                 and (extra_args.get("for_export") or extra_args.get("for_slice"))
             ):
-                cpg_cmd_lang = "parse"
+                cpg_cmd_lang = "atom"
             cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
             if not cmd_with_args:
                 return
@@ -601,6 +667,7 @@ def exec_tool(
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
                     cpg_out=cpg_out,
+                    atom_bin_dir=atom_bin_dir,
                     joern_home=joern_home,
                     home_dir=str(Path.home()),
                     uber_jar=uber_jar,
@@ -641,6 +708,7 @@ def exec_tool(
                     cdxgen_args=f' {os.getenv("CDXGEN_ARGS", "").strip()}'
                     if os.getenv("CDXGEN_ARGS")
                     else "",
+                    atom_bin_dir=atom_bin_dir,
                     cpggen_bin_dir=os.getenv("CPGGEN_BIN_DIR", "/usr/local/bin"),
                     **extra_args,
                 )
@@ -653,9 +721,9 @@ def exec_tool(
                             "%s is not found. Try running cpggen with --use-container argument.",
                             lang_cmd,
                         )
-                    elif not use_parse:
+                    elif not use_atom:
                         LOG.warning(
-                            "Try running cpggen with --use-parse argument to use joern-parse command instead of language frontends."
+                            "Try running cpggen with --use-atom argument to use AppThreat atom command."
                         )
                     else:
                         LOG.warning(
@@ -753,7 +821,7 @@ def exec_tool(
                                     tool_lang,
                                     " ".join(cmd_list_with_args),
                                 )
-                    except Exception as e:
+                    except subprocess.SubprocessError:
                         LOG.warning(
                             "Unable to %s %s to %s",
                             tool_lang,
@@ -764,11 +832,10 @@ def exec_tool(
                     progress.update(task, completed=100, total=100)
                     continue
                 LOG.debug(
-                    '⚡︎ Generating CPG for the {} app "{}" - "{}"'.format(
-                        tool_lang,
-                        os.path.basename(amodule),
-                        " ".join(cmd_list_with_args),
-                    )
+                    '⚡︎ Generating CPG for the %s app "%s" - "%s"',
+                    tool_lang,
+                    os.path.basename(amodule),
+                    " ".join(cmd_list_with_args),
                 )
                 cwd = amodule
                 if tool_lang in ("binary",):
@@ -908,10 +975,10 @@ def exec_tool(
                         LOG.info(cp.stderr)
                     troubleshoot_app(lang_build_crashes, tool_lang)
                 progress.update(task, completed=100, total=100)
-        except Exception as e:
+        except subprocess.SubprocessError as se:
             if not os.getenv("AT_DEBUG_MODE"):
                 LOG.info(
                     "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
                 )
-            LOG.warning(e)
+            LOG.warning(se)
     return app_manifest_list

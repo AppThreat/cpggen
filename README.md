@@ -20,7 +20,7 @@ CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg
 - JDK 11 or above
 - Python 3.10
 - Docker or podman (Windows, Linux or Mac) or
-- Joern [natively installed](https://docs.joern.io/installation) (Linux only)
+- [Atom](https://github.com/AppThreat/atom#installation) or [Joern](https://docs.joern.io/installation)
 
 ## Installation
 
@@ -38,6 +38,14 @@ Download the executable binary for your operating system from the [releases page
 curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/cpggen-linux-amd64
 chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
+```
+
+OSS version without any Qwiet.AI binary frontends.
+
+```bash
+curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/cpggen-oss-linux-amd64
+chmod +x cpggen-oss-linux-amd64
+./cpggen-oss-linux-amd64 --help
 ```
 
 On Windows,
@@ -87,11 +95,20 @@ oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
 
 ### PyPI package
 
-This would install just the python cli tool without any CPG language frontends. Joern must be installed separately to make the cli work.
+This would install the python cli tool with bundled [atom](https://github.com/AppThreat/atom) distribution.
 
 ```
 pip install cpggen
 ```
+
+With atom, CPG can be generated for the following languages:
+
+- C/C++
+- Java
+- Jars
+- JavaScript/TypeScript
+
+Install joern and set the `JOERN_HOME` environment variable if you would like support for additional languages.
 
 ### Bundled container image
 
@@ -289,7 +306,7 @@ optional arguments:
   --slice               Extract intra-procedural slices from the CPG
   --slice-mode {Usages,DataFlow}
                         Mode used for CPG slicing
-  --use-parse           Use joern-parse command instead of invoking the language frontends. Useful when default overlays are important
+  --use-atom            Use atom toolkit
   --vectors             Extract vector representations of code from CPG
 ```
 
@@ -315,6 +332,7 @@ optional arguments:
 | ENABLE_SBOM             | Enable SBoM generation using cdxgen                                        |
 | JIMPLE_ANDROID_JAR      | Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
 | GITHUB_TOKEN            | Token with read:packages scope to analyze CVE or GitHub Advisory           |
+| USE_ATOM                | Use AppThreat atom instead of joern frontends                              |
 
 ## GitHub actions
 

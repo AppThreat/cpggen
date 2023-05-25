@@ -1,5 +1,6 @@
 import json
 import os
+
 import pytest
 
 from cpggen.source import ghsa

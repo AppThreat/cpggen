@@ -27,6 +27,15 @@ PRODUCT_LOGO = """
  ╚═════╝╚═╝      ╚═════╝
 """
 
+ATOM_LOGO = """
+ █████╗ ████████╗ ██████╗ ███╗   ███╗
+██╔══██╗╚══██╔══╝██╔═══██╗████╗ ████║
+███████║   ██║   ██║   ██║██╔████╔██║
+██╔══██║   ██║   ██║   ██║██║╚██╔╝██║
+██║  ██║   ██║   ╚██████╔╝██║ ╚═╝ ██║
+╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝
+"""
+
 app = Quart(__name__)
 app.config.from_prefixed_env()
 
@@ -65,12 +74,8 @@ def build_args():
         dest="auto_build",
         help="Attempt to build the project automatically",
         action="store_true",
-        default=True
-        if (
-            os.getenv("AUTO_BUILD") in ("true", "1")
-            or os.getenv("SHIFTLEFT_ACCESS_TOKEN")
-        )
-        else False,
+        default=os.getenv("AUTO_BUILD") in ("true", "1")
+        or os.getenv("SHIFTLEFT_ACCESS_TOKEN"),
     )
     parser.add_argument(
         "--joern-home",
@@ -102,7 +107,7 @@ def build_args():
     parser.add_argument(
         "--export",
         action="store_true",
-        default=True if os.getenv("CPG_EXPORT") in ("true", "1") else False,
+        default=os.getenv("CPG_EXPORT") in ("true", "1"),
         dest="export",
         help="Export CPG as a graph",
     )
@@ -135,16 +140,15 @@ def build_args():
     parser.add_argument(
         "--skip-sbom",
         action="store_true",
-        default=True
-        if not os.getenv("SHIFTLEFT_ACCESS_TOKEN") and not os.getenv("ENABLE_SBOM")
-        else False,
+        default=not os.getenv("SHIFTLEFT_ACCESS_TOKEN")
+        and not os.getenv("ENABLE_SBOM"),
         dest="skip_sbom",
         help="Do not generate SBoM",
     )
     parser.add_argument(
         "--slice",
         action="store_true",
-        default=True if os.getenv("CPG_SLICE") in ("true", "1") else False,
+        default=os.getenv("CPG_SLICE") in ("true", "1"),
         dest="slice",
         help="Extract intra-procedural slices from the CPG",
     )
@@ -156,17 +160,16 @@ def build_args():
         help="Mode used for CPG slicing",
     )
     parser.add_argument(
-        "--use-parse",
-        dest="use_parse",
-        help="Use joern-parse command instead of invoking the language frontends. Useful when default overlays are "
-        "important",
+        "--use-atom",
+        dest="use_atom",
+        help="Use atom toolkit",
         action="store_true",
-        default=False,
+        default=os.getenv("USE_ATOM") in ("true", "1"),
     )
     parser.add_argument(
         "--vectors",
         action="store_true",
-        default=True if os.getenv("CPG_VECTORS") in ("true", "1") else False,
+        default=os.getenv("CPG_VECTORS") in ("true", "1"),
         dest="vectors",
         help="Extract vector representations of code from CPG",
     )
@@ -181,12 +184,11 @@ async def index():
 
 def run_server(args):
     """Run cpggen as a server"""
-    console.print(PRODUCT_LOGO, style="info")
     console.print(f"cpggen server running on {args.server_host}:{args.server_port}")
     app.run(
         host=args.server_host,
         port=args.server_port,
-        debug=True if os.getenv("AT_DEBUG_MODE") in ("debug", "true", "1") else False,
+        debug=os.getenv("AT_DEBUG_MODE") in ("debug", "true", "1"),
         use_reloader=False,
     )
 
@@ -204,7 +206,7 @@ async def generate_cpg():
     skip_sbom = True
     export = False
     should_slice = False
-    use_parse = False
+    use_atom = False
     slice_mode = "Usages"
     app_manifest_list = []
     errors_warnings = []
@@ -272,9 +274,6 @@ async def generate_cpg():
     else:
         languages = languages.split(",")
     for lang in languages:
-        # Use the deps version of the language when using auto build mode
-        if lang in ("c", "cpp", "java", "kotlin") and auto_build:
-            lang = f"{lang}-with-deps"
         mlist = executor.exec_tool(
             lang,
             src,
@@ -284,7 +283,7 @@ async def generate_cpg():
                 "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
             ),
             use_container=False,
-            use_parse=use_parse,
+            use_atom=use_atom,
             auto_build=auto_build,
             extra_args={
                 "skip_sbom": skip_sbom,
@@ -313,7 +312,7 @@ async def generate_cpg():
                         "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
                     ),
                     use_container=False,
-                    use_parse=use_parse,
+                    use_atom=use_atom,
                     auto_build=False,
                     extra_args={
                         "slice_mode": slice_mode,
@@ -374,7 +373,7 @@ def cpg(
     languages,
     joern_home,
     use_container=False,
-    use_parse=False,
+    use_atom=False,
     auto_build=False,
     skip_sbom=False,
     export=False,
@@ -398,10 +397,10 @@ def cpg(
                     else:
                         utils.download_package_unsafe(src, clone_dir)
                     src = clone_dir
-                    if not languages or languages == "autodetect":
-                        languages = utils.detect_project_type(src)
-                    else:
-                        languages = languages.split(",")
+                if not languages or languages == "autodetect":
+                    languages = utils.detect_project_type(src)
+                else:
+                    languages = languages.split(",")
                 for lang in languages:
                     LOG.debug("Generating CPG for the language %s at %s", lang, src)
                     exec_results.append(
@@ -414,7 +413,7 @@ def cpg(
                                 src,
                                 joern_home,
                                 use_container,
-                                use_parse,
+                                use_atom,
                                 auto_build,
                                 {
                                     "skip_sbom": skip_sbom,
@@ -454,7 +453,7 @@ def export_slice_cpg(
     cpg_out_dir,
     joern_home,
     use_container,
-    use_parse,
+    use_atom,
     export,
     export_repr,
     export_format,
@@ -511,7 +510,7 @@ def export_slice_cpg(
                             cpg_out_dir,
                             joern_home,
                             use_container,
-                            use_parse,
+                            use_atom,
                             False,
                             {
                                 "export_repr": fix_export_repr(
@@ -533,7 +532,10 @@ def export_slice_cpg(
 
 def main():
     """Main method"""
-    print(PRODUCT_LOGO)
+    if os.getenv("ATOM_HOME"):
+        print(ATOM_LOGO)
+    else:
+        print(PRODUCT_LOGO)
     args = build_args()
     # Turn on verbose mode
     if args.verbose_mode:
@@ -548,7 +550,7 @@ def main():
         src = str(PurePath(src))
     joern_home = args.joern_home
     use_container = args.use_container
-    use_parse = args.use_parse
+    use_atom = args.use_atom
     is_bundled_exe = False
     try:
         if getattr(sys, "_MEIPASS"):
@@ -578,7 +580,7 @@ def main():
         args.language,
         joern_home=joern_home,
         use_container=use_container,
-        use_parse=use_parse,
+        use_atom=use_atom,
         auto_build=args.auto_build,
         skip_sbom=args.skip_sbom,
         export=args.export,
@@ -591,7 +593,7 @@ def main():
             cpg_out_dir,
             joern_home=joern_home,
             use_container=use_container,
-            use_parse=use_parse,
+            use_atom=use_atom,
             export=args.export,
             export_repr=args.export_repr,
             export_format=args.export_format,

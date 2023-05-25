@@ -4,7 +4,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
       org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
       org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
-      org.opencontainers.image.version="1.1.7" \
+      org.opencontainers.image.version="1.2.0" \
       org.opencontainers.image.vendor="AppThreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
@@ -39,6 +39,7 @@ ENV JOERN_HOME=/usr/local/bin \
 COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
+    && microdnf module enable maven -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3 python3-devel pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \

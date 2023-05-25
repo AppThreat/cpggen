@@ -1,0 +1,46 @@
+FROM almalinux/9-minimal:latest
+
+LABEL maintainer="appthreat" \
+      org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
+      org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
+      org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
+      org.opencontainers.image.version="1.2.0" \
+      org.opencontainers.image.vendor="AppThreat" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.title="cpggen" \
+      org.opencontainers.image.description="Generate CPG for multiple languages with atom" \
+      org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -w /app -t ghcr.io/appthreat/cpggen-slim cpggen"
+
+ENV JOERN_HOME=/usr/local/bin \
+    ATOM_VERSION=1.0.0 \
+    ATOM_HOME=/opt/atom-1.0.0 \
+    ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
+    JAVA_HOME="/etc/alternatives/jre_17" \
+    JAVA_17_HOME="/etc/alternatives/jre_17" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONIOENCODING="utf-8" \
+    CLASSPATH=$CLASSPATH:/usr/local/bin: \
+    PATH=${PATH}:/opt/atom/bin:${GOPATH}/bin:/usr/local/bin:/root/.local/bin:${JAVA_HOME}/bin:
+
+COPY . /usr/local/src/
+
+RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
+    && microdnf module enable maven -y \
+    && microdnf install -y git-core python3 python3-devel which tar zip unzip sudo \
+        java-17-openjdk-headless maven nodejs \
+    && curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip \
+    && unzip -q atom.zip -d /opt/ \
+    && rm atom.zip \
+    && ln -s /opt/atom-${ATOM_VERSION}/bin/atom /usr/local/bin/atom \
+    && useradd -ms /bin/bash atom \
+    && chown -R atom:atom /opt/atom-${ATOM_VERSION} \
+    && npm install -g @cyclonedx/cdxgen --omit=optional \
+    && python -m pip install --no-cache-dir poetry==1.3.2 \
+    && poetry config virtualenvs.create false \
+    && cd /usr/local/src/ && poetry install --no-cache --without dev \
+    && rm -rf /var/cache/yum \
+    && microdnf clean all
+
+WORKDIR /app
+
+CMD [ "cpggen" ]
