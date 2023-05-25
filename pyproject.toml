@@ -21,6 +21,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 exclude = ["contrib", "tests"]
+include = ["cpggen/atom/*"]
 
 [tool.poetry.scripts]
 cpggen = 'cpggen.cli:main'
