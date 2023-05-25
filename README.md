@@ -30,7 +30,7 @@ cpggen is available as a single executable binary, [PyPI package](https://pypi.o
 
 Download the executable binary for your operating system from the [releases page](https://github.com/appthreat/cpggen/releases). These binary bundle the following:
 
-- Joern with all the CPG frontends
+- [Atom](https://github.com/AppThreat/atom#installation)
 - cpggen with Python 3.10
 - cdxgen with Node.js 18 - Generates SBoM
 
@@ -228,7 +228,7 @@ cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --vectors
 
 Upon successful completion, cpggen would produce the following artifacts in the directory specified under `out_dir`
 
-- {name}-{lang}-cpg.bin.zip - Code Property Graph for the given language type
+- {name}-{lang}-cpg.bin - Code Property Graph for the given language type
 - {name}-{lang}-cpg.bom.xml - SBoM in CycloneDX XML format
 - {name}-{lang}-cpg.bom.json - SBoM in CycloneDX json format
 - {name}-{lang}-cpg.manifest.json - A json file listing the generated artifacts and the invocation commands
