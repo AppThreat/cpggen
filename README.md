@@ -95,20 +95,11 @@ oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
 
 ### PyPI package
 
-This would install the python cli tool with bundled [atom](https://github.com/AppThreat/atom) distribution.
+This would install just the python cli tool without any CPG language frontends. Joern must be installed separately to make the cli work.
 
 ```
 pip install cpggen
 ```
-
-With atom, CPG can be generated for the following languages:
-
-- C/C++
-- Java
-- Jars
-- JavaScript/TypeScript
-
-Install joern and set the `JOERN_HOME` environment variable if you would like support for additional languages.
 
 ### Bundled container image
 

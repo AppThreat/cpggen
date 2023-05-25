@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cpggen"
-version = "1.2.0"
+version = "1.2.1"
 description = "Generate CPG for multiple languages for use with joern"
 authors = ["Team AppThreat <cloud@appthreat.com>"]
 license = "Apache-2.0"
@@ -21,7 +21,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 exclude = ["contrib", "tests"]
-include = ["cpggen/atom/*"]
 
 [tool.poetry.scripts]
 cpggen = 'cpggen.cli:main'
