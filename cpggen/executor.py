@@ -571,7 +571,7 @@ def exec_tool(
                 extra_args
                 and (extra_args.get("for_export") or extra_args.get("for_slice"))
             ):
-                cpg_cmd_lang = "atom"
+                cpg_cmd_lang = "atom" if check_command("atom") else "parse"
             cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
             if not cmd_with_args:
                 return
