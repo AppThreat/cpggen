@@ -34,6 +34,7 @@ jobs:
         run: |
           poetry install --no-cache
           poetry run pytest --cov=cpggen tests
+          curl -L https://github.com/AppThreat/atom/releases/latest/download/atom.zip -o cpggen/atom/atom.zip
           poetry publish --build --username $PYPI_USERNAME --password $PYPI_PASSWORD
         env:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}

@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import shutil
@@ -36,6 +37,47 @@ exe_ext = ".exe" if sys.platform == "win32" else ""
 USE_SHELL = True if sys.platform == "win32" else False
 
 ATOM_VERSION = "1.0.0"
+
+try:
+    import importlib.resources
+
+    # Defeat lazy module importers.
+    importlib.resources.open_text
+    HAVE_RESOURCE_READER = True
+except ImportError:
+    HAVE_RESOURCE_READER = False
+
+atom_dir = None
+atom_exploded = None
+if HAVE_RESOURCE_READER:
+    try:
+        res_atom_dir = importlib.resources.contents("cpggen.atom")
+        zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
+        if zfiles:
+            atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
+    except Exception:
+        pass
+else:
+    atom_dir = (Path(__file__).parent / "atom").absolute()
+
+if atom_dir:
+    atom_bundled = os.path.join(atom_dir, "atom.zip")
+    atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
+
+# Extract bundled atom
+if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+    try:
+        with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
+            zip_ref.extractall(atom_dir)
+            os.chmod(os.path.join(atom_exploded, "bin", "atom"), 0o755)
+            LOG.debug("Extracted %s", atom_bundled)
+    except Exception as e:
+        LOG.error(e)
+
+if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+    os.environ["ATOM_HOME"] = atom_exploded
+    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
+    os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
 
 
 def resource_path(relative_path):
@@ -131,7 +173,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
-    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
+    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(cpg_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -590,13 +632,13 @@ def exec_tool(
                 slice_out = extra_args.get("slice_out", "")
                 cpg_out = (
                     cpg_out_dir
-                    if cpg_out_dir.endswith(".bin.zip")
+                    if cpg_out_dir.endswith(".cpg.bin")
                     or cpg_out_dir.endswith(".bin")
                     or cpg_out_dir.endswith(".cpg")
                     else os.path.abspath(
                         os.path.join(
                             cpg_out_dir,
-                            f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin.zip",
+                            f"{os.path.basename(amodule)}-{tool_lang_simple}-cpg.bin",
                         )
                     )
                 )
@@ -606,21 +648,18 @@ def exec_tool(
                     cpg_out = src
                 else:
                     sbom_out = (
-                        cpg_out.replace(".bin.zip", ".bom.xml")
-                        if cpg_out.endswith(".bin.zip")
+                        cpg_out.replace(".cpg.bin", ".bom.xml")
+                        if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.bom.xml"
                     )
                     manifest_out = (
-                        cpg_out.replace(".bin.zip", ".manifest.json")
-                        if cpg_out.endswith(".bin.zip")
+                        cpg_out.replace(".cpg.bin", ".manifest.json")
+                        if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.manifest.json"
                     )
                     LOG.debug("CPG file for %s is %s", tool_lang, cpg_out)
                 if not slice_out:
-                    slice_out = cpg_out.replace(".bin.zip", ".slices")
-                    slice_out = slice_out + (
-                        ".json" if extra_args.get("slice_mode") == "Usages" else ".cpg"
-                    )
+                    slice_out = cpg_out.replace(".cpg.bin", ".slices.json")
                     extra_args["slice_out"] = slice_out
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
