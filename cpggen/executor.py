@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import shutil
@@ -36,6 +37,47 @@ exe_ext = ".exe" if sys.platform == "win32" else ""
 USE_SHELL = True if sys.platform == "win32" else False
 
 ATOM_VERSION = "1.0.0"
+
+try:
+    import importlib.resources
+
+    # Defeat lazy module importers.
+    importlib.resources.open_text
+    HAVE_RESOURCE_READER = True
+except ImportError:
+    HAVE_RESOURCE_READER = False
+
+atom_dir = None
+atom_exploded = None
+if HAVE_RESOURCE_READER:
+    try:
+        res_atom_dir = importlib.resources.contents("cpggen.atom")
+        zfiles = [rf for rf in res_atom_dir if rf == "atom.zip"]
+        if zfiles:
+            atom_dir = (Path(__file__).parent / "atom" / zfiles[0]).parent.absolute()
+    except Exception:
+        pass
+else:
+    atom_dir = (Path(__file__).parent / "atom").absolute()
+
+if atom_dir:
+    atom_bundled = os.path.join(atom_dir, "atom.zip")
+    atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
+
+# Extract bundled atom
+if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+    try:
+        with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
+            zip_ref.extractall(atom_dir)
+            os.chmod(os.path.join(atom_exploded, "bin", "atom"), 0o755)
+            LOG.debug("Extracted %s", atom_bundled)
+    except Exception as e:
+        LOG.error(e)
+
+if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+    os.environ["ATOM_HOME"] = atom_exploded
+    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
+    os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
 
 
 def resource_path(relative_path):
