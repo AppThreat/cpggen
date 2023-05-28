@@ -80,6 +80,7 @@ jobs:
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
+            exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
@@ -87,12 +88,14 @@ jobs:
             echo "Java cpg test was successful"
           else
             echo "Java cpg test was not successful"
+            exit 1
           fi
           poetry run cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
+            exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           poetry run cpggen -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
@@ -100,6 +103,7 @@ jobs:
             echo "go direct test was successful"
           else
             echo "go direct test was not successful"
+            exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
           poetry run cpggen -i repotests/shiftleft-scala-example -o /tmp/all_cpgs/shiftleft-scala-example --build
@@ -110,6 +114,7 @@ jobs:
             echo "csharp cpg test was successful"
           else
             echo "csharp cpg test was not successful"
+            exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
@@ -121,6 +126,7 @@ jobs:
             echo "Binary cpg test was successful"
           else
             echo "Binary cpg test was not successful"
+            exit 1
           fi
           ls -ltr /tmp/all_cpgs
         env:

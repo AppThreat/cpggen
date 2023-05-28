@@ -41,12 +41,14 @@ jobs:
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
+            exit 1
           fi
           cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
+            exit 1
           fi
           cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ls -lh /tmp/all_cpgs
@@ -86,10 +88,6 @@ jobs:
         with:
           repository: 'GoogleCloudPlatform/microservices-demo'
           path: 'repotests/microservices-demo'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'juice-shop/juicy-malware'
-          path: 'repotests/juicy-malware'
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
@@ -108,30 +106,35 @@ jobs:
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
+            exit 1
           fi
           ./cpggen-oss-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example --export --export-out-dir /tmp/all_exports/shiftleft-java-example
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
+            exit 1
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
+            exit 1
           fi
           ./cpggen-oss-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
+            exit 1
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
           if [ -e "/tmp/all_cpgs/shiftleft-go-example/shiftleft-go-example-go.cpg.bin" ]; then
             echo "go direct test was successful"
           else
             echo "go direct test was not successful"
+            exit 1
           fi
           ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build
           ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
@@ -139,7 +142,6 @@ jobs:
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ./cpggen-oss-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
           ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
-          ./cpggen-linux-amd64 -i repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
           ls -ltr /tmp/all_cpgs
           ls -ltr /tmp/all_exports
         env:
@@ -181,10 +183,6 @@ jobs:
         with:
           repository: 'GoogleCloudPlatform/microservices-demo'
           path: 'repotests/microservices-demo'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'juice-shop/juicy-malware'
-          path: 'repotests/juicy-malware'
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
@@ -195,14 +193,13 @@ jobs:
           Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
           .\oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
           .\cpggen.exe --help
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example --export
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-go-example --build
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\vulnerable_net_core --build
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Goatly.NET --build
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo --build
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\juicy-malware\\juicy_malware_windows_64.exe
         env:
           AT_DEBUG_MODE: debug
           PYTHONIOENCODING: utf-8
