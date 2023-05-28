@@ -486,7 +486,7 @@ def export_slice_cpg(
                     # but would expect first level directories to exist
                     if os.path.exists(app_export_out_dir):
                         shutil.rmtree(app_export_out_dir, ignore_errors=True)
-                    os.makedirs(export_out_dir, exist_ok=True)
+                    os.makedirs(app_export_out_dir, exist_ok=True)
                     cpg_path = manifest_obj["cpg"]
                     # In case of GitHub action we need to fix the cpg_path to prefix GITHUB_WORKSPACE
                     # since the manifest would only have relative path
@@ -560,17 +560,6 @@ def main():
                 joern_home = ""
     except AttributeError:
         pass
-    if joern_home and not os.path.exists(joern_home) and not is_bundled_exe:
-        if utils.check_command("docker") or utils.check_command("podman"):
-            use_container = True
-        else:
-            console.print(
-                "Joern installation was not found. Please install joern by following the instructions at "
-                "https://joern.io and set the environment variable JOERN_HOME to the directory containing the cli tools"
-            )
-            console.print(
-                "Alternatively, ensure docker or podman is available to use cpggen container image"
-            )
     # GitHub action is very weird
     if os.getenv("GITHUB_PATH") and utils.check_command("joern"):
         joern_home = ""

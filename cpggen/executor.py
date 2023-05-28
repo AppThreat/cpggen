@@ -106,7 +106,11 @@ if os.path.exists(local_bin_dir):
         try:
             with zipfile.ZipFile(csharp2cpg_bundled, "r") as zip_ref:
                 zip_ref.extractall(os.path.join(local_bin_dir, f"atom-{ATOM_VERSION}"))
-                LOG.debug("Extracted %s", csharp2cpg_bundled)
+                LOG.debug(
+                    "Extracted %s to %s",
+                    csharp2cpg_bundled,
+                    os.path.join(local_bin_dir, f"atom-{ATOM_VERSION}"),
+                )
                 if not os.path.exists(
                     os.path.join(
                         local_bin_dir, f"atom-{ATOM_VERSION}", "bin", "csharp2cpg"
@@ -127,11 +131,17 @@ if os.path.exists(local_bin_dir):
                 # Add execute permissions
                 for dirname, subdirs, files in os.walk(local_bin_dir):
                     for filename in files:
-                        if not filename.endswith(".jar") and (
-                            filename.endswith("%(bin_ext)s")
-                            or "2cpg" in filename
-                            or "joern-" in filename
-                            or "atom" in filename
+                        if (
+                            not filename.endswith(".zip")
+                            and not filename.endswith(".jar")
+                            and not filename.endswith(".json")
+                            and not filename.endswith(".dll")
+                            and (
+                                filename.endswith("%(bin_ext)s")
+                                or "2cpg" in filename
+                                or "joern-" in filename
+                                or "atom" in filename
+                            )
                         ):
                             os.chmod(os.path.join(dirname, filename), 0o755)
                 LOG.debug("Extracted %s to %s", atom_bundled, local_bin_dir)
@@ -146,6 +156,8 @@ if os.path.exists(local_bin_dir):
                     os.environ["PATH"]
                     + os.pathsep
                     + os.environ["ATOM_BIN_DIR"]
+                    + os.pathsep
+                    + os.environ["CPGGEN_BIN_DIR"]
                     + os.pathsep
                 )
         except Exception as e:
@@ -196,9 +208,9 @@ cpg_tools_map = {
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
     "php": "%(joern_home)sphp2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "python": "%(joern_home)spysrc2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "csharp": "%(joern_home)sbin%(os_path_sep)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
-    "dotnet": "%(joern_home)sbin%(os_path_sep)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
-    "go": "%(joern_home)sgo2cpg%(exe_ext)s generate -o %(cpg_out)s ./...",
+    "csharp": "%(joern_home)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
+    "dotnet": "%(joern_home)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
+    "go": "%(cpggen_bin_dir)s/go2cpg%(exe_ext)s generate -o %(cpg_out)s ./...",
     "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
@@ -640,6 +652,7 @@ def exec_tool(
                 cpg_out = (
                     cpg_out_dir
                     if cpg_out_dir.endswith(".cpg.bin")
+                    or cpg_out_dir.endswith(".cpg.bin.zip")
                     or cpg_out_dir.endswith(".bin")
                     or cpg_out_dir.endswith(".cpg")
                     else os.path.abspath(
@@ -649,24 +662,33 @@ def exec_tool(
                         )
                     )
                 )
+                # BUG: go2cpg only works if the file extension is .cpg.bin.zip
+                if tool_lang_simple == "go" and not cpg_out.endswith(".cpg.bin.zip"):
+                    cpg_out = cpg_out.replace(".cpg.bin", ".cpg.bin.zip")
                 if tool_lang in ("export", "vectors"):
                     cpg_out = os.path.abspath(cpg_out_dir)
                 elif tool_lang == "slice":
                     cpg_out = src
                 else:
                     sbom_out = (
-                        cpg_out.replace(".cpg.bin", ".bom.xml")
+                        cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
+                            ".cpg.bin", ".bom.xml"
+                        )
                         if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.bom.xml"
                     )
                     manifest_out = (
-                        cpg_out.replace(".cpg.bin", ".manifest.json")
+                        cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
+                            ".cpg.bin", ".manifest.json"
+                        )
                         if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.manifest.json"
                     )
                     LOG.debug("CPG file for %s is %s", tool_lang, cpg_out)
                 if not slice_out:
-                    slice_out = cpg_out.replace(".cpg.bin", ".slices.json")
+                    slice_out = cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
+                        ".cpg.bin", ".slices.json"
+                    )
                     extra_args["slice_out"] = slice_out
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
@@ -968,7 +990,13 @@ def exec_tool(
                             qwiet_analysis(app_manifest, src, cwd, env)
                         json.dump(app_manifest, mfp)
                 else:
-                    LOG.info("CPG %s was not generated for %s", cpg_out, tool_lang)
+                    LOG.debug("Command with args: %s", " ".join(cmd_list_with_args))
+                    LOG.info(
+                        "CPG %s was not generated for %s. cwd: %s",
+                        cpg_out,
+                        tool_lang,
+                        cwd,
+                    )
                     if not os.getenv("AT_DEBUG_MODE"):
                         LOG.info(
                             "Set the environment variable AT_DEBUG_MODE to debug to see the debug logs"
