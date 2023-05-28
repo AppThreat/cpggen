@@ -70,14 +70,16 @@ if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundle
         with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
             zip_ref.extractall(atom_dir)
             os.chmod(os.path.join(atom_exploded, "bin", "atom"), 0o755)
-            LOG.debug("Extracted %s", atom_bundled)
+            LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
     except Exception as e:
         LOG.error(e)
 
 if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
     os.environ["ATOM_HOME"] = atom_exploded
     os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
-    os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
+    os.environ["PATH"] = (
+        os.environ["PATH"] + os.pathsep + os.environ["ATOM_BIN_DIR"] + os.pathsep
+    )
 
 
 def resource_path(relative_path):
@@ -132,7 +134,7 @@ if os.path.exists(local_bin_dir):
                             or "atom" in filename
                         ):
                             os.chmod(os.path.join(dirname, filename), 0o755)
-                LOG.debug("Extracted %s", atom_bundled)
+                LOG.debug("Extracted %s to %s", atom_bundled, local_bin_dir)
                 os.environ["ATOM_HOME"] = os.path.join(
                     local_bin_dir, f"atom-{ATOM_VERSION}"
                 )
@@ -140,10 +142,15 @@ if os.path.exists(local_bin_dir):
                     local_bin_dir, f"atom-{ATOM_VERSION}", "bin", ""
                 )
                 os.environ["CPGGEN_BIN_DIR"] = local_bin_dir
-                os.environ["PATH"] += os.sep + os.environ["ATOM_BIN_DIR"] + os.sep
+                os.environ["PATH"] = (
+                    os.environ["PATH"]
+                    + os.pathsep
+                    + os.environ["ATOM_BIN_DIR"]
+                    + os.pathsep
+                )
         except Exception as e:
             LOG.info(
-                "cpggen was prevented from extracting the joern library.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
+                "cpggen was prevented from extracting the atom library.\nPlease check if your terminal has administrative privileges or if the antivirus is preventing this process.\nAlternatively, use container-based execution."
             )
             LOG.error(e)
     if not shutil.which(cdxgen_cmd):
