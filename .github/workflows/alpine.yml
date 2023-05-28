@@ -37,7 +37,7 @@ jobs:
         npm install -g pkg
         cd cdxgen
         npm install --omit=dev
-        pkg -t node18-alpine --public package.json --out-path dist
+        pkg -t node18-alpine --public --out-path dist bin/cdxgen
         chmod +x dist/cdxgen
         ./dist/cdxgen --version
     - name: Binary alpine build
