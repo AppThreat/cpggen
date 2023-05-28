@@ -662,6 +662,7 @@ def exec_tool(
                         )
                     )
                 )
+                # BUG: go2cpg only works if the file extension is .cpg.bin.zip
                 if tool_lang_simple == "go" and not cpg_out.endswith(".cpg.bin.zip"):
                     cpg_out = cpg_out.replace(".cpg.bin", ".cpg.bin.zip")
                 if tool_lang in ("export", "vectors"):

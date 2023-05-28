@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - fix/*
     tags:
     - 'v*'
   schedule:
@@ -109,7 +108,7 @@ jobs:
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build -l go
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
-        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         ./dist/cpggen-linux-amd64 --help
       env:
