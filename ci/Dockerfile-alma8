@@ -19,9 +19,9 @@ ENV JOERN_HOME=/usr/local/bin \
     LANGUAGE=en_US.UTF-8 \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
-    SBT_VERSION=1.8.2 \
-    GRADLE_VERSION=8.0.2 \
-    GRADLE_HOME=/opt/gradle-8.0.2 \
+    SBT_VERSION=1.8.3 \
+    GRADLE_VERSION=8.1.1 \
+    GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
     JAVA_HOME="/etc/alternatives/jre_17" \
     JAVA_17_HOME="/etc/alternatives/jre_17" \
@@ -38,6 +38,7 @@ ENV JOERN_HOME=/usr/local/bin \
 COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
+    && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python38 python38-devel pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl10 zlib \
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \

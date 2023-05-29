@@ -1,4 +1,4 @@
-FROM almalinux/9-minimal:latest
+FROM almalinux:9.2-minimal
 
 LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
@@ -19,9 +19,9 @@ ENV JOERN_HOME=/usr/local/bin \
     LANGUAGE=en_US.UTF-8 \
     GOROOT=/usr/local/go \
     GO_VERSION=1.19.7 \
-    SBT_VERSION=1.8.2 \
-    GRADLE_VERSION=8.0.2 \
-    GRADLE_HOME=/opt/gradle-8.0.2 \
+    SBT_VERSION=1.8.3 \
+    GRADLE_VERSION=8.1.1 \
+    GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
     JAVA_HOME="/etc/alternatives/jre_17" \
     JAVA_17_HOME="/etc/alternatives/jre_17" \
@@ -39,10 +39,13 @@ ENV JOERN_HOME=/usr/local/bin \
 COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
-    && microdnf module enable maven -y \
-    && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3 python3-devel pcre2 which tar zip unzip sudo \
+    && microdnf module enable maven php -y \
+    && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \
+    && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
+    && python3 --version \
+    && python3 -m pip install --upgrade pip \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm; fi \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
@@ -87,7 +90,7 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /et
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \
     && npm install -g @cyclonedx/cdxgen --omit=optional \
-    && python -m pip install --no-cache-dir poetry==1.3.2 \
+    && python3 -m pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
     && cd /usr/local/src/ && poetry install --no-cache --without dev \
     && rm /joern-cli.zip /joern-install.sh \

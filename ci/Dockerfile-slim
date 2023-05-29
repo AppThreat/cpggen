@@ -1,4 +1,4 @@
-FROM almalinux/9-minimal:latest
+FROM almalinux:9.2-minimal
 
 LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
@@ -25,8 +25,11 @@ COPY . /usr/local/src/
 
 RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven -y \
-    && microdnf install -y git-core python3 python3-devel which tar zip unzip sudo \
+    && microdnf install -y git-core python3.11 python3.11-devel python3.11-pip which tar zip unzip sudo \
         java-17-openjdk-headless maven nodejs \
+    && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
+    && python3 --version \
+    && python3 -m pip install --upgrade pip \
     && curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip \
     && unzip -q atom.zip -d /opt/ \
     && rm atom.zip \
