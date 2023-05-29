@@ -51,10 +51,23 @@ jobs:
             echo "JS direct test was not successful"
             exit 1
           fi
-          cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+          cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
+          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin" ]; then
+            echo "Python direct test was successful"
+          else
+            echo "Python direct test was not successful"
+            exit 1
+          fi
+          cpggen -i CVE-2023-1664
+          cpggen -i GHSA-c892-cwq6-qrqf
+          cpggen -i CVE-2023-20883
+          cpggen -i GHSA-xf96-w227-r7c4
+          cpggen -i CVE-2023-32695
+          cpggen -i CVE-2023-28370
           ls -lh /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   linux-exe-tests:
     runs-on: ubuntu-latest
