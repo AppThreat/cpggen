@@ -62,6 +62,8 @@ jobs:
           cpggen -i GHSA-c892-cwq6-qrqf
           cpggen -i CVE-2023-20883
           cpggen -i GHSA-xf96-w227-r7c4
+          cpggen -i CVE-2023-32695
+          cpggen -i CVE-2023-28370
           ls -lh /tmp/all_cpgs
         env:
           AT_DEBUG_MODE: debug
