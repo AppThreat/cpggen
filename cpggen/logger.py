@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.theme import Theme
 
+# Disable logging from 'httpx' module to reduce unnecessary output
 for _ in ("httpx",):
     logging.getLogger(_).disabled = True
 
@@ -42,7 +43,7 @@ if (
 
 DEBUG = logging.DEBUG
 
-
+# Function to enable debug mode
 def enable_debug():
     LOG.setLevel(logging.DEBUG)
     os.environ["SHIFTLEFT_VERBOSE"] = "true"
