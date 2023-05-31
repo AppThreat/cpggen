@@ -49,7 +49,7 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=18\nprofiles=\nstate=enabled\n" > /et
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
     && go install github.com/magefile/mage@latest \
-    && curl -LO https://github.com/joernio/joern/releases/latest/download/joern-install.sh \
+    && curl -LO https://github.com/appthreat/joern/releases/latest/download/joern-install.sh \
     && chmod +x ./joern-install.sh \
     && ./joern-install.sh --without-plugins \
     && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \

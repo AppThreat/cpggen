@@ -47,7 +47,7 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /et
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm; fi \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
-    && curl -LO https://github.com/joernio/joern/releases/latest/download/joern-install.sh \
+    && curl -LO https://github.com/appthreat/joern/releases/latest/download/joern-install.sh \
     && chmod +x ./joern-install.sh \
     && ./joern-install.sh --without-plugins \
     && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
