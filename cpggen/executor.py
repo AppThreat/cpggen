@@ -802,7 +802,7 @@ def exec_tool(
                                 LOG.info(cp.stderr)
                                 LOG.info("------------------------------")
                                 LOG.info(
-                                    "Command used %s\nPlease report the above error to https://github.com/joernio/joern/issues",
+                                    "Command used %s\nPlease report the above error to https://github.com/appthreat/joern/issues",
                                     " ".join(cmd_list_with_args),
                                 )
                         else:
