@@ -11,6 +11,7 @@ from multiprocessing import Pool, freeze_support
 from pathlib import Path, PurePath
 
 from quart import Quart, request
+from quart.utils import run_sync
 
 from cpggen import executor, utils
 from cpggen.logger import LOG, console, enable_debug
@@ -208,7 +209,6 @@ async def generate_cpg():
     should_slice = False
     use_atom = False
     slice_mode = "Usages"
-    app_manifest_list = []
     errors_warnings = []
     vectors = False
     if not params:
@@ -273,64 +273,71 @@ async def generate_cpg():
         languages = utils.detect_project_type(src)
     else:
         languages = languages.split(",")
-    for lang in languages:
-        mlist = executor.exec_tool(
-            lang,
-            src,
-            cpg_out_dir,
-            src,
-            joern_home=os.getenv(
-                "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
-            ),
-            use_container=False,
-            use_atom=use_atom,
-            auto_build=auto_build,
-            extra_args={
-                "skip_sbom": skip_sbom,
-                "slice_mode": slice_mode,
-                "for_export": export,
-                "for_slice": should_slice,
-                "for_vectors": vectors,
-                "url": url,
-            },
-        )
-        if mlist:
-            app_manifest_list += mlist
-        if should_slice and mlist:
-            for ml in mlist:
-                if not os.path.exists(ml.get("cpg")):
-                    errors_warnings.append(
-                        f"""CPG file was not found at {ml.get("cpg")}"""
+
+    def sync_processor():
+        app_manifest_list = []
+        for lang in languages:
+            mlist = executor.exec_tool(
+                lang,
+                src,
+                cpg_out_dir,
+                src,
+                joern_home=os.getenv(
+                    "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
+                ),
+                use_container=False,
+                use_atom=use_atom,
+                auto_build=auto_build,
+                extra_args={
+                    "skip_sbom": skip_sbom,
+                    "slice_mode": slice_mode,
+                    "for_export": export,
+                    "for_slice": should_slice,
+                    "for_vectors": vectors,
+                    "url": url,
+                },
+            )
+            if mlist:
+                app_manifest_list += mlist
+            if should_slice and mlist:
+                for ml in mlist:
+                    if not os.path.exists(ml.get("cpg")):
+                        errors_warnings.append(
+                            f"""CPG file was not found at {ml.get("cpg")}"""
+                        )
+                        continue
+                    executor.exec_tool(
+                        "slice",
+                        ml.get("cpg"),
+                        cpg_out_dir,
+                        src,
+                        joern_home=os.getenv(
+                            "JOERN_HOME",
+                            str(Path.home() / "bin" / "joern" / "joern-cli"),
+                        ),
+                        use_container=False,
+                        use_atom=use_atom,
+                        auto_build=False,
+                        extra_args={
+                            "slice_mode": slice_mode,
+                            "slice_out": ml.get("slice_out"),
+                        },
                     )
-                    continue
-                executor.exec_tool(
-                    "slice",
-                    ml.get("cpg"),
-                    cpg_out_dir,
-                    src,
-                    joern_home=os.getenv(
-                        "JOERN_HOME", str(Path.home() / "bin" / "joern" / "joern-cli")
-                    ),
-                    use_container=False,
-                    use_atom=use_atom,
-                    auto_build=False,
-                    extra_args={
-                        "slice_mode": slice_mode,
-                        "slice_out": ml.get("slice_out"),
-                    },
-                )
-                if not os.path.exists(ml.get("slice_out")):
-                    errors_warnings.append(
-                        f"""CPG slice file was not found at {ml.get("slice_out")}"""
-                    )
-    return {
-        "success": False if errors_warnings else True,
-        "message": "\n".join(errors_warnings)
-        if errors_warnings
-        else f"CPG generated successfully at {cpg_out_dir}",
-        "out_dir": cpg_out_dir,
-        "app_manifests": app_manifest_list,
-    }
+                    if not os.path.exists(ml.get("slice_out")):
+                        errors_warnings.append(
+                            f"""CPG slice file was not found at {ml.get("slice_out")}"""
+                        )
+        return {
+            "success": not errors_warnings,
+            "message": "\n".join(errors_warnings)
+            if errors_warnings
+            else f"CPG generated successfully at {cpg_out_dir}",
+            "out_dir": cpg_out_dir,
+            "app_manifests": app_manifest_list,
+        }
+
+    result = await run_sync(sync_processor)()
+    return result
 
 
 def init_worker():
@@ -551,10 +558,8 @@ def main():
     joern_home = args.joern_home
     use_container = args.use_container
     use_atom = args.use_atom
-    is_bundled_exe = False
     try:
         if getattr(sys, "_MEIPASS"):
-            is_bundled_exe = True
             # Reset joern_home for bundled exe
             if not os.path.exists(joern_home):
                 joern_home = ""

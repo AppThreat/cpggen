@@ -5,10 +5,14 @@ import pytest
 
 from cpggen.source import ghsa
 
+
 # A pytest fixture that returns the test data file path
 @pytest.fixture
 def test_data():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "ghsa-data.json")
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "data", "ghsa-data.json"
+    )
+
 
 # Test function for the 'parse_response' function in the ghsa module
 def test_parse(test_data):

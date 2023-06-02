@@ -43,6 +43,7 @@ if (
 
 DEBUG = logging.DEBUG
 
+
 # Function to enable debug mode
 def enable_debug():
     LOG.setLevel(logging.DEBUG)
