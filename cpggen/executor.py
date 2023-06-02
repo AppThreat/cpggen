@@ -716,7 +716,7 @@ def exec_tool(
                 )
                 sbom_lang = tool_lang_simple
                 if (
-                    tool_lang in ("jar", "scala")
+                    tool_lang in ("jar", "scala", "jimple")
                     or tool_lang.startswith("jar")
                     or tool_lang.startswith("jsp")
                 ):
