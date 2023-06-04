@@ -18,8 +18,8 @@ ENV JOERN_HOME=/usr/local/bin \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     GOROOT=/usr/local/go \
-    GO_VERSION=1.19.7 \
-    SBT_VERSION=1.8.3 \
+    GO_VERSION=1.19.9 \
+    SBT_VERSION=1.9.0 \
     GRADLE_VERSION=8.1.1 \
     GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
@@ -40,6 +40,17 @@ COPY . /usr/local/src/
 
 RUN set -e; \
     ARCH_NAME="$(rpm --eval '%{_arch}')"; \
+    case "${ARCH_NAME##*-}" in \
+        'x86_64') \
+            OS_ARCH_SUFFIX='amd64'; \
+            GOBIN_SUFFIX='x64'; \
+            ;; \
+        'aarch64') \
+            OS_ARCH_SUFFIX='arm64'; \
+            GOBIN_SUFFIX='arm64'; \
+            ;; \
+        *) echo >&2 "error: unsupported architecture: '$ARCH_NAME'"; exit 1 ;; \
+    esac; \
     echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
@@ -51,9 +62,9 @@ RUN set -e; \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
-    && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
-    && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm go${GO_VERSION}.linux-amd64.tar.gz \
+    && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz" \
+    && tar -C /usr/local -xzf go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz \
+    && rm go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz \
     && go install github.com/magefile/mage@latest \
     && curl -LO https://github.com/appthreat/joern/releases/latest/download/joern-install.sh \
     && chmod +x ./joern-install.sh \
@@ -79,10 +90,10 @@ RUN set -e; \
     && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /usr/local/bin/java2cpg.jar \
     && echo -e "#!/usr/bin/env bash\njava -jar /usr/local/bin/java2cpg.jar $*" > /usr/local/bin/java2cpg.sh \
     && chmod +x /usr/local/bin/java2cpg.sh \
-    && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
+    && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-${GOBIN_SUFFIX}.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
     && chmod +x /opt/joern/joern-cli/bin/go2cpg && go2cpg version \
     && ln -s /opt/joern/joern-cli/bin/go2cpg /usr/local/bin/go2cpg \
-    && curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/csharp2cpg.zip \
+    && curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-${GOBIN_SUFFIX}.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/csharp2cpg.zip \
     && cd /opt/joern/joern-cli/ && unzip csharp2cpg.zip && rm /opt/joern/joern-cli/csharp2cpg.zip \
     && chmod +x /opt/joern/joern-cli/bin/csharp2cpg \
     && ln -s /opt/joern/joern-cli/bin/csharp2cpg /usr/local/bin/csharp2cpg \

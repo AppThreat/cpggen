@@ -18,8 +18,8 @@ ENV JOERN_HOME=/usr/local/bin \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     GOROOT=/usr/local/go \
-    GO_VERSION=1.19.7 \
-    SBT_VERSION=1.8.3 \
+    GO_VERSION=1.19.9 \
+    SBT_VERSION=1.9.0 \
     GRADLE_VERSION=8.1.1 \
     GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
