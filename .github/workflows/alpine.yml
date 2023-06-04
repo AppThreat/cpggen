@@ -43,19 +43,20 @@ jobs:
     - name: Binary alpine build
       run: |
         cd cpggen
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-musl --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
-        sha256sum ./dist/cpggen-linux-musl > ./dist/cpggen-linux-musl.sha256
-        ./dist/cpggen-linux-musl --help
-        ./dist/cpggen-linux-musl -i . -o /tmp/cpggen.json
+        curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen-musl --add-binary="atom.zip:local_bin" --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        sha256sum ./dist/atomgen-musl > ./dist/atomgen-musl.sha256
+        ./dist/atomgen-musl --help
+        ./dist/atomgen-musl -i . -o /tmp/cpggen.json
     - uses: actions/upload-artifact@v1
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
         path: ./cpggen/dist
-        name: cpggen-linux-musl
+        name: atomgen-musl
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          cpggen/dist/cpggen-linux-musl
-          cpggen/dist/cpggen-linux-musl.sha256
+          cpggen/dist/atomgen-musl
+          cpggen/dist/atomgen-musl.sha256

@@ -45,7 +45,7 @@ def build_args():
     """
     Constructs command line arguments for the scanner
     """
-    parser = argparse.ArgumentParser(description="CPG Generator")
+    parser = argparse.ArgumentParser(description="CPG and Atom (⚛) Generator")
     parser.add_argument(
         "-i",
         "--src",
@@ -54,7 +54,7 @@ def build_args():
         default=os.getcwd(),
     )
     parser.add_argument(
-        "-o", "--out-dir", dest="cpg_out_dir", help="CPG output directory"
+        "-o", "--out-dir", dest="cpg_out_dir", help="CPG/Atom output directory"
     )
     parser.add_argument(
         "-l",
@@ -409,7 +409,7 @@ def cpg(
                 else:
                     languages = languages.split(",")
                 for lang in languages:
-                    LOG.debug("Generating CPG for the language %s at %s", lang, src)
+                    LOG.debug("Detected language %s at %s", lang, src)
                     exec_results.append(
                         pool.apply_async(
                             executor.exec_tool,

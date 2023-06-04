@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - feature/*
     tags:
     - 'v*'
   schedule:
@@ -79,24 +80,29 @@ jobs:
         mkdir -p /tmp/all_cpgs /tmp/all_exports
         cd $GITHUB_WORKSPACE/cpggen
         curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-oss-linux-amd64 \
+        curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512
+        echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen \
           --add-binary="atom.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
-        ./dist/cpggen-oss-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-        ./dist/cpggen-oss-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-        sha256sum ./dist/cpggen-oss-linux-amd64 > ./dist/cpggen-oss-linux-amd64.sha256
-        ./dist/cpggen-oss-linux-amd64 --help
+        ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+        ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+        ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat
+        sha256sum ./dist/atomgen > ./dist/atomgen.sha256
+        ./dist/atomgen --help
       env:
         AT_DEBUG_MODE: debug
     - uses: actions/upload-artifact@v1
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
         path: ./cpggen/dist
-        name: cpggen-oss-linux-amd64
+        name: atomgen
     - name: Binary amd64 build
       run: |
         cd $GITHUB_WORKSPACE/cpggen
         curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
+        curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512
+        echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c
         curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
         chmod +x go2cpg
         curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
@@ -124,10 +130,10 @@ jobs:
       run: |
         cd ./cpggen/dist
         echo $GITHUB_TOKEN | oras login ghcr.io -u $GITHUB_USERNAME --password-stdin
-        oras push ghcr.io/appthreat/cpggen-oss-bin:v1 \
+        oras push ghcr.io/appthreat/atomgen-bin:v1 \
           --config ../../bin-build/config.json:application/vnd.oras.config.v1+json \
           --annotation-file ../../bin-build/annotations.json \
-          ./cpggen-oss-linux-amd64:application/vnd.appthreat.cpggen.layer.v1+tar
+          ./atomgen:application/vnd.appthreat.atomgen.layer.v1+tar
         oras push ghcr.io/appthreat/cpggen-bin:v1 \
           --config ../../bin-build/config.json:application/vnd.oras.config.v1+json \
           --annotation-file ../../bin-build/annotations.json \
@@ -145,7 +151,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          cpggen/dist/cpggen-oss-linux-amd64
-          cpggen/dist/cpggen-oss-linux-amd64.sha256
+          cpggen/dist/atomgen
+          cpggen/dist/atomgen.sha256
           cpggen/dist/cpggen-linux-amd64
           cpggen/dist/cpggen-linux-amd64.sha256

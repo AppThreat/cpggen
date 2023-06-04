@@ -35,7 +35,9 @@ jobs:
           poetry install --no-cache
           poetry run pytest --cov=cpggen tests
           curl -L https://github.com/AppThreat/atom/releases/latest/download/atom.zip -o cpggen/atom/atom.zip
-          poetry publish --build --username $PYPI_USERNAME --password $PYPI_PASSWORD
+          curl -L https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512 -o cpggen/atom/atom.zip.sha512
+          echo "$(cat cpggen/atom/atom.zip.sha512 | cut -d ' ' -f1) cpggen/atom/atom.zip" | sha512sum -c
+          poetry publish --skip-existing -n --build --username $PYPI_USERNAME --password $PYPI_PASSWORD
         env:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
@@ -179,15 +181,15 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/appthreat/cpggen-slim
-      - name: Build and push Docker OSS images
+            ghcr.io/appthreat/atomgen
+      - name: Build and push Docker atomgen images
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ci/Dockerfile-slim
+          file: ci/Dockerfile-atom
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta4.outputs.tags }}
           labels: ${{ steps.meta4.outputs.labels }}
-          cache-from: type=gha,scope=cpggen-slim
-          cache-to: type=gha,mode=max,scope=cpggen-slim
+          cache-from: type=gha,scope=atomgen
+          cache-to: type=gha,mode=max,scope=atomgen

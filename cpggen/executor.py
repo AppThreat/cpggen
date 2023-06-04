@@ -192,7 +192,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
-    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(cpg_out)s %(src)s",
+    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -542,6 +542,7 @@ def exec_tool(
         tool_lang_simple = tool_lang.split("-")[0]
         atom_home = os.getenv("ATOM_HOME", "")
         atom_bin_dir = os.getenv("ATOM_BIN_DIR")
+        whats_built = "CPG"
         if not atom_bin_dir:
             if atom_home:
                 atom_bin_dir = os.path.join(atom_home, "bin", "")
@@ -567,12 +568,13 @@ def exec_tool(
             # Use atom for supported languages if available
             if tool_lang_simple in ("java", "c", "cpp", "js", "jimple", "ts", "python"):
                 use_atom = True
+                whats_built = "atom"
         try:
             stderr = subprocess.DEVNULL
             if LOG.isEnabledFor(DEBUG):
                 stdout = subprocess.PIPE
                 stderr = stdout
-            tool_verb = f"Building CPG with {tool_lang} frontend"
+            tool_verb = f"Building {whats_built} with {tool_lang} frontend"
             if tool_lang == "export":
                 tool_verb = "Exporting CPG with joern-export"
             elif tool_lang == "slice":
@@ -655,12 +657,22 @@ def exec_tool(
                     or cpg_out_dir.endswith(".cpg.bin.zip")
                     or cpg_out_dir.endswith(".bin")
                     or cpg_out_dir.endswith(".cpg")
+                    or cpg_out_dir.endswith(".⚛")
                     else os.path.abspath(
                         os.path.join(
                             cpg_out_dir,
                             f"{os.path.basename(amodule)}-{tool_lang_simple}.cpg.bin",
                         )
                     )
+                )
+                atom_out = (
+                    cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
+                        ".cpg.bin", ".⚛"
+                    )
+                    if cpg_out.endswith(".cpg.bin")
+                    else cpg_out
+                    if cpg_out.endswith(".⚛")
+                    else f"{cpg_out}.⚛"
                 )
                 # BUG: go2cpg only works if the file extension is .cpg.bin.zip
                 if tool_lang_simple == "go" and not cpg_out.endswith(".cpg.bin.zip"):
@@ -684,7 +696,7 @@ def exec_tool(
                         if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.manifest.json"
                     )
-                    LOG.debug("CPG file for %s is %s", tool_lang, cpg_out)
+                    LOG.debug("%s file for %s is %s", whats_built, tool_lang, cpg_out)
                 if not slice_out:
                     slice_out = cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
                         ".cpg.bin", ".slices.json"
@@ -693,6 +705,7 @@ def exec_tool(
                 cmd_with_args = cmd_with_args % dict(
                     src=os.path.abspath(amodule),
                     cpg_out=cpg_out,
+                    atom_out=atom_out,
                     atom_bin_dir=atom_bin_dir,
                     joern_home=joern_home,
                     home_dir=str(Path.home()),
@@ -725,6 +738,7 @@ def exec_tool(
                     src=os.path.abspath(src),
                     tool_lang=sbom_lang,
                     cwd=cwd,
+                    atom_out=atom_out,
                     sbom_out=sbom_out,
                     cdxgen_cmd=cdxgen_cmd,
                     bin_ext=bin_ext,
@@ -858,7 +872,8 @@ def exec_tool(
                     progress.update(task, completed=100, total=100)
                     continue
                 LOG.debug(
-                    '⚡︎ Generating CPG for the %s app "%s" - "%s"',
+                    '⚡︎ Generating %s for the %s app "%s" - "%s"',
+                    whats_built,
                     tool_lang,
                     os.path.basename(amodule),
                     " ".join(cmd_list_with_args),
@@ -900,7 +915,7 @@ def exec_tool(
                         pass
                 progress.update(
                     task,
-                    description=f"Generating {tool_lang_simple} CPG",
+                    description=f"Generating {tool_lang_simple} {whats_built}",
                     completed=20,
                     total=100,
                 )
@@ -922,6 +937,9 @@ def exec_tool(
                         LOG.info(cp.stdout)
                     if cp.stderr:
                         LOG.info(cp.stderr)
+                # If the tool produced atom file then prefer that over cpg
+                if not os.path.exists(cpg_out) and os.path.exists(atom_out):
+                    cpg_out = atom_out
                 if os.path.exists(cpg_out):
                     # go2cpg seems to produce a cpg without read permissions
                     try:
@@ -931,13 +949,15 @@ def exec_tool(
                         pass
                     if os.getenv("CI"):
                         LOG.info(
-                            """CPG %s generated successfully for %s.""",
+                            """%s %s generated successfully for %s.""",
+                            whats_built,
                             cpg_out,
                             tool_lang,
                         )
                     else:
                         LOG.info(
-                            """CPG for %s is %s. You can import this in joern using importCpg("%s")""",
+                            """%s for %s is %s. You can import this in joern using importCpg("%s")""",
+                            whats_built,
                             tool_lang,
                             cpg_out,
                             cpg_out,
@@ -992,7 +1012,8 @@ def exec_tool(
                 else:
                     LOG.debug("Command with args: %s", " ".join(cmd_list_with_args))
                     LOG.info(
-                        "CPG %s was not generated for %s. cwd: %s",
+                        "%s %s was not generated for %s. cwd: %s",
+                        whats_built,
                         cpg_out,
                         tool_lang,
                         cwd,
