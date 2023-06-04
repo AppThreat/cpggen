@@ -9,7 +9,7 @@
  ╚═════╝╚═╝      ╚═════╝
 ```
 
-CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io) for multiple languages. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to [Qwiet.AI](https://docs.shiftleft.io/home) for analysis.
+CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io), a novel intermediate representation, for code and threat analysis. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to a third-party service such as [Qwiet.AI](https://docs.shiftleft.io/home) for automated analysis.
 
 [![release](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml)
 [![Downloads](https://static.pepy.tech/badge/cpggen)](https://pepy.tech/project/cpggen)
@@ -20,7 +20,7 @@ CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg
 - JDK 11 or above
 - Python 3.10
 - Docker or podman (Windows, Linux or Mac) or
-- [Atom](https://github.com/AppThreat/atom#installation) or [Joern](https://docs.joern.io/installation)
+- [Atom ⚛](https://github.com/AppThreat/atom#installation) or [Joern](https://docs.joern.io/installation)
 
 ## Installation
 
@@ -30,7 +30,7 @@ cpggen is available as a single executable binary, [PyPI package](https://pypi.o
 
 Download the executable binary for your operating system from the [releases page](https://github.com/appthreat/cpggen/releases). These binary bundle the following:
 
-- [Atom](https://github.com/AppThreat/atom#installation)
+- [Atom ⚛](https://github.com/AppThreat/atom#installation)
 - cpggen with Python 3.10
 - cdxgen with Node.js 18 - Generates SBoM
 
@@ -43,9 +43,9 @@ chmod +x cpggen-linux-amd64
 OSS version without any Qwiet.AI binary frontends.
 
 ```bash
-curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/cpggen-oss-linux-amd64
-chmod +x cpggen-oss-linux-amd64
-./cpggen-oss-linux-amd64 --help
+curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/atomgen
+chmod +x atomgen
+./atomgen --help
 ```
 
 On Windows,
@@ -142,8 +142,8 @@ docker pull ghcr.io/appthreat/cpggen-oss
 Finally, a slimmer image based on atom distribution.
 
 ```
-docker pull ghcr.io/appthreat/cpggen-slim
-# podman pull ghcr.io/appthreat/cpggen-slim
+docker pull ghcr.io/appthreat/atomgen
+# podman pull ghcr.io/appthreat/atomgen
 ```
 
 ## Usage
@@ -320,27 +320,27 @@ optional arguments:
 
 ## Environment variables
 
-| Name                    | Purpose                                                                    |
-| ----------------------- | -------------------------------------------------------------------------- |
-| JOERN_HOME              | Joern installation directory                                               |
-| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                                      |
-| CPGGEN_PORT             | cpggen server port. Default 7072                                           |
-| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default computed             |
-| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed          |
-| CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                         |
-| AT_DEBUG_MODE           | Set to debug to enable debug logging                                       |
-| CPG_EXPORT              | Set to true to export CPG graphs in dot format                             |
-| CPG_EXPORT_REPR         | Graph to export. Default all                                               |
-| CPG_EXPORT_FORMAT       | Export format. Default dot                                                 |
-| CPG_SLICE               | Set to true to slice CPG                                                   |
-| CPG_SLICE_MODE          | Slice mode. Default Usages                                                 |
-| CPG_VECTORS             | Set to true to generate vector representations of code from CPG            |
-| SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI               |
-| CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                          |
-| ENABLE_SBOM             | Enable SBoM generation using cdxgen                                        |
-| JIMPLE_ANDROID_JAR      | Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
-| GITHUB_TOKEN            | Token with read:packages scope to analyze CVE or GitHub Advisory           |
-| USE_ATOM                | Use AppThreat atom instead of joern frontends                              |
+| Name                    | Purpose                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| JOERN_HOME              | Optional when using atom. Joern installation directory                                               |
+| CPGGEN_HOST             | cpggen server host. Default 127.0.0.1                                                                |
+| CPGGEN_PORT             | cpggen server port. Default 7072                                                                     |
+| CPGGEN_CONTAINER_CPU    | CPU units to use in container execution mode. Default computed                                       |
+| CPGGEN_CONTAINER_MEMORY | Memory units to use in container execution mode. Default computed                                    |
+| CPGGEN_MEMORY           | Heap memory to use for frontends. Default computed                                                   |
+| AT_DEBUG_MODE           | Set to debug to enable debug logging                                                                 |
+| CPG_EXPORT              | Set to true to export CPG graphs in dot format                                                       |
+| CPG_EXPORT_REPR         | Graph to export. Default all                                                                         |
+| CPG_EXPORT_FORMAT       | Export format. Default dot                                                                           |
+| CPG_SLICE               | Set to true to slice CPG                                                                             |
+| CPG_SLICE_MODE          | Slice mode. Default Usages                                                                           |
+| CPG_VECTORS             | Set to true to generate vector representations of code from CPG                                      |
+| SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI                                         |
+| CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                                                    |
+| ENABLE_SBOM             | Enable SBoM generation using cdxgen                                                                  |
+| JIMPLE_ANDROID_JAR      | Optional when using atom. Path to android.jar for use with jimple for .apk or .dex to CPG conversion |
+| GITHUB_TOKEN            | Token with read:packages scope to analyze CVE or GitHub Advisory                                     |
+| USE_ATOM                | Use AppThreat atom instead of joern frontends. atomgen would default to this mode.                   |
 
 ## GitHub actions
 

@@ -47,6 +47,29 @@ jobs:
         npm install --omit=dev
         pkg -t node18-win --no-bytecode --no-native-build --compress GZip --public --out-path dist bin/cdxgen
         .\dist\cdxgen.exe --version
+
+    - name: Binary windows build
+      run: |
+        cd cpggen
+        Invoke-WebRequest -Uri 'https://github.com/appthreat/atom/releases/latest/download/atom.zip' -OutFile atom.zip
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
+        (Get-FileHash .\dist\atomgen.exe).hash | Out-File -FilePath .\dist\atomgen.exe.sha256
+        .\dist\atomgen.exe --help
+      env:
+        PYTHONIOENCODING: utf-8
+        LANG: en_US.utf-8
+        PYTHONUTF8: 1
+    - name: Upload cpggen
+      run: |
+        cd cpggen\dist
+        Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
+        Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
+        .\oras.exe login ghcr.io -u $Env:GITHUB_USERNAME -p $Env:GITHUB_TOKEN
+        .\oras.exe push ghcr.io/appthreat/atomgen-windows-bin:v1 --config ../bin-build/config.json:application/vnd.oras.config.v1+json --annotation-file ../bin-build/annotations.json ./atomgen.exe:application/vnd.appthreat.atomgen.layer.v1+tar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ github.actor }}
+
     - name: Binary windows build
       run: |
         cd cpggen

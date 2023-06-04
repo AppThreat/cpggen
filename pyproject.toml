@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "cpggen"
-version = "1.3.1"
-description = "Generate CPG for multiple languages for use with joern"
+version = "1.4.0"
+description = "Generate CPG for multiple languages for code and threat analysis"
 authors = ["Team AppThreat <cloud@appthreat.com>"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "cpggen"}]
 homepage = "https://github.com/AppThreat/cpggen"
 repository = "https://github.com/AppThreat/cpggen"
-keywords = ["joern", "code analysis", "static analysis", "cpg", "code property graph"]
+keywords = ["joern", "code analysis", "static analysis", "cpg", "code property graph", "atom", "threat analysis"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -18,12 +18,14 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
 ]
 exclude = ["contrib", "tests"]
 include = ["cpggen/atom/*"]
 
 [tool.poetry.scripts]
+atomgen = 'cpggen.cli:main'
 cpggen = 'cpggen.cli:main'
 cpg = 'cpggen.cli:main'
 

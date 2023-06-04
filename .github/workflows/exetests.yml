@@ -37,22 +37,22 @@ jobs:
       - name: bundle_tests
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
-          cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
+          cpggen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
             exit 1
           fi
-          cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
+          cpggen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
             exit 1
           fi
-          cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
-          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin" ]; then
+          cpggen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat/DjanGoat-python.⚛ -l python
+          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.⚛" ]; then
             echo "Python direct test was successful"
           else
             echo "Python direct test was not successful"
@@ -115,32 +115,32 @@ jobs:
           oras pull ghcr.io/appthreat/cpggen-bin:v1
           chmod +x cpggen-linux-amd64
           ./cpggen-linux-amd64 --help
-          oras pull ghcr.io/appthreat/cpggen-oss-bin:v1
-          chmod +x cpggen-oss-linux-amd64
-          ./cpggen-oss-linux-amd64 --help
-          ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
+          oras pull ghcr.io/appthreat/atomgen-bin:v1
+          chmod +x atomgen
+          ./atomgen --help
+          ./cpggen-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
             exit 1
           fi
-          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
+          ./atomgen -i repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
             exit 1
           fi
-          ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
+          ./cpggen-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
             exit 1
           fi
-          ./cpggen-oss-linux-amd64 -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
+          ./atomgen -i repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
@@ -156,7 +156,7 @@ jobs:
           ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
           ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
-          ./cpggen-oss-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
+          ./atomgen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
           ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
           ls -ltr /tmp/all_cpgs
           ls -ltr /tmp/all_exports
