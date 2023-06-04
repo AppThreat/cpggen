@@ -38,7 +38,9 @@ ENV JOERN_HOME=/usr/local/bin \
 
 COPY . /usr/local/src/
 
-RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
+RUN set -e; \
+    ARCH_NAME="$(rpm --eval '%{_arch}')"; \
+    echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
         java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
@@ -46,9 +48,9 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /et
     && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
     && python3 --version \
     && python3 -m pip install --upgrade pip \
-    && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
-    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm; fi \
-    && rm wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm \
+    && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
+    && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
+    && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
     && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
