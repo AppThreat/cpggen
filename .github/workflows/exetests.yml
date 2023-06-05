@@ -172,18 +172,6 @@ jobs:
           path: 'repotests/shiftleft-go-example'
       - uses: actions/checkout@v3
         with:
-          repository: 'prabhu/shiftleft-scala-example'
-          path: 'repotests/shiftleft-scala-example'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'HooliCorp/vulnerable_net_core'
-          path: 'repotests/vulnerable_net_core'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'HooliCorp/Goatly.NET'
-          path: 'repotests/Goatly.NET'
-      - uses: actions/checkout@v3
-        with:
           repository: 'HooliCorp/DjanGoat'
           path: 'repotests/DjanGoat'
       - uses: actions/checkout@v3

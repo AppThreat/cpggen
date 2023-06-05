@@ -4,7 +4,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
       org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
       org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
-      org.opencontainers.image.version="1.5.2" \
+      org.opencontainers.image.version="1.6.0" \
       org.opencontainers.image.vendor="AppThreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
@@ -13,28 +13,22 @@ LABEL maintainer="appthreat" \
 
 ARG TARGETPLATFORM
 
-ENV JOERN_HOME=/usr/local/bin \
+ENV JOERN_HOME=/opt/joern-cli \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
-    GOROOT=/usr/local/go \
-    GO_VERSION=1.19.9 \
     SBT_VERSION=1.9.0 \
     GRADLE_VERSION=8.1.1 \
     GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
     JAVA_HOME="/etc/alternatives/jre_17" \
     JAVA_17_HOME="/etc/alternatives/jre_17" \
-    JAVA_8_HOME="/usr/lib/jvm/jre-1.8.0" \
-    CGO_ENABLED=1 \
-    GO111MODULE="" \
-    GOOS="linux" \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING="utf-8" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     ANDROID_HOME=/opt/android-sdk-linux \
-    PATH=${PATH}:/opt/joern/joern-cli:/opt/joern/joern-cli/bin:/usr/local/go/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:/usr/local/go/pkg/tool/linux_amd64:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
+    PATH=${PATH}:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
 
 COPY . /usr/local/src/
 
@@ -54,21 +48,17 @@ RUN set -e; \
     echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
-        java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
-        dotnet-sdk-7.0 dotnet-targeting-pack-7.0 dotnet-templates-7.0 dotnet-hostfxr-7.0 nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \
+        java-17-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
+        nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \
     && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
     && python3 --version \
     && python3 -m pip install --upgrade pip \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
-    && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz" \
-    && tar -C /usr/local -xzf go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz \
-    && rm go${GO_VERSION}.linux-${OS_ARCH_SUFFIX}.tar.gz \
-    && go install github.com/magefile/mage@latest \
-    && curl -LO https://github.com/appthreat/joern/releases/latest/download/joern-install.sh \
-    && chmod +x ./joern-install.sh \
-    && ./joern-install.sh --without-plugins \
+    && curl -LO https://github.com/appthreat/cpggen/releases/latest/download/joern-cli.zip \
+    && unzip -q joern-cli.zip -d /opt/ \
+    && rm joern-cli.zip \
     && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
     && unzip -q gradle-${GRADLE_VERSION}-bin.zip -d /opt/ \
     && chmod +x /opt/gradle-${GRADLE_VERSION}/bin/gradle \
@@ -94,7 +84,6 @@ RUN set -e; \
     && python3 -m pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
     && cd /usr/local/src/ && poetry install --no-cache --without dev \
-    && rm /joern-cli.zip /joern-install.sh \
     && rm -rf /var/cache/yum \
     && microdnf clean all
 

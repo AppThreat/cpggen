@@ -34,5 +34,5 @@ jobs:
             /tmp/querydb.json
             querydb/target/querydb.zip
             target/joern-cli.zip
-            target/joern-cli.zip.
+            target/joern-cli.zip.sha512
             joern-install.sh
