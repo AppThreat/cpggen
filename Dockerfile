@@ -4,7 +4,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
       org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
       org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
-      org.opencontainers.image.version="1.4.0" \
+      org.opencontainers.image.version="1.5.0" \
       org.opencontainers.image.vendor="AppThreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
@@ -87,18 +87,6 @@ RUN set -e; \
     && /opt/android-sdk-linux/cmdline-tools/latest/bin/sdkmanager 'platform-tools' --sdk_root=/opt/android-sdk-linux \
     && /opt/android-sdk-linux/cmdline-tools/latest/bin/sdkmanager 'platforms;android-33' --sdk_root=/opt/android-sdk-linux \
     && /opt/android-sdk-linux/cmdline-tools/latest/bin/sdkmanager 'build-tools;33.0.0' --sdk_root=/opt/android-sdk-linux \
-    && curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o /usr/local/bin/java2cpg.jar \
-    && echo -e "#!/usr/bin/env bash\njava -jar /usr/local/bin/java2cpg.jar $*" > /usr/local/bin/java2cpg.sh \
-    && chmod +x /usr/local/bin/java2cpg.sh \
-    && curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-${GOBIN_SUFFIX}.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/bin/go2cpg \
-    && chmod +x /opt/joern/joern-cli/bin/go2cpg && go2cpg version \
-    && ln -s /opt/joern/joern-cli/bin/go2cpg /usr/local/bin/go2cpg \
-    && curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-${GOBIN_SUFFIX}.json | jq -r ".downloadURL") -o /opt/joern/joern-cli/csharp2cpg.zip \
-    && cd /opt/joern/joern-cli/ && unzip csharp2cpg.zip && rm /opt/joern/joern-cli/csharp2cpg.zip \
-    && chmod +x /opt/joern/joern-cli/bin/csharp2cpg \
-    && ln -s /opt/joern/joern-cli/bin/csharp2cpg /usr/local/bin/csharp2cpg \
-    && curl "https://cdn.shiftleft.io/download/sl" > /usr/local/bin/sl \
-    && chmod a+rx /usr/local/bin/sl \
     && mkdir -p /opt/joern/custom_scripts \
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \

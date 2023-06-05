@@ -146,15 +146,6 @@ jobs:
             echo "JS direct test was not successful"
             exit 1
           fi
-          ./cpggen-linux-amd64 -i repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build -l go
-          if [ -e "/tmp/all_cpgs/shiftleft-go-example/shiftleft-go-example-go.cpg.bin.zip" ]; then
-            echo "go direct test was successful"
-          else
-            echo "go direct test was not successful"
-            exit 1
-          fi
-          ./cpggen-linux-amd64 -i repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
-          ./cpggen-linux-amd64 -i repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
           ./cpggen-linux-amd64 -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
           ./atomgen -i repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
           ./cpggen-linux-amd64 -i repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo --build
@@ -211,9 +202,6 @@ jobs:
           .\cpggen.exe --help
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-go-example --build -l go
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\vulnerable_net_core --build
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\Goatly.NET --build
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat
           .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo --build
         env:

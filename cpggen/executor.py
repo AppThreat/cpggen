@@ -208,9 +208,6 @@ cpg_tools_map = {
     "kotlin-with-classpath": "%(joern_home)skotlin2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --classpath %(home_dir)s/.m2 --classpath %(home_dir)s/.gradle/caches/modules-2/files-2.1",
     "php": "%(joern_home)sphp2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "python": "%(joern_home)spysrc2cpg%(only_bat_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
-    "csharp": "%(joern_home)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
-    "dotnet": "%(joern_home)scsharp2cpg%(exe_ext)s -i %(csharp_artifacts)s -o %(cpg_out)s --ignore-errors --no-log-file --ignore-tests -l error",
-    "go": "%(cpggen_bin_dir)s/go2cpg%(exe_ext)s generate -o %(cpg_out)s ./...",
     "jar": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "jar-without-blocklist": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nb --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
     "scala": "java -Xmx%(memory)s -Dorg.apache.el.parser.SKIP_IDENTIFIER_CHECK=true -jar %(cpggen_bin_dir)s/java2cpg.jar -nojsp --experimental-langs=scala -su -o %(cpg_out)s %(uber_jar)s",
@@ -221,7 +218,6 @@ cpg_tools_map = {
     "vectors": "%(joern_home)sjoern-vectors%(only_bat_ext)s -J-Xmx%(memory)s --out %(cpg_out)s %(src)s",
     "export": "%(joern_home)sjoern-export%(only_bat_ext)s -J-Xmx%(memory)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
     "slice": "%(joern_home)sjoern-slice%(only_bat_ext)s -J-Xmx%(memory)s --dummy-types true --exclude-operators true -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
-    "qwiet": "sl%(exe_ext)s analyze %(policy)s%(vcs_correction)s--tag app.group=%(group)s --app %(app)s --%(language)s --cpgupload --bomupload %(sbom)s %(cpg)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
 
@@ -231,8 +227,6 @@ cpg_tools_map["javascript"] = cpg_tools_map["js"]
 cpg_tools_map["typescript"] = cpg_tools_map["js"]
 cpg_tools_map["maven"] = cpg_tools_map["jimple"]
 cpg_tools_map["pypi"] = cpg_tools_map["python"]
-cpg_tools_map["nuget"] = cpg_tools_map["csharp"]
-cpg_tools_map["golang"] = cpg_tools_map["go"]
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
@@ -306,54 +300,6 @@ joern_parse_lang_map = {
     "ruby": "rubysrc",
     "jimple": "java",
 }
-
-
-def qwiet_analysis(app_manifest, src, cwd, env):
-    """Method to submit the cpg to Qwiet.AI"""
-    try:
-        relative_path = os.path.relpath(cwd, src)
-        if relative_path and not relative_path.startswith(".."):
-            os.environ["SL_VCS_RELATIVE_PATH"] = relative_path
-            env["SL_VCS_RELATIVE_PATH"] = relative_path
-        LOG.info("Submitting %s for Qwiet.AI analysis", app_manifest["app"])
-        build_args = cpg_tools_map["qwiet"]
-        policy = ""
-        vcs_correction = ""
-        if os.getenv("SHIFTLEFT_POLICY"):
-            policy = f"""--policy {os.getenv("SHIFTLEFT_POLICY")} """
-        elif os.getenv("ENABLE_BEST_PRACTICES") in ("true", "1"):
-            policy = """--policy io.shiftleft/defaultWithDictAndBestPractices """
-
-        if app_manifest.get("tool_lang"):
-            if "jar" in app_manifest.get("tool_lang") or "jsp" in app_manifest.get(
-                "tool_lang"
-            ):
-                vcs_correction = '--vcs-prefix-correction "*=src/main/java" '
-            if "scala" in app_manifest.get("tool_lang"):
-                vcs_correction = '--vcs-prefix-correction "*=src/main/scala" '
-        build_args = build_args % dict(
-            **app_manifest, policy=policy, vcs_correction=vcs_correction
-        )
-        LOG.debug("Executing %s", build_args)
-        cp = subprocess.run(
-            build_args.split(" "),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=cwd,
-            env=env,
-            check=False,
-            shell=USE_SHELL,
-            encoding="utf-8",
-        )
-        if cp:
-            if cp.stdout:
-                LOG.info(cp.stdout)
-            if cp.returncode and cp.stderr:
-                LOG.warning(cp.stderr)
-            else:
-                LOG.info("%s uploaded successfully", app_manifest["app"])
-    except subprocess.SubprocessError as e:
-        LOG.error(e)
 
 
 def dot_convert(export_out_dir, env):
@@ -1000,14 +946,6 @@ def exec_tool(
                             "sbom_invocation": " ".join(sbom_cmd_list_with_args),
                         }
                         app_manifest_list.append(app_manifest)
-                        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
-                            progress.update(
-                                task,
-                                description="Uploading to Qwiet AI for analysis",
-                                completed=90,
-                                total=100,
-                            )
-                            qwiet_analysis(app_manifest, src, cwd, env)
                         json.dump(app_manifest, mfp)
                 else:
                     LOG.debug("Command with args: %s", " ".join(cmd_list_with_args))
