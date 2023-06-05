@@ -252,17 +252,17 @@ curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.
 
 ## Languages supported
 
-| Language    | Requires build | Maturity |
-| ----------- | -------------- | -------- |
-| C           | No             | High     |
-| C++         | No             | High     |
-| Java        | No (\*)        | Medium   |
-| Scala       | Yes            | High     |
-| JavaScript  | No             | Medium   |
-| TypeScript  | No             | Medium   |
-| Kotlin      | No (\*)        | Low      |
-| Php         | No             | Low      |
-| Python      | No             | Low      |
+| Language   | Requires build | Maturity |
+| ---------- | -------------- | -------- |
+| C          | No             | High     |
+| C++        | No             | High     |
+| Java       | No (\*)        | Medium   |
+| Scala      | Yes            | High     |
+| JavaScript | No             | Medium   |
+| TypeScript | No             | Medium   |
+| Kotlin     | No (\*)        | Low      |
+| Php        | No             | Low      |
+| Python     | No             | Low      |
 
 (\*) - Precision could be improved with dependencies
 
