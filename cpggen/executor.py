@@ -226,6 +226,14 @@ cpg_tools_map["pypi"] = cpg_tools_map["python"]
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
+    "java-with-deps": {
+        "maven": [
+            get("MVN_CMD", "%(maven_cmd)s"),
+            "compile",
+        ],
+        "gradle": [get("GRADLE_CMD", "%(gradle_cmd)s"), "compileJava"],
+        "sbt": ["sbt", "stage"],
+    },
     "jar": {
         "maven": [
             get("MVN_CMD", "%(maven_cmd)s"),
@@ -884,7 +892,7 @@ def exec_tool(
                         LOG.info(
                             """%s for %s is %s. You can import this in joern using importCpg("%s")""",
                             whats_built,
-                            tool_lang,
+                            tool_lang_simple,
                             cpg_out,
                             cpg_out,
                         )
