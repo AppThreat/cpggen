@@ -18,11 +18,6 @@ jobs:
           fetch-depth: 0
       - uses: actions/checkout@v3
         with:
-          repository: 'ShiftLeftSecurity/codepropertygraph'
-          path: 'codepropertygraph'
-          ref: 'michael/scala3'
-      - uses: actions/checkout@v3
-        with:
           repository: 'Joernio/joern'
           path: 'joern'
           ref: 'michael/scala3-cont-2'
@@ -34,9 +29,7 @@ jobs:
           java-version: '19'
       - run: sudo apt update && sudo apt install -y gnupg
       - run: |
-          cd codepropertygraph
-          sbt publishLocal
-          cd ../joern
+          cd joern
           sbt stage createDistribution
       - run: sha512sum target/joern-cli.zip > target/joern-cli.zip.sha512
       - name: Export ENV vars
