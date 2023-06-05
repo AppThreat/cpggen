@@ -15,11 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - uses: actions/checkout@v3
-        with:
           repository: 'Joernio/joern'
-          path: 'joern'
           ref: 'michael/scala3-cont-2'
       - uses: coursier/cache-action@v6
       - name: Set up JDK
@@ -29,7 +25,6 @@ jobs:
           java-version: '19'
       - run: sudo apt update && sudo apt install -y gnupg
       - run: |
-          cd joern
           sbt stage createDistribution
       - run: sha512sum target/joern-cli.zip > target/joern-cli.zip.sha512
       - name: Export ENV vars
