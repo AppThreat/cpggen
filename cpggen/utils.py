@@ -374,8 +374,6 @@ def detect_project_type(src_dir):
         src_dir, "BUILD", False, True
     ):
         project_types.append("java")
-    if find_files(src_dir, ".jsp", False, True):
-        project_types.append("jsp")
     if (
         find_files(src_dir, "package.json", False, True)
         or find_files(src_dir, "yarn.lock", False, True)
@@ -383,16 +381,6 @@ def detect_project_type(src_dir):
         or find_files(src_dir, ".ts", False, True)
     ):
         project_types.append("js")
-    if find_files(src_dir, ".csproj", False, True) or find_files(
-        src_dir, ".sln", False, True
-    ):
-        project_types.append("csharp")
-    if (
-        find_files(src_dir, "go.mod", False, True)
-        or find_files(src_dir, "Gopkg.lock", False, True)
-        or find_files(src_dir, ".go", False, True)
-    ):
-        project_types.append("go")
     if (
         find_files(src_dir, "conan.lock", False, True)
         or find_files(src_dir, "conanfile.txt", False, True)

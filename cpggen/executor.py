@@ -261,22 +261,6 @@ build_tools_map = {
     "make": ["make"],
 }
 
-qwiet_lang_map = {
-    "jar": "java",
-    "jsp": "java",
-    "scala": "java",
-    "java": "javasrc",
-    "python": "pythonsrc",
-    "js": "js",
-    "ts": "js",
-    "javascript": "js",
-    "typescript": "js",
-    "go": "go",
-    "csharp": "csharp",
-    "dotnet": "csharp",
-    "cpp": "c",
-}
-
 joern_parse_lang_map = {
     "jar": "javasrc",
     "jsp": "javasrc",
@@ -911,9 +895,6 @@ def exec_tool(
                             sbom_out = sbom_out.replace("/github/workspace/", "")
                             amodule = amodule.replace("/github/workspace/", "")
                         language = tool_lang_simple
-                        # Override the language for jvm
-                        if qwiet_lang_map.get(language):
-                            language = qwiet_lang_map.get(language)
                         app_base_name = os.path.basename(amodule)
                         # Let's improve the name for github action
                         if app_base_name == "workspace" and os.getenv(
