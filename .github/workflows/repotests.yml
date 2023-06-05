@@ -44,22 +44,6 @@ jobs:
           path: 'repotests/shiftleft-ts-example'
       - uses: actions/checkout@v3
         with:
-          repository: 'ShiftLeftSecurity/shiftleft-go-example'
-          path: 'repotests/shiftleft-go-example'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'prabhu/shiftleft-scala-example'
-          path: 'repotests/shiftleft-scala-example'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'HooliCorp/vulnerable_net_core'
-          path: 'repotests/vulnerable_net_core'
-      - uses: actions/checkout@v3
-        with:
-          repository: 'HooliCorp/Goatly.NET'
-          path: 'repotests/Goatly.NET'
-      - uses: actions/checkout@v3
-        with:
           repository: 'HooliCorp/DjanGoat'
           path: 'repotests/DjanGoat'
       - uses: actions/checkout@v3
@@ -80,7 +64,7 @@ jobs:
           docker build -t ghcr.io/appthreat/atomgen -f ci/Dockerfile-atom .
           docker build -t ghcr.io/appthreat/cpggen .
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java cpg test was successful"
           else
@@ -88,7 +72,7 @@ jobs:
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java atom test was successful"
           else
@@ -145,7 +129,7 @@ jobs:
             echo "Binary cpg test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.cpg.bin,resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.cpg.bin --param resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
           if [ -e "/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json" ]; then
             echo "Binary cpg test was successful"
           else

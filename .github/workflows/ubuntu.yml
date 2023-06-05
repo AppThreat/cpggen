@@ -36,18 +36,6 @@ jobs:
         path: 'repotests/shiftleft-ts-example'
     - uses: actions/checkout@v3
       with:
-        repository: 'ShiftLeftSecurity/shiftleft-go-example'
-        path: 'repotests/shiftleft-go-example'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'HooliCorp/vulnerable_net_core'
-        path: 'repotests/vulnerable_net_core'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'HooliCorp/Goatly.NET'
-        path: 'repotests/Goatly.NET'
-    - uses: actions/checkout@v3
-      with:
         repository: 'HooliCorp/DjanGoat'
         path: 'repotests/DjanGoat'
     - uses: actions/setup-python@v4
