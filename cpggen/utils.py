@@ -362,17 +362,14 @@ def detect_project_type(src_dir):
         or find_files(src_dir, ".java", False, True)
     ):
         is_java_like = True
-        if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
-            project_types.append("jar")
+        if os.path.exists(str(Path.home() / ".m2")):
+            project_types.append("java-with-deps")
+        elif os.path.exists(
+            str(Path.home() / ".gradle" / "caches" / "modules-2" / "files-2.1")
+        ):
+            project_types.append("java-with-gradle-deps")
         else:
-            if os.path.exists(str(Path.home() / ".m2")):
-                project_types.append("java-with-deps")
-            elif os.path.exists(
-                str(Path.home() / ".gradle" / "caches" / "modules-2" / "files-2.1")
-            ):
-                project_types.append("java-with-gradle-deps")
-            else:
-                project_types.append("java")
+            project_types.append("java")
     if find_files(src_dir, ".bzl", False, True) or find_files(
         src_dir, "BUILD", False, True
     ):
@@ -416,10 +413,7 @@ def detect_project_type(src_dir):
     # Directory contains just a bunch of jar then try jimple
     if not is_java_like:
         if find_files(src_dir, ".jar", False, True):
-            if os.getenv("SHIFTLEFT_ACCESS_TOKEN"):
-                project_types.append("jar")
-            else:
-                project_types.append("jimple")
+            project_types.append("jimple")
         elif (
             find_files(src_dir, ".apk", False, True)
             or find_files(src_dir, ".zip", False, True)

@@ -75,8 +75,7 @@ def build_args():
         dest="auto_build",
         help="Attempt to build the project automatically",
         action="store_true",
-        default=os.getenv("AUTO_BUILD") in ("true", "1")
-        or os.getenv("SHIFTLEFT_ACCESS_TOKEN"),
+        default=os.getenv("AUTO_BUILD") in ("true", "1"),
     )
     parser.add_argument(
         "--joern-home",
@@ -141,8 +140,7 @@ def build_args():
     parser.add_argument(
         "--skip-sbom",
         action="store_true",
-        default=not os.getenv("SHIFTLEFT_ACCESS_TOKEN")
-        and not os.getenv("ENABLE_SBOM"),
+        default=not os.getenv("ENABLE_SBOM"),
         dest="skip_sbom",
         help="Do not generate SBoM",
     )
