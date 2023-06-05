@@ -23,7 +23,6 @@ ENV JOERN_HOME=/opt/joern-cli \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
     JAVA_HOME="/etc/alternatives/jre_17" \
     JAVA_17_HOME="/etc/alternatives/jre_17" \
-    JAVA_8_HOME="/usr/lib/jvm/jre-1.8.0" \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING="utf-8" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
@@ -49,7 +48,7 @@ RUN set -e; \
     echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
-        java-17-openjdk-headless java-1.8.0-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
+        java-17-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \
     && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
     && python3 --version \
