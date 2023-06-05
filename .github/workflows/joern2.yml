@@ -1,5 +1,11 @@
 name: release 2
 on:
+  push:
+    branches:
+    - main
+    - feature/*
+    tags:
+    - 'v*'
   workflow_dispatch:    # allow to manually trigger this workflow
 jobs:
   release:
