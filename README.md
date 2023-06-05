@@ -9,7 +9,7 @@
  ╚═════╝╚═╝      ╚═════╝
 ```
 
-CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io), a novel intermediate representation, for code and threat analysis. The generated CPG can be directly imported to [Joern](https://joern.io) or uploaded to a third-party service such as [Qwiet.AI](https://docs.shiftleft.io/home) for automated analysis.
+CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io), a novel intermediate representation, for code and threat analysis. The generated CPG can be directly imported to [Joern](https://joern.io).
 
 [![release](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml)
 [![Downloads](https://static.pepy.tech/badge/cpggen)](https://pepy.tech/project/cpggen)
@@ -40,7 +40,7 @@ chmod +x cpggen-linux-amd64
 ./cpggen-linux-amd64 --help
 ```
 
-OSS version without any Qwiet.AI binary frontends.
+Atom based frontend.
 
 ```bash
 curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/atomgen
@@ -130,13 +130,6 @@ Or use the nightly to always get the latest joern and tools.
 ```
 docker pull ghcr.io/appthreat/cpggen:nightly
 # podman pull ghcr.io/appthreat/cpggen:nightly
-```
-
-To use the container image with only open-source CPG frontends without any Qwiet.AI support.
-
-```
-docker pull ghcr.io/appthreat/cpggen-oss
-# podman pull ghcr.io/appthreat/cpggen-oss
 ```
 
 Finally, a slimmer image based on atom distribution.
@@ -259,21 +252,17 @@ curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.
 
 ## Languages supported
 
-| Language    | Requires build | Maturity |
-| ----------- | -------------- | -------- |
-| C           | No             | High     |
-| C++         | No             | High     |
-| Java        | No (\*)        | Medium   |
-| Scala       | Yes            | High     |
-| Jsp         | Yes            | High     |
-| Jar/War     | No             | High     |
-| JavaScript  | No             | Medium   |
-| TypeScript  | No             | Medium   |
-| Kotlin      | No (\*)        | Low      |
-| Php         | No             | Low      |
-| Python      | No             | Low      |
-| C# / dotnet | Yes            | High     |
-| Go          | Yes            | High     |
+| Language   | Requires build | Maturity |
+| ---------- | -------------- | -------- |
+| C          | No             | High     |
+| C++        | No             | High     |
+| Java       | No (\*)        | Medium   |
+| Scala      | Yes            | High     |
+| JavaScript | No             | Medium   |
+| TypeScript | No             | Medium   |
+| Kotlin     | No (\*)        | Low      |
+| Php        | No             | Low      |
+| Python     | No             | Low      |
 
 (\*) - Precision could be improved with dependencies
 
@@ -335,7 +324,6 @@ optional arguments:
 | CPG_SLICE               | Set to true to slice CPG                                                                             |
 | CPG_SLICE_MODE          | Slice mode. Default Usages                                                                           |
 | CPG_VECTORS             | Set to true to generate vector representations of code from CPG                                      |
-| SHIFTLEFT_ACCESS_TOKEN  | Set to automatically submit the CPG for analysis by Qwiet AI                                         |
 | CDXGEN_ARGS             | Extra arguments to pass to cdxgen                                                                    |
 | ENABLE_SBOM             | Enable SBoM generation using cdxgen                                                                  |
 | JIMPLE_ANDROID_JAR      | Optional when using atom. Path to android.jar for use with jimple for .apk or .dex to CPG conversion |

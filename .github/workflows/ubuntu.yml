@@ -103,17 +103,9 @@ jobs:
         curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
         curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512
         echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c
-        curl -L $(curl -L https://www.shiftleft.io/download/go2cpgmanifest-linux-x64.json | jq -r ".downloadURL") -o go2cpg
-        chmod +x go2cpg
-        curl -L $(curl -L https://www.shiftleft.io/download/csharp2cpg-linux-x64.json | jq -r ".downloadURL") -o csharp2cpg.zip
-        curl -L $(curl -L https://www.shiftleft.io/download/java2cpg.json | jq -r ".downloadURL") -o java2cpg.jar
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 \
-          --add-binary="java2cpg.jar:local_bin" \
-          --add-binary="csharp2cpg.zip:local_bin/atom-1.0.0" --add-binary="go2cpg:local_bin" --add-binary="atom.zip:local_bin" \
+          --add-binary="atom.zip:local_bin" \
           --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
-        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/shiftleft-go-example -o /tmp/all_cpgs/shiftleft-go-example --build -l go
-        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/vulnerable_net_core -o /tmp/all_cpgs/vulnerable_net_core --build
-        ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/Goatly.NET -o /tmp/all_cpgs/Goatly.NET --build
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         ./dist/cpggen-linux-amd64 --help

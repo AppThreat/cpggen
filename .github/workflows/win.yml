@@ -73,14 +73,11 @@ jobs:
     - name: Binary windows build
       run: |
         cd cpggen
-        $csharp2cpg_bin = (Invoke-RestMethod -Uri 'https://cdn.shiftleft.io/download/csharp2cpg-net-win-x64.json' | Select downloadURL)
-        $go2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/go2cpgmanifest-windows-x64.json' | Select downloadURL)
-        $java2cpg_bin = (Invoke-RestMethod -Uri 'https://www.shiftleft.io/download/java2cpg.json' | Select downloadURL)
         Invoke-WebRequest -Uri 'https://github.com/appthreat/atom/releases/latest/download/atom.zip' -OutFile atom.zip
         Invoke-WebRequest -Uri $csharp2cpg_bin.downloadURL -OutFile csharp2cpg.zip
         Invoke-WebRequest -Uri $go2cpg_bin.downloadURL -OutFile go2cpg.exe
         Invoke-WebRequest -Uri $java2cpg_bin.downloadURL -OutFile java2cpg.jar
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="java2cpg.jar;local_bin" --add-binary="csharp2cpg.zip;local_bin\atom-1.0.0" --add-binary="go2cpg.exe;local_bin\atom-1.0.0" --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
         .\dist\cpggen.exe --help
       env:
