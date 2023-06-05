@@ -227,8 +227,6 @@ cpg_tools_map["javascript"] = cpg_tools_map["js"]
 cpg_tools_map["typescript"] = cpg_tools_map["js"]
 cpg_tools_map["maven"] = cpg_tools_map["jimple"]
 cpg_tools_map["pypi"] = cpg_tools_map["python"]
-cpg_tools_map["nuget"] = cpg_tools_map["csharp"]
-cpg_tools_map["golang"] = cpg_tools_map["go"]
 
 build_tools_map = {
     "csharp": ["dotnet", "build"],
