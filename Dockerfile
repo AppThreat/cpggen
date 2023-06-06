@@ -4,7 +4,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.authors="Team AppThreat <cloud@appthreat.com>" \
       org.opencontainers.image.source="https://github.com/appthreat/cpggen" \
       org.opencontainers.image.url="https://github.com/appthreat/cpggen" \
-      org.opencontainers.image.version="1.6.0" \
+      org.opencontainers.image.version="1.7.0" \
       org.opencontainers.image.vendor="AppThreat" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.title="cpggen" \
@@ -13,7 +13,10 @@ LABEL maintainer="appthreat" \
 
 ARG TARGETPLATFORM
 
-ENV JOERN_HOME=/opt/joern-cli \
+ENV ATOM_VERSION=1.0.0 \
+    ATOM_HOME=/opt/atom-1.0.0 \
+    ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
+    JOERN_HOME=/opt/joern-cli \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
@@ -21,14 +24,14 @@ ENV JOERN_HOME=/opt/joern-cli \
     GRADLE_VERSION=8.1.1 \
     GRADLE_HOME=/opt/gradle-8.1.1 \
     GRADLE_OPTS="-Dorg.gradle.daemon=false" \
-    JAVA_HOME="/etc/alternatives/jre_17" \
-    JAVA_17_HOME="/etc/alternatives/jre_17" \
+    JAVA_HOME="/opt/graalvm-ce-java19-22.3.1" \
+    JAVA_19_HOME="/opt/graalvm-ce-java19-22.3.1" \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING="utf-8" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     ANDROID_HOME=/opt/android-sdk-linux \
-    PATH=${PATH}:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
+    PATH=${PATH}:/opt/atom-1.0.0/bin/:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
 
 COPY . /usr/local/src/
 
@@ -48,15 +51,22 @@ RUN set -e; \
     echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /etc/dnf/modules.d/nodejs.module \
     && microdnf module enable maven php -y \
     && microdnf install -y gcc gcc-c++ libstdc++-devel git-core php php-cli python3.11 python3.11-devel python3.11-pip pcre2 which tar zip unzip sudo \
-        java-17-openjdk-headless maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
+        maven ncurses jq krb5-libs libicu openssl-libs compat-openssl11 zlib \
         nodejs graphviz graphviz-gd graphviz-python3 glibc-common glibc-all-langpacks xorg-x11-fonts-75dpi \
     && alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1 \
     && python3 --version \
     && python3 -m pip install --upgrade pip \
+    && bash <(curl -sL https://get.graalvm.org/jdk) --to /opt graalvm-ce-java19-22.3.1 \
+    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip \
+    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512 \
+    && echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c \
+    && unzip -q atom.zip -d /opt/ \
+    && rm atom.zip \
+    && ln -s /opt/atom-${ATOM_VERSION}/bin/atom /usr/local/bin/atom \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
-    && curl -LO https://github.com/appthreat/cpggen/releases/latest/download/joern-cli.zip \
+    && curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/joern-cli.zip \
     && unzip -q joern-cli.zip -d /opt/ \
     && rm joern-cli.zip \
     && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
