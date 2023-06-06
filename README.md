@@ -118,6 +118,13 @@ docker pull ghcr.io/appthreat/cpggen
 # podman pull ghcr.io/appthreat/cpggen
 ```
 
+Use the AWS Public ECR mirror for those T days when ghcr becomes unavailable.
+
+```
+docker pull public.ecr.aws/appthreat/cpggen:latest
+# podman pull public.ecr.aws/appthreat/cpggen:latest
+```
+
 Almalinux 9 requires the CPU to support SSE4.2. For kvm64 VM use the Almalinux 8 version instead.
 
 ```
@@ -179,7 +186,7 @@ cpggen -i <src directory> -o <CPG directory or file name> -l java
 cpggen -i <src directory> -o <CPG directory or file name> -l java,js,python
 ```
 
-Container based invocation
+Container-based invocation
 
 ```
 docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw --cpus=4 --memory=16g -t ghcr.io/appthreat/cpggen cpggen -i <src directory> -o <CPG directory or file name>

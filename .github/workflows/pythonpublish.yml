@@ -85,6 +85,19 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=cpggen
           cache-to: type=gha,mode=max,scope=cpggen
+
+      - name: Release public ecr - cpggen
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/appthreat
+          docker build -t cpggen -f Dockerfile .
+          docker tag cpggen:latest public.ecr.aws/appthreat/cpggen:latest
+          docker push public.ecr.aws/appthreat/cpggen:latest
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
   alma8-container:
     runs-on: ubuntu-latest
     permissions:
