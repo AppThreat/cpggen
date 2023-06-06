@@ -569,3 +569,18 @@ def collect_cpg_manifests(cpg_out_dir):
             manifest_obj = json.load(mfp)
             cpg_manifests.append(manifest_obj)
     return cpg_manifests
+
+
+def get_boolean_attr(name, src1, src2, default_ret=False):
+    """Method to retrieve boolean attributes from two different dict like objects"""
+    src_to_use = None
+    if src1 and src1.get(name):
+        src_to_use = src1
+    elif src2 and src2.get(name):
+        src_to_use = src2
+    if src_to_use:
+        if src_to_use.get(name) in ("False", "false", "0"):
+            return False
+        if src_to_use.get(name) in ("True", "true", "1"):
+            return True
+    return default_ret
