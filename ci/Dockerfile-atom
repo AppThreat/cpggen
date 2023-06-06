@@ -11,8 +11,7 @@ LABEL maintainer="appthreat" \
       org.opencontainers.image.description="Generate atoms for multiple languages" \
       org.opencontainers.docker.cmd="docker run --rm -it -v /tmp:/tmp -v $(pwd):/app:rw -w /app -t ghcr.io/appthreat/atomgen"
 
-ENV JOERN_HOME=/usr/local/bin \
-    ATOM_VERSION=1.0.0 \
+ENV ATOM_VERSION=1.0.0 \
     ATOM_HOME=/opt/atom-1.0.0 \
     ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
     JAVA_HOME="/etc/alternatives/jre_17" \

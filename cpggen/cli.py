@@ -37,6 +37,9 @@ ATOM_LOGO = """
 ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝
 """
 
+DEFAULT_CPG_OUTDIR = "cpg_out"
+DEFAULT_CPG_EXPORTDIR = "cpg_export"
+
 app = Quart(__name__)
 app.config.from_prefixed_env()
 
@@ -197,20 +200,20 @@ async def generate_cpg():
     """Method to generate CPG via the http route"""
     q = request.args
     params = await request.get_json()
+    if not params:
+        params = {}
     url = ""
     src = ""
     languages = ""
     cpg_out_dir = None
-    auto_build = True
-    skip_sbom = True
-    export = False
-    should_slice = False
-    use_atom = False
+    auto_build = utils.get_boolean_attr("auto_build", q, params, True)
+    skip_sbom = utils.get_boolean_attr("skip_sbom", q, params, True)
+    export = utils.get_boolean_attr("export", q, params)
+    should_slice = utils.get_boolean_attr("slice", q, params)
+    use_atom = utils.get_boolean_attr("use_atom", q, params)
     slice_mode = "Usages"
     errors_warnings = []
-    vectors = False
-    if not params:
-        params = {}
+    vectors = utils.get_boolean_attr("vectors", q, params)
     if q.get("url"):
         url = q.get("url")
     if q.get("src"):
@@ -219,18 +222,8 @@ async def generate_cpg():
         cpg_out_dir = q.get("out_dir")
     if q.get("lang"):
         languages = q.get("lang")
-    if q.get("export", "") in ("True", "true", "1"):
-        export = True
-    if q.get("slice", "") in ("True", "true", "1"):
-        should_slice = True
-    if q.get("vectors", "") in ("True", "true", "1"):
-        vectors = True
     if q.get("slice_mode"):
         slice_mode = q.get("slice_mode")
-    if q.get("auto_build", "") in ("False", "false", "0"):
-        auto_build = False
-    if q.get("skip_sbom", "") in ("False", "false", "0"):
-        skip_sbom = False
     if not url and params.get("url"):
         url = params.get("url")
     if not src and params.get("src"):
@@ -239,16 +232,6 @@ async def generate_cpg():
         languages = params.get("lang")
     if not cpg_out_dir and params.get("out_dir"):
         cpg_out_dir = params.get("out_dir")
-    if params.get("auto_build", "") in ("False", "false", "0"):
-        auto_build = False
-    if params.get("skip_sbom", "") in ("False", "false", "0"):
-        skip_sbom = False
-    if params.get("export", "") in ("True", "true", "1"):
-        export = True
-    if params.get("slice", "") in ("True", "true", "1"):
-        should_slice = True
-    if params.get("vectors", "") in ("True", "true", "1"):
-        vectors = True
     if params.get("slice_mode"):
         slice_mode = params.get("slice_mode")
     if not src and not url:
@@ -360,11 +343,11 @@ def get_output_dir(src, cpg_out_dir=None, export_out_dir=None):
             is_temp_dir = True
     if not cpg_out_dir:
         if os.path.isfile(src):
-            cpg_out_dir = os.path.join(os.path.dirname(src), "cpg_out")
+            cpg_out_dir = os.path.join(os.path.dirname(src), DEFAULT_CPG_OUTDIR)
         else:
-            cpg_out_dir = os.path.join(src, "cpg_out")
+            cpg_out_dir = os.path.join(src, DEFAULT_CPG_OUTDIR)
     if not export_out_dir:
-        export_out_dir = os.path.join(src, "cpg_export")
+        export_out_dir = os.path.join(src, DEFAULT_CPG_EXPORTDIR)
     cpg_out_dir = str(PurePath(cpg_out_dir))
     export_out_dir = str(PurePath(export_out_dir))
     if cpg_out_dir and not os.path.exists(cpg_out_dir):

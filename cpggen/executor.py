@@ -279,18 +279,15 @@ joern_parse_lang_map = {
     "ts": "jssrc",
     "javascript": "jssrc",
     "typescript": "jssrc",
-    "go": "golang",
-    "csharp": "csharp",
-    "dotnet": "csharp",
     "cpp": "newc",
     "c": "newc",
     "binary": "ghidra",
     "ruby": "rubysrc",
-    "jimple": "java",
 }
 
 
 def dot_convert(export_out_dir, env):
+    """Method to convert .dot files to png format using dot command"""
     if check_command("dot"):
         dot_files = find_files(export_out_dir, ".dot", False, False)
         if len(dot_files) > 5:
