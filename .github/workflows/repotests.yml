@@ -94,7 +94,7 @@ jobs:
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-ts.⚛" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
@@ -102,9 +102,9 @@ jobs:
           fi
           poetry run cpggen -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -l ts --use-container
           if [ -e "$GITHUB_WORKSPACE/repotests/shiftleft-ts-example/cpg_out/shiftleft-ts-example-ts.cpg.bin" ]; then
-            echo "JS direct test was successful"
+            echo "TS direct test was successful"
           else
-            echo "JS direct test was not successful"
+            echo "TS direct test was not successful"
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -e AT_DEBUG_MODE -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
