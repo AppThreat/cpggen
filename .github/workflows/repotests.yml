@@ -93,7 +93,7 @@ jobs:
             echo "JS direct test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-ts.⚛
           if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-ts.⚛" ]; then
             echo "JS direct test was successful"
           else
