@@ -9,7 +9,7 @@
  ╚═════╝╚═╝      ╚═════╝
 ```
 
-CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io), a novel intermediate representation, for code and threat analysis. The generated CPG can be directly imported to [Joern](https://joern.io).
+CPG Generator is a python cli tool to generate [Code Property Graph](https://cpg.joern.io), a novel intermediate representation, for code and threat analysis. The generated CPG can be directly imported to [Joern](https://joern.io) for analysis.
 
 [![release](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml/badge.svg)](https://github.com/appthreat/cpggen/actions/workflows/pythonpublish.yml)
 [![Downloads](https://static.pepy.tech/badge/cpggen)](https://pepy.tech/project/cpggen)
@@ -272,6 +272,8 @@ curl "http://127.0.0.1:7072/cpg?url=pkg:maven/org.apache.commons/commons-io@1.3.
 | Python     | No             | Low      |
 
 (\*) - Precision could be improved with dependencies
+
+EXPERIMENTAL: Use the provided [protobuf bindings](./contrib/bindings/) to build new language frontends.
 
 ## Full list of options
 
