@@ -28,7 +28,7 @@ ENV JOERN_HOME=/opt/joern-cli \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     ANDROID_HOME=/opt/android-sdk-linux \
-    PATH=${PATH}:/opt/atom-1.0.0/bin/:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
+    PATH=${PATH}:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:/opt/sbt/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
 
 COPY . /usr/local/src/
 
