@@ -13,10 +13,7 @@ LABEL maintainer="appthreat" \
 
 ARG TARGETPLATFORM
 
-ENV ATOM_VERSION=1.0.0 \
-    ATOM_HOME=/opt/atom-1.0.0 \
-    ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
-    JOERN_HOME=/opt/joern-cli \
+ENV JOERN_HOME=/opt/joern-cli \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
@@ -57,12 +54,6 @@ RUN set -e; \
     && python3 --version \
     && python3 -m pip install --upgrade pip \
     && bash <(curl -sL https://get.graalvm.org/jdk) --to /opt graalvm-ce-java19-22.3.1 \
-    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip \
-    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512 \
-    && echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c \
-    && unzip -q atom.zip -d /opt/ \
-    && rm atom.zip \
-    && ln -s /opt/atom-${ATOM_VERSION}/bin/atom /usr/local/bin/atom \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
