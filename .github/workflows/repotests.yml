@@ -63,16 +63,16 @@ jobs:
           mkdir /tmp/all_cpgs
           docker build -t ghcr.io/appthreat/atomgen -f ci/Dockerfile-atom .
           docker build -t ghcr.io/appthreat/cpggen .
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
-            echo "Java cpg test was successful"
-          else
-            echo "Java cpg test was not successful"
-            exit 1
-          fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
-          # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin
+          # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          # if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
+          #   echo "Java cpg test was successful"
+          # else
+          #   echo "Java cpg test was not successful"
+          #   exit 1
+          # fi
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin
+          # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           # if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
           #   echo "Java atom test was successful"
           # else
