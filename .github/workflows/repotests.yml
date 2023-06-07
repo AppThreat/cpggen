@@ -101,7 +101,7 @@ jobs:
             exit 1
           fi
           poetry run cpggen -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -l ts --use-container
-          if [ -e "$GITHUB_WORKSPACE/repotests/shiftleft-ts-example/cpg_out/shiftleft-ts-example-js.cpg.bin" ]; then
+          if [ -e "$GITHUB_WORKSPACE/repotests/shiftleft-ts-example/cpg_out/shiftleft-ts-example-ts.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
