@@ -71,7 +71,7 @@ jobs:
             echo "Java cpg test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java atom test was successful"
@@ -80,14 +80,14 @@ jobs:
             exit 1
           fi
           poetry run cpggen -i repotests/shiftleft-java-example -l java --use-container
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
@@ -101,14 +101,14 @@ jobs:
             exit 1
           fi
           poetry run cpggen -i repotests/shiftleft-ts-example -l ts --use-container
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.⚛" ]; then
+          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -e AT_DEBUG_MODE -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
-          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.⚛" ]; then
+          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin" ]; then
             echo "python cpg test was successful"
           else
             echo "python cpg test was not successful"
@@ -129,7 +129,7 @@ jobs:
             echo "Binary cpg test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.⚛ --param resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.cpg.bin --param resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
           if [ -e "/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json" ]; then
             echo "Binary cpg test was successful"
           else
