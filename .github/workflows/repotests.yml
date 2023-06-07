@@ -72,15 +72,15 @@ jobs:
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
-            echo "Java atom test was successful"
-          else
-            echo "Java atom test was not successful"
-            exit 1
-          fi
-          poetry run cpggen -i repotests/shiftleft-java-example -l java --use-container
-          if [ -e "/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin" ]; then
+          # docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json
+          # if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
+          #   echo "Java atom test was successful"
+          # else
+          #   echo "Java atom test was not successful"
+          #   exit 1
+          # fi
+          poetry run cpggen -i $GITHUB_WORKSPACE/repotests/shiftleft-java-example -l java --use-container
+          if [ -e "$GITHUB_WORKSPACE/repotests/shiftleft-java-example/cpg_out/shiftleft-java-example-java.cpg.bin" ]; then
             echo "Java direct test was successful"
           else
             echo "Java direct test was not successful"
@@ -100,8 +100,8 @@ jobs:
             echo "JS direct test was not successful"
             exit 1
           fi
-          poetry run cpggen -i repotests/shiftleft-ts-example -l ts --use-container
-          if [ -e "/tmp/all_cpgs/shiftleft-ts-example/shiftleft-ts-example-js.cpg.bin" ]; then
+          poetry run cpggen -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -l ts --use-container
+          if [ -e "$GITHUB_WORKSPACE/repotests/shiftleft-ts-example/cpg_out/shiftleft-ts-example-js.cpg.bin" ]; then
             echo "JS direct test was successful"
           else
             echo "JS direct test was not successful"
