@@ -107,15 +107,15 @@ jobs:
             echo "TS direct test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -e AT_DEBUG_MODE -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -e AT_DEBUG_MODE -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin -l python
           if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin" ]; then
             echo "python cpg test was successful"
           else
             echo "python cpg test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
-          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.⚛" ]; then
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin -l python
+          if [ -e "/tmp/all_cpgs/DjanGoat/DjanGoat-python.cpg.bin" ]; then
             echo "python cpg test was successful"
           else
             echo "python cpg test was not successful"
