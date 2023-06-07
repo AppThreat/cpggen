@@ -122,7 +122,7 @@ jobs:
             exit 1
           fi
           docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/microservices-demo -o /tmp/all_cpgs/microservices-demo
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/juicy-malware/juicy_malware_linux_amd_64 -o /tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.⚛
           if [ -e "/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.⚛" ]; then
             echo "Binary cpg test was successful"
           else
