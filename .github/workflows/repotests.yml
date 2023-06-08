@@ -64,7 +64,7 @@ jobs:
           unzip -q joern-cli.zip -d /opt
           rm joern-cli.zip
           docker run --rm -v /tmp:/tmp:rw -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen cpggen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin.zip -l java
-          /opt/joern-cli/joern -J-Xmx7G --script ./contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin.zip --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json --param projectName=sl-java
+          /opt/joern-cli/joern -J-Xmx7G --script ./contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.cpg.bin.zip,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json,projectName=sl-java
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods.json" ]; then
             echo "Java cpg test was successful"
           else
@@ -72,7 +72,7 @@ jobs:
             exit 1
           fi
           docker run --rm -v /tmp:/tmp:rw -v $(pwd):/app:rw -t ghcr.io/appthreat/atomgen -i /app/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ -l java
-          /opt/joern-cli/joern -J-Xmx7G --script ./contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛ --param resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods2.json --param projectName=sl-java2
+          /opt/joern-cli/joern -J-Xmx7G --script ./contrib/joern_scripts/cpg-methods.sc --params payload=/tmp/all_cpgs/shiftleft-java-example/shiftleft-java-example-java.⚛,resultFile=/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods2.json,projectName=sl-java2
           if [ -e "/tmp/all_cpgs/shiftleft-java-example/java-cpg-methods2.json" ]; then
             echo "Java atom test was successful"
           else
