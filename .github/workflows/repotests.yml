@@ -129,7 +129,7 @@ jobs:
             echo "Binary cpg test was not successful"
             exit 1
           fi
-          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.cpg.bin --param resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
+          docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/appthreat/cpggen joern -J-Xmx7G --script /app/contrib/joern_scripts/cpg-methods.sc --param payload=/tmp/all_cpgs/juicy-malware/juicy_malware_linux_amd_64-binary.⚛ --param resultFile=/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json
           if [ -e "/tmp/all_cpgs/juicy-malware/binary-cpg-methods.json" ]; then
             echo "Binary cpg test was successful"
           else
