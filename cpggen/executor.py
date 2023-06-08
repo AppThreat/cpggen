@@ -471,7 +471,7 @@ def exec_tool(
         lang_build_crashes = {}
         app_manifest_list = []
         tool_lang_simple = tool_lang.split("-")[0]
-        atom_home = os.getenv("ATOM_HOME", "")
+        atom_home = os.getenv("ATOM_HOME")
         atom_bin_dir = os.getenv("ATOM_BIN_DIR")
         whats_built = "CPG"
         if not atom_bin_dir:
@@ -497,7 +497,17 @@ def exec_tool(
         if atom_home and not atom_home.endswith(os.path.sep):
             atom_home = f"{atom_home}{os.path.sep}"
             # Use atom for supported languages if available
-            if tool_lang_simple in ("java", "c", "cpp", "js", "jimple", "ts", "python"):
+            if tool_lang_simple in (
+                "java",
+                "c",
+                "cpp",
+                "js",
+                "jimple",
+                "ts",
+                "python",
+                "javascript",
+                "typescript",
+            ):
                 use_atom = True
                 whats_built = "atom"
         try:
