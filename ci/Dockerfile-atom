@@ -16,6 +16,7 @@ ARG JAVA_VERSION=22.3.r19-grl
 ENV ATOM_VERSION=1.0.0 \
     ATOM_HOME=/opt/atom-1.0.0 \
     ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
+    JAVA_HOME="/opt/java/${JAVA_VERSION}" \
     JAVA_VERSION=$JAVA_VERSION \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING="utf-8"
