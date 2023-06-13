@@ -838,7 +838,7 @@ def exec_tool(
                         )
                         # Enable debug for sbom tool
                         if LOG.isEnabledFor(DEBUG):
-                            env["SCAN_DEBUG_MODE"] = "debug"
+                            env["CDXGEN_DEBUG_MODE"] = "debug"
                         LOG.debug("Executing %s", " ".join(sbom_cmd_list_with_args))
 
                         cp = subprocess.run(
@@ -887,12 +887,6 @@ def exec_tool(
                 if not os.path.exists(cpg_out) and os.path.exists(atom_out):
                     cpg_out = atom_out
                 if os.path.exists(cpg_out):
-                    # go2cpg seems to produce a cpg without read permissions
-                    try:
-                        os.chmod(cpg_out, 0o644)
-                    except OSError:
-                        # Ignore errors
-                        pass
                     if os.getenv("CI"):
                         LOG.info(
                             """%s %s generated successfully for %s.""",
