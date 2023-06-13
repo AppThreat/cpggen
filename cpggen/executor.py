@@ -192,7 +192,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
-    "atom": "%(atom_bin_dir)satom%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
+    "atom": "%(atom_bin_dir)satom --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -458,6 +458,10 @@ def exec_tool(
     """Method to execute tools to generate cpg or perform exports"""
     if env is None:
         env = os.environ.copy()
+    cpggen_memory = os.getenv("CPGGEN_MEMORY", max_memory)
+    env[
+        "JAVA_OPTS"
+    ] = f'{os.getenv("JAVA_OPTS", "")} -Xms{cpggen_memory} -Xmx{cpggen_memory}'
     if extra_args is None:
         extra_args = {}
     with Progress(
@@ -599,6 +603,7 @@ def exec_tool(
                     or cpg_out_dir.endswith(".bin")
                     or cpg_out_dir.endswith(".cpg")
                     or cpg_out_dir.endswith(".⚛")
+                    or cpg_out_dir.endswith(".atom")
                     else os.path.abspath(
                         os.path.join(
                             cpg_out_dir,
@@ -608,12 +613,12 @@ def exec_tool(
                 )
                 atom_out = (
                     cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
-                        ".cpg.bin", ".⚛"
+                        ".cpg.bin", f".{'⚛' if sys.platform != 'win32' else 'atom'}"
                     )
                     if cpg_out.endswith(".cpg.bin")
                     else cpg_out
-                    if cpg_out.endswith(".⚛")
-                    else f"{cpg_out}.⚛"
+                    if cpg_out.endswith(".⚛") or cpg_out.endswith(".atom")
+                    else f"{cpg_out}.{'⚛' if sys.platform != 'win32' else 'atom'}"
                 )
                 # BUG: go2cpg only works if the file extension is .cpg.bin.zip
                 if tool_lang_simple == "go" and not cpg_out.endswith(".cpg.bin.zip"):
@@ -652,7 +657,7 @@ def exec_tool(
                     home_dir=str(Path.home()),
                     uber_jar=uber_jar,
                     csharp_artifacts=csharp_artifacts,
-                    memory=os.getenv("CPGGEN_MEMORY", max_memory),
+                    memory=cpggen_memory,
                     tool_lang=tool_lang,
                     parse_lang=joern_parse_lang_map.get(
                         tool_lang_simple, tool_lang_simple
