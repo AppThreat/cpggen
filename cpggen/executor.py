@@ -613,7 +613,7 @@ def exec_tool(
                 )
                 atom_out = (
                     cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
-                        ".cpg.bin", ".{'⚛' if sys.platform != 'win32' else 'atom'}"
+                        ".cpg.bin", f".{'⚛' if sys.platform != 'win32' else 'atom'}"
                     )
                     if cpg_out.endswith(".cpg.bin")
                     else cpg_out
