@@ -603,6 +603,7 @@ def exec_tool(
                     or cpg_out_dir.endswith(".bin")
                     or cpg_out_dir.endswith(".cpg")
                     or cpg_out_dir.endswith(".⚛")
+                    or cpg_out_dir.endswith(".atom")
                     else os.path.abspath(
                         os.path.join(
                             cpg_out_dir,
@@ -616,7 +617,7 @@ def exec_tool(
                     )
                     if cpg_out.endswith(".cpg.bin")
                     else cpg_out
-                    if cpg_out.endswith(".⚛")
+                    if cpg_out.endswith(".⚛") or cpg_out.endswith(".atom")
                     else f"{cpg_out}.{'⚛' if sys.platform != 'win32' else 'atom'}"
                 )
                 # BUG: go2cpg only works if the file extension is .cpg.bin.zip
