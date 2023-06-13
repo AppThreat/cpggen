@@ -73,7 +73,6 @@ jobs:
     - name: Binary windows build
       run: |
         cd cpggen
-        Invoke-WebRequest -Uri 'https://github.com/appthreat/atom/releases/latest/download/atom.zip' -OutFile atom.zip
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\cpggen.exe).hash | Out-File -FilePath .\dist\cpggen.exe.sha256
         .\dist\cpggen.exe --help

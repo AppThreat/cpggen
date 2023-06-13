@@ -520,7 +520,7 @@ def export_slice_cpg(
 
 def main():
     """Main method"""
-    if os.getenv("ATOM_HOME"):
+    if utils.check_command("atom"):
         print(ATOM_LOGO)
     else:
         print(PRODUCT_LOGO)

@@ -68,6 +68,7 @@ jobs:
         env:
           AT_DEBUG_MODE: debug
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CPGGEN_MEMORY: 4G
 
   linux-exe-tests:
     runs-on: ubuntu-latest
@@ -108,7 +109,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '19'
       - name: exetests
         run: |
           mkdir /tmp/all_cpgs /tmp/all_exports
@@ -153,6 +154,7 @@ jobs:
           ls -ltr /tmp/all_exports
         env:
           AT_DEBUG_MODE: debug
+          CPGGEN_MEMORY: 4G
 
   windows-exe-tests:
     runs-on: windows-latest
@@ -181,18 +183,19 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '19'
       - name: exetests
         run: |
           Invoke-WebRequest -Uri https://github.com/oras-project/oras/releases/download/v1.0.0/oras_1.0.0_windows_amd64.zip -UseBasicParsing -OutFile oras_1.0.0_windows_amd64.zip
           Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
           .\oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
           .\cpggen.exe --help
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example\\cpg_out\\app.atom
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example\\cpg_out\\app.atom
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat -o $env:GITHUB_WORKSPACE\\repotests\\DjanGoat\\cpg_out\\app.atom
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo -o $env:GITHUB_WORKSPACE\\repotests\\microservices-demo\\cpg_out\\app.atom --build
         env:
           AT_DEBUG_MODE: debug
           PYTHONIOENCODING: utf-8
           PYTHONUTF8: 1
+          CPGGEN_MEMORY: 4G

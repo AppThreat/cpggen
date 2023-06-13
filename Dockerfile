@@ -17,10 +17,7 @@ ARG SBT_VERSION=1.9.0
 ARG MAVEN_VERSION=3.9.2
 ARG GRADLE_VERSION=8.1.1
 
-ENV ATOM_VERSION=1.0.0 \
-    ATOM_HOME=/opt/atom-1.0.0 \
-    ATOM_BIN_DIR=/opt/atom-1.0.0/bin/ \
-    JOERN_HOME=/opt/joern-cli \
+ENV JOERN_HOME=/opt/joern-cli \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
@@ -38,7 +35,7 @@ ENV ATOM_VERSION=1.0.0 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JOERN_DATAFLOW_TRACKED_WIDTH=128 \
     ANDROID_HOME=/opt/android-sdk-linux
-ENV PATH=${PATH}:/opt/atom-1.0.0/bin/:${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${GRADLE_HOME}/bin:${SBT_HOME}/bin:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
+ENV PATH=${PATH}:${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${GRADLE_HOME}/bin:${SBT_HOME}/bin:/opt/joern-cli:/opt/joern-cli/bin:/usr/local/bin:/root/.local/bin:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:
 
 COPY . /usr/local/src/
 
@@ -73,16 +70,10 @@ RUN set -e; \
     && sdk offline enable \
     && mv /root/.sdkman/candidates/* /opt/ \
     && rm -rf /root/.sdkman \
-    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip \
-    && curl -LO https://github.com/AppThreat/atom/releases/latest/download/atom.zip.sha512 \
-    && echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c \
-    && unzip -q atom.zip -d /opt/ \
-    && rm atom.zip atom.zip.sha512 \
-    && ln -s /opt/atom-${ATOM_VERSION}/bin/atom /usr/local/bin/atom \
     && curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rpm -ivh wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
     && rm wkhtmltox-0.12.6.1-2.almalinux9.${ARCH_NAME}.rpm \
-    && curl -LO https://github.com/AppThreat/cpggen/releases/latest/download/joern-cli.zip \
+    && curl -LO https://github.com/AppThreat/joern2/releases/latest/download/joern-cli.zip \
     && unzip -q joern-cli.zip -d /opt/ \
     && rm joern-cli.zip \
     && curl -LO "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
@@ -106,7 +97,7 @@ RUN set -e; \
     && mkdir -p /opt/joern/custom_scripts \
     && useradd -ms /bin/bash joern \
     && chown -R joern:joern /opt/joern \
-    && npm install -g @cyclonedx/cdxgen --omit=optional \
+    && npm install -g @cyclonedx/cdxgen @appthreat/atom --omit=optional \
     && python3 -m pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
     && cd /usr/local/src/ && poetry install --no-cache --without dev \
