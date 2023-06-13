@@ -198,4 +198,4 @@ jobs:
           AT_DEBUG_MODE: debug
           PYTHONIOENCODING: utf-8
           PYTHONUTF8: 1
-          CPGGEN_MEMORY: 4G
+          CPGGEN_MEMORY: 3G
