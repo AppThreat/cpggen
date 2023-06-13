@@ -190,10 +190,10 @@ jobs:
           Expand-Archive -Path oras_1.0.0_windows_amd64.zip -DestinationPath .
           .\oras.exe pull ghcr.io/appthreat/cpggen-windows-bin:v1
           .\cpggen.exe --help
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example\\cpg_out\\app.atom
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example\\cpg_out\\app.atom
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat -o $env:GITHUB_WORKSPACE\\repotests\\DjanGoat\\cpg_out\\app.atom
-          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo -o $env:GITHUB_WORKSPACE\\repotests\\microservices-demo\\cpg_out\\app.atom --build
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-java-example\\cpg_out
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example -o $env:GITHUB_WORKSPACE\\repotests\\shiftleft-ts-example\\cpg_out
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\DjanGoat -o $env:GITHUB_WORKSPACE\\repotests\\DjanGoat\\cpg_out
+          .\cpggen.exe -i $env:GITHUB_WORKSPACE\\repotests\\microservices-demo -o $env:GITHUB_WORKSPACE\\repotests\\microservices-demo\\cpg_out --build
         env:
           AT_DEBUG_MODE: debug
           PYTHONIOENCODING: utf-8
