@@ -35,8 +35,6 @@ RUN echo -e "[nodejs]\nname=nodejs\nstream=20\nprofiles=\nstate=enabled\n" > /et
     && mv /root/.sdkman/candidates/* /opt/ \
     && rm -rf /root/.sdkman \
     && useradd -ms /bin/bash atom \
-    && curl -L https://github.com/joernio/astgen/releases/latest/download/astgen-linux -o /usr/local/bin/astgen \
-    && chmod +x /usr/local/bin/astgen \
     && npm install -g @cyclonedx/cdxgen @appthreat/atom --omit=optional \
     && python3 -m pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
