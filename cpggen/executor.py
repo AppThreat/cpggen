@@ -492,7 +492,7 @@ def exec_tool(
                 )
                 atom_bin_dir = os.path.join(atom_bin_dir, "")
                 if sys.platform == "win32" and os.path.exists(atom_bin_dir):
-                    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_bin_dir)
+                    os.environ["ATOM_BIN_DIR"] = atom_bin_dir
                     os.environ["PATH"] = (
                         os.environ["PATH"] + os.pathsep + atom_bin_dir + os.pathsep
                     )
