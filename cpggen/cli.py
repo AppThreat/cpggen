@@ -40,6 +40,8 @@ ATOM_LOGO = """
 DEFAULT_CPG_OUTDIR = "cpg_out"
 DEFAULT_CPG_EXPORTDIR = "cpg_export"
 
+TRUTHY_VALUES = ("true", "1", "TRUE", "debug")
+
 app = Quart(__name__)
 app.config.from_prefixed_env()
 
@@ -78,7 +80,7 @@ def build_args():
         dest="auto_build",
         help="Attempt to build the project automatically",
         action="store_true",
-        default=os.getenv("AUTO_BUILD") in ("true", "1"),
+        default=os.getenv("AUTO_BUILD") in TRUTHY_VALUES,
     )
     parser.add_argument(
         "--joern-home",
@@ -110,7 +112,7 @@ def build_args():
     parser.add_argument(
         "--export",
         action="store_true",
-        default=os.getenv("CPG_EXPORT") in ("true", "1"),
+        default=os.getenv("CPG_EXPORT") in TRUTHY_VALUES,
         dest="export",
         help="Export CPG as a graph",
     )
@@ -150,15 +152,15 @@ def build_args():
     parser.add_argument(
         "--slice",
         action="store_true",
-        default=os.getenv("CPG_SLICE") in ("true", "1"),
+        default=os.getenv("CPG_SLICE") in TRUTHY_VALUES,
         dest="slice",
         help="Extract intra-procedural slices from the CPG",
     )
     parser.add_argument(
         "--slice-mode",
-        default=os.getenv("CPG_SLICE_MODE", "Usages"),
+        default=os.getenv("CPG_SLICE_MODE", "usages"),
         dest="slice_mode",
-        choices=["Usages", "DataFlow"],
+        choices=["usages", "dataflow"],
         help="Mode used for CPG slicing",
     )
     parser.add_argument(
@@ -166,12 +168,12 @@ def build_args():
         dest="use_atom",
         help="Use atom toolkit",
         action="store_true",
-        default=os.getenv("USE_ATOM") in ("true", "1"),
+        default=os.getenv("USE_ATOM") in TRUTHY_VALUES,
     )
     parser.add_argument(
         "--vectors",
         action="store_true",
-        default=os.getenv("CPG_VECTORS") in ("true", "1"),
+        default=os.getenv("CPG_VECTORS") in TRUTHY_VALUES,
         dest="vectors",
         help="Extract vector representations of code from CPG",
     )
@@ -190,7 +192,7 @@ def run_server(args):
     app.run(
         host=args.server_host,
         port=args.server_port,
-        debug=os.getenv("AT_DEBUG_MODE") in ("debug", "true", "1"),
+        debug=os.getenv("AT_DEBUG_MODE") in TRUTHY_VALUES,
         use_reloader=False,
     )
 

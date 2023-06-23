@@ -37,6 +37,7 @@ exe_ext = ".exe" if sys.platform == "win32" else ""
 USE_SHELL = True if sys.platform == "win32" else False
 
 ATOM_VERSION = "1.0.0"
+ATOM_CMD = "atom"
 
 try:
     import importlib.resources
@@ -69,7 +70,7 @@ if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundle
     try:
         with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
             zip_ref.extractall(atom_dir)
-            os.chmod(os.path.join(atom_exploded, "bin", "atom"), 0o755)
+            os.chmod(os.path.join(atom_exploded, "bin", ATOM_CMD), 0o755)
             LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
     except Exception as e:
         LOG.error(e)
@@ -192,7 +193,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
-    "atom": "%(atom_bin_dir)satom --language %(parse_lang)s --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
+    "atom": "%(atom_bin_dir)satom --language %(parse_lang)s --withDataDeps --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -212,7 +213,7 @@ cpg_tools_map = {
     "parse": "%(joern_home)sjoern-parse%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
     "vectors": "%(joern_home)sjoern-vectors%(only_bat_ext)s -J-Xmx%(memory)s --out %(cpg_out)s %(src)s",
     "export": "%(joern_home)sjoern-export%(only_bat_ext)s -J-Xmx%(memory)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "slice": "%(joern_home)sjoern-slice%(only_bat_ext)s -J-Xmx%(memory)s --dummy-types true --exclude-operators true -m %(slice_mode)s --out %(slice_out)s %(cpg_out)s",
+    "slice": "%(atom_bin_dir)satom --language %(parse_lang)s --withDataDeps --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
 
@@ -537,7 +538,7 @@ def exec_tool(
                 extra_args
                 and (extra_args.get("for_export") or extra_args.get("for_slice"))
             ):
-                cpg_cmd_lang = "atom" if check_command("atom") else "parse"
+                cpg_cmd_lang = ATOM_CMD if check_command(ATOM_CMD) else "parse"
             cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
             if not cmd_with_args:
                 return
@@ -583,7 +584,16 @@ def exec_tool(
                     modules = [os.path.dirname(gmod) for gmod in go_mods]
             for amodule in modules:
                 cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
-                if use_container:
+                # Fallback to atom if the command doesn't exist
+                if (
+                    not use_atom
+                    and not check_command(cmd_with_args.split(" ")[0])
+                    and check_command(ATOM_CMD)
+                ):
+                    cmd_with_args = cpg_tools_map.get("atom")
+                    use_atom = True
+                    whats_built = "atom"
+                elif use_container:
                     # We need to make src an absolute path since relative paths wouldn't work in container mode
                     amodule = os.path.abspath(amodule)
                     container_cli = "docker"
