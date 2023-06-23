@@ -6,7 +6,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import psutil
 from psutil._common import bytes2human
@@ -483,7 +483,19 @@ def exec_tool(
             if atom_home:
                 atom_bin_dir = os.path.join(atom_home, "bin", "")
             else:
-                atom_bin_dir = "/usr/local/bin/"
+                # Handle the case where the user might have installed atom npm package on windows
+                # but not set the PATH environment variable
+                atom_bin_dir = (
+                    str(Path.home() / "AppData" / "Roaming" / "npm")
+                    if sys.platform == "win32"
+                    else "/usr/local/bin"
+                )
+                atom_bin_dir = os.path.join(atom_bin_dir, "")
+                if sys.platform == "win32" and os.path.exists(atom_bin_dir):
+                    os.environ["ATOM_BIN_DIR"] = atom_bin_dir
+                    os.environ["PATH"] = (
+                        os.environ["PATH"] + os.pathsep + atom_bin_dir + os.pathsep
+                    )
         # Set joern_home from environment variable
         # This is required to handle bundled exe mode
         if (
@@ -583,6 +595,9 @@ def exec_tool(
                 if go_mods:
                     modules = [os.path.dirname(gmod) for gmod in go_mods]
             for amodule in modules:
+                # Expand . directory names
+                if amodule == ".":
+                    amodule = os.path.abspath(amodule)
                 cmd_with_args = cpg_tools_map.get(cpg_cmd_lang)
                 # Fallback to atom if the command doesn't exist
                 if (
@@ -906,11 +921,13 @@ def exec_tool(
                         )
                     else:
                         LOG.info(
-                            """%s for %s is %s. You can import this in joern using importCpg("%s")""",
+                            """%s for %s is %s.\nTo import this in joern, use importCpg(%r)""",
                             whats_built,
                             tool_lang_simple,
                             cpg_out,
-                            cpg_out,
+                            str(PureWindowsPath(cpg_out))
+                            if sys.platform == "win32"
+                            else cpg_out,
                         )
                     with open(manifest_out, mode="w", encoding="utf-8") as mfp:
                         # In case of github action, we need to convert this to relative path
