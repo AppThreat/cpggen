@@ -7,8 +7,6 @@ on:
     - feature/*
     tags:
     - 'v*'
-  schedule:
-  - cron: "0 */12 * * *"
   workflow_dispatch:
 
 jobs:
