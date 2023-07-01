@@ -146,3 +146,4 @@ java2cpg.jar
 cpggen/atom/atom.zip
 cpggen/atom/atom-1.0.0
 .metals/
+/contrib/python-cpgfrontend/cpgfrontend/cpg.bin.zip
