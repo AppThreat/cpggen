@@ -44,15 +44,15 @@ jobs:
       run: |
         npm install -g pkg
         cd cdxgen
-        npm install --omit=dev
-        pkg -t node18-win --no-bytecode --no-native-build --compress GZip --public --out-path dist bin/cdxgen
-        .\dist\cdxgen.exe --version
-
+        npm install
+        npx caxa --input . --output "cdxgen.exe" -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/bin/cdxgen.js"
+        .\cdxgen.exe --verion
+        (Get-FileHash .\cdxgen.exe).hash | Out-File -FilePath .\cdxgen.exe.sha256
     - name: Binary windows build
       run: |
         cd cpggen
         Invoke-WebRequest -Uri 'https://github.com/appthreat/atom/releases/latest/download/atom.zip' -OutFile atom.zip
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/dist/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen --add-binary="atom.zip;local_bin" --add-binary="../cdxgen/cdxgen.exe;local_bin" --collect-submodules cpggen --disable-windowed-traceback -i ../bin-build/cpggen.ico --version-file=../bin-build/file_version_info.txt --noupx
         (Get-FileHash .\dist\atomgen.exe).hash | Out-File -FilePath .\dist\atomgen.exe.sha256
         .\dist\atomgen.exe --help
       env:

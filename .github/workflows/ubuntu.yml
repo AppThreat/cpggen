@@ -57,10 +57,11 @@ jobs:
       run: |
         sudo npm install -g pkg
         cd cdxgen
-        npm install --omit=dev
-        pkg -t node18-linux --no-bytecode --no-native-build --compress GZip --public --out-path dist bin/cdxgen
-        chmod +x dist/cdxgen
-        ./dist/cdxgen --version
+        npm install
+        npx caxa --input . --output "cdxgen" -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/bin/cdxgen.js"
+        chmod +x cdxgen
+        ./cdxgen --version
+        sha256sum cdxgen > cdxgen.sha256
     - name: Binary amd64 oss build
       run: |
         mkdir -p /tmp/all_cpgs /tmp/all_exports
@@ -70,7 +71,7 @@ jobs:
         echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen \
           --add-binary="atom.zip:local_bin" \
-          --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+          --add-binary="../cdxgen/cdxgen:local_bin" --collect-submodules cpggen --noupx
         ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/shiftleft-java-example -o /tmp/all_cpgs/shiftleft-java-example
         ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/shiftleft-ts-example -o /tmp/all_cpgs/shiftleft-ts-example
         ./dist/atomgen -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat

@@ -36,15 +36,16 @@ jobs:
       run: |
         npm install -g pkg
         cd cdxgen
-        npm install --omit=dev
-        pkg -t node18-alpine --public --out-path dist bin/cdxgen
-        chmod +x dist/cdxgen
-        ./dist/cdxgen --version
+        npm install
+        npx caxa --input . --output "cdxgen" -- "{{caxa}}/node_modules/.bin/node" "{{caxa}}/bin/cdxgen.js"
+        chmod +x cdxgen
+        ./cdxgen --version
+        sha256sum cdxgen > cdxgen.sha256
     - name: Binary alpine build
       run: |
         cd cpggen
         curl -LO https://github.com/appthreat/atom/releases/latest/download/atom.zip
-        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen-musl --add-binary="atom.zip:local_bin" --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+        pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name atomgen-musl --add-binary="atom.zip:local_bin" --add-binary="../cdxgen/cdxgen:local_bin" --collect-submodules cpggen --noupx
         sha256sum ./dist/atomgen-musl > ./dist/atomgen-musl.sha256
         ./dist/atomgen-musl --help
         ./dist/atomgen-musl -i . -o /tmp/cpggen.json
