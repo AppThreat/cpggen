@@ -228,9 +228,9 @@ cpggen -i ~/work/sandbox/crAPI -o ~/work/sandbox/crAPI/cpg_out --vectors
 
 Upon successful completion, cpggen would produce the following artifacts in the directory specified under `out_dir`
 
+- {name}-{lang}.⚛ - Atom representation for the given language. Requires the use of atomgen container image or the cli argument `--use-atom`
 - {name}-{lang}.cpg.bin - Code Property Graph for the given language type
-- {name}-{lang}.bom.xml - SBoM in CycloneDX XML format
-- {name}-{lang}.bom.json - SBoM in CycloneDX json format
+- {name}-{lang}.bom.json - SBoM in CycloneDX json format. Requires the environment variable `ENABLE_SBOM` to be set to `true`
 - {name}-{lang}.manifest.json - A json file listing the generated artifacts and the invocation commands
 
 ## Server mode
