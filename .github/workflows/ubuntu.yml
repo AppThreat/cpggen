@@ -92,7 +92,7 @@ jobs:
         echo "$(cat atom.zip.sha512 | cut -d ' ' -f1) atom.zip" | sha512sum -c
         pyinstaller cpggen/cli.py --noconfirm --log-level=WARN --nowindow --onefile --name cpggen-linux-amd64 \
           --add-binary="atom.zip:local_bin" \
-          --add-binary="../cdxgen/dist/cdxgen:local_bin" --collect-submodules cpggen --noupx
+          --add-binary="../cdxgen/cdxgen:local_bin" --collect-submodules cpggen --noupx
         ./dist/cpggen-linux-amd64 -i $GITHUB_WORKSPACE/repotests/DjanGoat -o /tmp/all_cpgs/DjanGoat -l python
         sha256sum ./dist/cpggen-linux-amd64 > ./dist/cpggen-linux-amd64.sha256
         ./dist/cpggen-linux-amd64 --help
