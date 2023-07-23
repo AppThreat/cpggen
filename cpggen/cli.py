@@ -160,7 +160,7 @@ def build_args():
         "--slice-mode",
         default=os.getenv("CPG_SLICE_MODE", "usages"),
         dest="slice_mode",
-        choices=["usages", "dataflow"],
+        choices=["usages", "data-flow"],
         help="Mode used for CPG slicing",
     )
     parser.add_argument(
@@ -378,7 +378,7 @@ def cpg(
                 ret = []
                 exec_results = []
                 url = ""
-                # Where the source is a url or a CVE id download it
+                # Where the source is an url or a CVE id download it
                 if not os.path.isdir(src) and not os.path.isfile(src):
                     url = src
                     clone_dir = tempfile.mkdtemp(prefix="cpggen")
