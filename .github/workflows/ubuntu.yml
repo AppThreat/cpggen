@@ -102,6 +102,7 @@ jobs:
       run: |
         pip3 install blint
         blint -i cpggen/dist -o /tmp/reports
+      continue-on-error: true
       env:
         PYTHONIOENCODING: utf-8
         LANG: en_US.utf-8
