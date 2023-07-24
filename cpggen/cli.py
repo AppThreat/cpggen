@@ -378,7 +378,7 @@ def cpg(
                 ret = []
                 exec_results = []
                 url = ""
-                # Where the source is an url or a CVE id download it
+                # Where the source is a url or a CVE id download it
                 if not os.path.isdir(src) and not os.path.isfile(src):
                     url = src
                     clone_dir = tempfile.mkdtemp(prefix="cpggen")
