@@ -64,23 +64,22 @@ else:
 if atom_dir:
     atom_bundled = os.path.join(atom_dir, "atom.zip")
     atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
-
-# Extract bundled atom
-if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
-    try:
-        with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
-            zip_ref.extractall(atom_dir)
-            os.chmod(os.path.join(atom_exploded, "bin", ATOM_CMD), 0o755)
-            LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
-    except Exception as e:
-        LOG.error(e)
-
-if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
-    os.environ["ATOM_HOME"] = atom_exploded
-    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
-    os.environ["PATH"] = (
-        os.environ["PATH"] + os.pathsep + os.environ["ATOM_BIN_DIR"] + os.pathsep
-    )
+    # Extract bundled atom
+    if not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+        try:
+            with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
+                zip_ref.extractall(atom_dir)
+                os.chmod(os.path.join(atom_exploded, "bin", ATOM_CMD), 0o755)
+                LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
+        except Exception as e:
+            LOG.error(e)
+    # Set the required environment variables after extracting
+    if os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+        os.environ["ATOM_HOME"] = atom_exploded
+        os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
+        os.environ["PATH"] = (
+            os.environ["PATH"] + os.pathsep + os.environ["ATOM_BIN_DIR"] + os.pathsep
+        )
 
 
 def resource_path(relative_path):
