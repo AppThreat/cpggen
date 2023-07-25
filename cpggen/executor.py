@@ -64,23 +64,22 @@ else:
 if atom_dir:
     atom_bundled = os.path.join(atom_dir, "atom.zip")
     atom_exploded = os.path.join(atom_dir, f"atom-{ATOM_VERSION}")
-
-# Extract bundled atom
-if atom_dir and not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
-    try:
-        with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
-            zip_ref.extractall(atom_dir)
-            os.chmod(os.path.join(atom_exploded, "bin", ATOM_CMD), 0o755)
-            LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
-    except Exception as e:
-        LOG.error(e)
-
-if atom_exploded and os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
-    os.environ["ATOM_HOME"] = atom_exploded
-    os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
-    os.environ["PATH"] = (
-        os.environ["PATH"] + os.pathsep + os.environ["ATOM_BIN_DIR"] + os.pathsep
-    )
+    # Extract bundled atom
+    if not os.path.exists(atom_exploded) and os.path.exists(atom_bundled):
+        try:
+            with zipfile.ZipFile(atom_bundled, "r") as zip_ref:
+                zip_ref.extractall(atom_dir)
+                os.chmod(os.path.join(atom_exploded, "bin", ATOM_CMD), 0o755)
+                LOG.debug("Extracted %s to %s", atom_bundled, atom_exploded)
+        except Exception as e:
+            LOG.error(e)
+    # Set the required environment variables after extracting
+    if os.path.exists(atom_exploded) and not os.getenv("ATOM_HOME"):
+        os.environ["ATOM_HOME"] = atom_exploded
+        os.environ["ATOM_BIN_DIR"] = os.path.join(atom_exploded, "bin", "")
+        os.environ["PATH"] = (
+            os.environ["PATH"] + os.pathsep + os.environ["ATOM_BIN_DIR"] + os.pathsep
+        )
 
 
 def resource_path(relative_path):
@@ -182,6 +181,7 @@ def get(config_name, default_value=None):
     """Method to retrieve a config given a name. This method lazy loads configuration
     values and helps with overriding using a local config
     :param config_name: Name of the config
+    :param default_value: Default value to use
     :return Config value
     """
     value = runtimeValues.get(config_name)
@@ -193,7 +193,7 @@ def get(config_name, default_value=None):
 
 
 cpg_tools_map = {
-    "atom": "%(atom_bin_dir)satom --language %(parse_lang)s --withDataDeps --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
+    "atom": "%(atom_bin_dir)satom %(slice_mode)s --language %(parse_lang)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "c": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "cpp": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s",
     "c-with-deps": "%(joern_home)sc2cpg%(bin_ext)s -J-Xmx%(memory)s -o %(cpg_out)s %(src)s --with-include-auto-discovery",
@@ -213,7 +213,7 @@ cpg_tools_map = {
     "parse": "%(joern_home)sjoern-parse%(only_bat_ext)s -J-Xmx%(memory)s --language %(parse_lang)s --output %(cpg_out)s %(src)s",
     "vectors": "%(joern_home)sjoern-vectors%(only_bat_ext)s -J-Xmx%(memory)s --out %(cpg_out)s %(src)s",
     "export": "%(joern_home)sjoern-export%(only_bat_ext)s -J-Xmx%(memory)s --repr=%(export_repr)s --format=%(export_format)s --out %(cpg_out)s %(src)s",
-    "slice": "%(atom_bin_dir)satom --language %(parse_lang)s --withDataDeps --slice -m %(slice_mode)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
+    "slice": "%(atom_bin_dir)satom %(slice_mode)s --language %(parse_lang)s --slice-outfile %(slice_out)s --output %(atom_out)s %(src)s",
     "dot2png": "dot -Tpng %(dot_file)s -o %(png_out)s",
 }
 
@@ -496,6 +496,13 @@ def exec_tool(
                     os.environ["PATH"] = (
                         os.environ["PATH"] + os.pathsep + atom_bin_dir + os.pathsep
                     )
+                # Handle case where atom is installed globally
+                if (
+                    sys.platform != "win32"
+                    and not os.path.exists(os.path.join(atom_bin_dir, "atom"))
+                    and os.path.exists("/usr/bin/atom")
+                ):
+                    atom_bin_dir = ""
         # Set joern_home from environment variable
         # This is required to handle bundled exe mode
         if (
@@ -511,8 +518,7 @@ def exec_tool(
                 cwd = os.path.abspath(cwd)
         if joern_home and not joern_home.endswith(os.path.sep):
             joern_home = f"{joern_home}{os.path.sep}"
-        if atom_home and not atom_home.endswith(os.path.sep):
-            atom_home = f"{atom_home}{os.path.sep}"
+        if atom_home:
             # Use atom for supported languages if available
             if tool_lang_simple in (
                 "java",
@@ -521,6 +527,7 @@ def exec_tool(
                 "js",
                 "jimple",
                 "ts",
+                "py",
                 "python",
                 "javascript",
                 "typescript",
@@ -577,7 +584,7 @@ def exec_tool(
                 lang_build_crashes[tool_lang] = do_build(tool_lang, src, cwd, env)
             uber_jar = ""
             csharp_artifacts = ""
-            # For languages like scala, jsp or jar we need to create a uber jar containing all jar, war files from the source directory
+            # For languages like scala, jsp or jar we need to create an uber jar containing all jar, war files from the source directory
             if "uber_jar" in cmd_with_args:
                 stdout = subprocess.PIPE
                 java_artifacts = find_java_artifacts(src)
@@ -667,10 +674,9 @@ def exec_tool(
                         if cpg_out.endswith(".cpg.bin")
                         else f"{cpg_out}.manifest.json"
                     )
-                    LOG.debug("%s file for %s is %s", whats_built, tool_lang, cpg_out)
                 if not slice_out:
                     slice_out = cpg_out.replace(".cpg.bin.zip", ".cpg.bin").replace(
-                        ".cpg.bin", ".slices.json"
+                        ".cpg.bin", f".{extra_args['slice_mode']}.json"
                     )
                     extra_args["slice_out"] = slice_out
                 cmd_with_args = cmd_with_args % dict(
@@ -729,7 +735,7 @@ def exec_tool(
                 if not check_command(lang_cmd) and not os.path.exists(lang_cmd):
                     if not use_container:
                         LOG.warning(
-                            "%s is not found. Try running cpggen with --use-container argument.",
+                            "%s is not found. Try running cpggen with --use-container argument or set ATOM_HOME environment variable.",
                             lang_cmd,
                         )
                     elif not use_atom:
@@ -808,11 +814,12 @@ def exec_tool(
                                         check_dir,
                                     )
                                 else:
-                                    LOG.info(
-                                        "CPG %s successfully %s to {check_dir}",
+                                    LOG.debug(
+                                        "CPG %s successfully %s to %s",
                                         src,
                                         tool_lang
                                         + ("d" if tool_lang.endswith("e") else "ed"),
+                                        check_dir,
                                     )
                                 # Convert dot files to png
                                 if tool_lang == "export":
@@ -901,7 +908,7 @@ def exec_tool(
                     encoding="utf-8",
                 )
                 if cp and stdout == subprocess.PIPE:
-                    for line in cp.stdout:
+                    for _ in cp.stdout:
                         progress.update(task, completed=5)
                 if cp and cp.returncode:
                     if cp.stdout:
@@ -918,6 +925,21 @@ def exec_tool(
                             whats_built,
                             cpg_out,
                             tool_lang,
+                        )
+                    elif whats_built == "atom":
+                        LOG.info(
+                            """%s for %s is %s.\nTo import this in joern 2.x, use importCpg(%r, enhance=false)""",
+                            whats_built,
+                            tool_lang_simple,
+                            cpg_out,
+                            str(PureWindowsPath(cpg_out))
+                            if sys.platform == "win32"
+                            else cpg_out,
+                        )
+                        LOG.info(
+                            """%s slice file is %s""",
+                            extra_args["slice_mode"],
+                            slice_out,
                         )
                     else:
                         LOG.info(

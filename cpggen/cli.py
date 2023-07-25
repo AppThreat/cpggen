@@ -160,7 +160,7 @@ def build_args():
         "--slice-mode",
         default=os.getenv("CPG_SLICE_MODE", "usages"),
         dest="slice_mode",
-        choices=["usages", "dataflow"],
+        choices=["usages", "data-flow"],
         help="Mode used for CPG slicing",
     )
     parser.add_argument(
